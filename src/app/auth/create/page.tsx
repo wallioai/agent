@@ -15,6 +15,7 @@ import { initRegistration } from "@/actions/auth.action";
 import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthRegistration } from "@/components/auth/auth";
+import { routes } from "@/lib/routes";
 
 export default function Create() {
   const { error, loading, success } = useToast();
@@ -161,6 +162,12 @@ export default function Create() {
                       >
                         Continue
                       </Button>
+                      <Link
+                        className="mt-6 text-primary"
+                        href={routes.auth.login}
+                      >
+                        Already have an account?
+                      </Link>
                     </div>
                   </form>
                 </div>
