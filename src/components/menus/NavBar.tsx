@@ -90,7 +90,7 @@ function NavBar() {
               <div className="flex w-full md:inline md:w-auto">
                 <Link
                   prefetch={true}
-                  href={""}
+                  href={routes.auth.login}
                   className="hover:text-primary flex-1 md:flex-none py-1 md:py-0"
                 >
                   Login
