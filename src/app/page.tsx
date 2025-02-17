@@ -1,10 +1,15 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import Container from "@/components/layouts/Container";
+import Section from "@/components/layouts/Section";
+import NavBar from "@/components/menus/NavBar";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <Button>Hello World!</Button>
-    </div>
+    <Container>
+      <Section>
+        <div className="overflow-y-scroll h-svh relative">
+          <NavBar />
+        </div>
+      </Section>
+    </Container>
   );
 }
