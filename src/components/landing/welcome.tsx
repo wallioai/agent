@@ -7,7 +7,7 @@ import { StarIcon } from "lucide-react";
 import { Cursor, useTypewriter } from "react-simple-typewriter";
 
 export default function Welcome() {
-  const [text, count] = useTypewriter({
+  const [text] = useTypewriter({
     words: [
       "safely manage your",
       "auto-rebalance your",

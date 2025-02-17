@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import {
   type ISourceOptions,
@@ -84,7 +84,7 @@ function AminateWelcome() {
       />
     );
 
-  return <></>;
+  return <Fragment></Fragment>;
 }
 
 export default AminateWelcome;

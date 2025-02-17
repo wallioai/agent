@@ -4,9 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { DexaSWIcon } from "../icons/logo";
 
-type Props = {};
-
-export default function Loader({}: Props) {
+export default function Loader() {
   return (
     <div className="absolute inset-0 bg-foreground/10 backdrop-blur-[1px] z-50">
       <div className="bg-background/10 size-full flex items-center justify-center">
