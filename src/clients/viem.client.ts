@@ -9,11 +9,11 @@ import {
 
 export const publicClient = createPublicClient({
   chain: APP_CHAIN,
-  transport: http(),
+  transport: http("/api/rpc"),
 });
 export const walletClient = (account?: HDAccount | PrivateKeyAccount) =>
   createWalletClient({
     account,
     chain: APP_CHAIN,
-    transport: http(),
+    transport: http("/api/rpc"),
   });

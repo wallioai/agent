@@ -22,6 +22,7 @@
     "@tsparticles/engine": "^3.8.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
+    "abitype": "^1.0.8",
     "argon2": "^0.41.1",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
