@@ -16,9 +16,14 @@ import useToast from "@/hooks/toast.hook";
 import { initWebAuthRegistration } from "@/components/auth/auth";
 import { routes } from "@/lib/routes";
 import { initRegistration } from "@/actions/auth.action";
+import { useAccount } from "@/context/account.context";
+import { useAppDispatch } from "@/hooks/redux.hook";
+import { setAuth } from "@/slices/account/auth.slice";
 
 export default function Create() {
   const { error, loading, success } = useToast();
+  const { setCredentials } = useAccount();
+  const dispatch = useAppDispatch();
 
   const {
     reset,
@@ -43,11 +48,13 @@ export default function Create() {
         if (response.status) {
           const options =
             response.data as PublicKeyCredentialCreationOptionsJSON;
-          const webAuthAccount = await initWebAuthRegistration(
+          const regResponse = await initWebAuthRegistration(
             options,
             data.email
           );
-          if (webAuthAccount) {
+          if (regResponse && regResponse.status) {
+            dispatch(setAuth(true));
+            setCredentials(regResponse.credentials);
             reset({ name: undefined, email: undefined, terms: false });
             success({ msg: "Registration successful" });
           }

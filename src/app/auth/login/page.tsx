@@ -15,9 +15,14 @@ import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess } from "@/components/auth/auth";
 import Link from "next/link";
 import { routes } from "@/lib/routes";
+import { useAppDispatch } from "@/hooks/redux.hook";
+import { useAccount } from "@/context/account.context";
+import { setAuth } from "@/slices/account/auth.slice";
 
 export default function Login() {
+  const dispatch = useAppDispatch();
   const { error, loading, success } = useToast();
+  const { setCredentials } = useAccount();
 
   const {
     reset,
@@ -38,11 +43,13 @@ export default function Login() {
         if (response.status) {
           const options =
             response.data as PublicKeyCredentialRequestOptionsJSON;
-          const webAuthAccount = await initWebAuthLoginProcess(
+          const authResponse = await initWebAuthLoginProcess(
             options,
             data.email
           );
-          if (webAuthAccount) {
+          if (authResponse && authResponse.status) {
+            dispatch(setAuth(true));
+            setCredentials(authResponse.credentials);
             reset({ email: undefined });
             success({ msg: "Login successful" });
           }

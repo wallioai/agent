@@ -1,4 +1,5 @@
 import { type VerifiedRegistrationResponse } from "@simplewebauthn/server";
+import { Hex } from "viem";
 
 export type WebAuthVerification = VerifiedRegistrationResponse & {
   accessToken: string;
@@ -17,4 +18,10 @@ export type VerifiedAuthenticationResponseJSON = {
     publicKey: string;
     attestationObject: string;
   };
+};
+
+export type AccountCredentials = {
+  id: string;
+  publicKey: Hex;
+  rpId?: string;
 };

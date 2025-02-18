@@ -10,7 +10,6 @@ import {
   type PublicKeyCredentialRequestOptionsJSON,
   type PublicKeyCredentialCreationOptionsJSON,
 } from "@simplewebauthn/browser";
-import { toWebAuthnAccount } from "viem/account-abstraction";
 
 export const initWebAuthLoginProcess = async (
   options: PublicKeyCredentialRequestOptionsJSON,
@@ -30,14 +29,23 @@ export const initWebAuthLoginProcess = async (
     );
     if (!publicKey) return;
 
-    const account = toWebAuthnAccount({
-      credential: {
+    return {
+      status: verifyRes.status,
+      credentials: {
         id: authInfo.id,
         publicKey,
+        rpId: authInfo.rpID,
       },
-      rpId: authInfo.rpID,
-    });
-    return account;
+    };
+
+    // const account = toWebAuthnAccount({
+    //   credential: {
+    //     id: authInfo.id,
+    //     publicKey,
+    //   },
+    //   rpId: authInfo.rpID,
+    // });
+    // return account;
   }
 };
 
@@ -60,13 +68,22 @@ export const initWebAuthRegistration = async (
     );
     if (!publicKey) return;
 
-    const account = toWebAuthnAccount({
-      credential: {
+    return {
+      status: verifyRes.status,
+      credentials: {
         id: webAuthData.registrationInfo?.credential.id ?? "",
         publicKey,
+        rpId: webAuthData.registrationInfo?.rpID,
       },
-      rpId: webAuthData.registrationInfo?.rpID,
-    });
-    return account;
+    };
+
+    // const account = toWebAuthnAccount({
+    //   credential: {
+    //     id: webAuthData.registrationInfo?.credential.id ?? "",
+    //     publicKey,
+    //   },
+    //   rpId: webAuthData.registrationInfo?.rpID,
+    // });
+    // return account;
   }
 };

@@ -6,6 +6,9 @@ import { API_URL } from "@/config/env.config";
 import { initAuthentication, initRegistration } from "@/actions/auth.action";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess, initWebAuthRegistration } from "../auth";
+import { useAccount } from "@/context/account.context";
+import { useAppDispatch } from "@/hooks/redux.hook";
+import { setAuth } from "@/slices/account/auth.slice";
 
 type Props = {
   type: "register" | "login";
@@ -20,10 +23,11 @@ export default function GoogleConnector({
   name = "Create with Google",
 }: Props) {
   //const router = useRouter();
-  //const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
   const { error, loading, success } = useToast();
+  const { setCredentials } = useAccount();
 
   useEffect(() => {
     const updateScreenSize = () => {
@@ -52,11 +56,13 @@ export default function GoogleConnector({
             const options =
               response.data as PublicKeyCredentialCreationOptionsJSON;
 
-            const webAuthAccount = await initWebAuthRegistration(
+            const regResponse = await initWebAuthRegistration(
               options,
               event.data.email
             );
-            if (webAuthAccount) {
+            if (regResponse && regResponse.status) {
+              dispatch(setAuth(true));
+              setCredentials(regResponse.credentials);
               success({ msg: "Registration successful" });
               setIsLoading(false);
             }
@@ -86,11 +92,14 @@ export default function GoogleConnector({
       const response = await initAuthentication(event.data.email);
       if (response.status) {
         const options = response.data;
-        const webAuthAccount = await initWebAuthLoginProcess(
+        const authResponse = await initWebAuthLoginProcess(
           options,
           event.data.email
         );
-        if (webAuthAccount) {
+        if (authResponse && authResponse.status) {
+          console.log(authResponse);
+          dispatch(setAuth(true));
+          setCredentials(authResponse.credentials);
           success({ msg: "Login successful" });
           setIsLoading(false);
         }

@@ -3,12 +3,12 @@ import { RootState } from "@/store";
 import { IUser } from "@/types/user.type";
 
 export interface AuthState {
-  connected: boolean;
+  isAuthenticated: boolean;
   user?: IUser;
 }
 
 const initialState = {
-  connected: false,
+  isAuthenticated: false,
 } as AuthState;
 
 export const authSlice = createSlice({
@@ -16,7 +16,7 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     setAuth: (state, action: PayloadAction<boolean>) => {
-      state.connected = action.payload;
+      state.isAuthenticated = action.payload;
     },
     setUser: (state, action: PayloadAction<IUser>) => {
       state.user = action.payload;

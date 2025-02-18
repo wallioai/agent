@@ -5,6 +5,8 @@ import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
 import RootProvider from "@/providers/RootProvider";
 import { HelperProvider } from "@/providers/HelperProvider";
 import { ReduxProvider } from "@/providers/ReduxProvider";
+import { AccountProvider } from "@/context/account.context";
+import { AuthProvider } from "@/context/auth.context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,8 +36,12 @@ export default function RootLayout({
         <ReduxProvider>
           <RootProvider>
             <ReactQueryProvider>
-              {children}
-              <HelperProvider />
+              <AuthProvider>
+                <AccountProvider>
+                  {children}
+                  <HelperProvider />
+                </AccountProvider>
+              </AuthProvider>
             </ReactQueryProvider>
           </RootProvider>
         </ReduxProvider>
