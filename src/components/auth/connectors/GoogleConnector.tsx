@@ -3,10 +3,7 @@ import { ConnectorWrapper } from "../ConnectorWrapper";
 import { GoogleLogo } from "@/components/icons/logo";
 import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import { API_URL } from "@/config/env.config";
-import {
-  initAuthentication,
-  initRegistration,
-} from "@/actions/auth.action";
+import { initAuthentication, initRegistration } from "@/actions/auth.action";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess, initWebAuthRegistration } from "../auth";
 
@@ -42,7 +39,6 @@ export default function GoogleConnector({
   }, []);
 
   const handleGoogleRegistration = async (event: MessageEvent) => {
-    console.log(event.data.request);
     switch (event.data.request) {
       case "register": {
         loading({ msg: "Generating credentials" });
@@ -52,7 +48,6 @@ export default function GoogleConnector({
             email: event.data.email,
             fromGoogle: true,
           });
-          console.log(response);
           if (response.status) {
             const options =
               response.data as PublicKeyCredentialCreationOptionsJSON;

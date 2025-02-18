@@ -1,9 +1,13 @@
 "use server";
 
 import { postApi, getApi } from "./api.action";
-import { WebAuthVerification } from "@/types/webauthn.type";
+import {
+  VerifiedAuthenticationResponseJSON,
+  WebAuthVerification,
+} from "@/types/webauthn.type";
 import { transformError } from "@/types/api-response.type";
 import { AuthenticationResponseJSON } from "@simplewebauthn/browser";
+import { apiRoutes } from "@/lib/routes";
 
 type InitRegType = {
   name: string;
@@ -13,7 +17,7 @@ type InitRegType = {
 export async function initRegistration(data: InitRegType) {
   try {
     const response = await postApi<PublicKeyCredentialCreationOptionsJSON>(
-      "auth/register/webauthn",
+      apiRoutes.auth.initRegistration,
       data
     );
     return response;
@@ -25,7 +29,7 @@ export async function initRegistration(data: InitRegType) {
 export async function verifyRegistration(options: string, email: string) {
   try {
     const response = await postApi<WebAuthVerification>(
-      "auth/register/webauthn/verify",
+      apiRoutes.auth.verifyRegistration,
       {
         options,
         email,
@@ -40,7 +44,7 @@ export async function verifyRegistration(options: string, email: string) {
 export async function initAuthentication(email: string) {
   try {
     const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
-      `auth/login/webauthn/${email}`
+      apiRoutes.auth.initAuthentication(email)
     );
     return response;
   } catch (error) {
@@ -53,10 +57,10 @@ export async function verifyAuthenication(
   email: string
 ) {
   try {
-    const response = await postApi<WebAuthVerification>(
-      "auth/login/webauthn/verify",
+    const response = await postApi<VerifiedAuthenticationResponseJSON>(
+      apiRoutes.auth.verifyAuthentication,
       {
-        options,
+        options: JSON.stringify(options),
         email,
       }
     );

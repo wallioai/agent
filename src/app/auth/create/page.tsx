@@ -11,11 +11,11 @@ import Link from "next/link";
 import { useForm, Controller, FieldValues } from "react-hook-form";
 import { DexaSWIcon, DexaSWLogo } from "@/components/icons/logo";
 import { registerSchemaResolve } from "@/schemas/register.schema";
-import { initRegistration } from "@/actions/auth.action";
 import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthRegistration } from "@/components/auth/auth";
 import { routes } from "@/lib/routes";
+import { initRegistration } from "@/actions/auth.action";
 
 export default function Create() {
   const { error, loading, success } = useToast();
@@ -162,10 +162,7 @@ export default function Create() {
                       >
                         Continue
                       </Button>
-                      <Link
-                        className="mt-6 text-primary"
-                        href={routes.auth.login}
-                      >
+                      <Link className="text-primary" href={routes.auth.login}>
                         Already have an account?
                       </Link>
                     </div>

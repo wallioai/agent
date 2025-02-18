@@ -1,6 +1,9 @@
 import { verifyAuthenication, verifyRegistration } from "@/actions/auth.action";
 import { base64URLStringToPublicKey } from "@/lib/helpers";
-import { WebAuthVerification } from "@/types/webauthn.type";
+import {
+  VerifiedAuthenticationResponseJSON,
+  WebAuthVerification,
+} from "@/types/webauthn.type";
 import {
   startAuthentication,
   startRegistration,
@@ -13,40 +16,35 @@ export const initWebAuthLoginProcess = async (
   options: PublicKeyCredentialRequestOptionsJSON,
   email: string
 ) => {
-  console.log(options);
   const authJson = await startAuthentication({
     optionsJSON: options,
   });
-  console.log(authJson);
 
   const verifyRes = await verifyAuthenication(authJson, email);
-  console.log(verifyRes);
-  return verifyRes;
-  // if (verifyRes.status) {
-  //   let webAuthData = verifyRes.data as WebAuthVerification;
-  //   const publicKey = await base64URLStringToPublicKey(
-  //     regRes.response.publicKey,
-  //     regRes.response.attestationObject
-  //   );
-  //   if (!publicKey) return;
+  if (verifyRes.status) {
+    const webAuthData = verifyRes.data as VerifiedAuthenticationResponseJSON;
+    const authInfo = webAuthData.authenticationInfo;
+    const publicKey = await base64URLStringToPublicKey(
+      authInfo.attestationObject,
+      true
+    );
+    if (!publicKey) return;
 
-  //   const account = toWebAuthnAccount({
-  //     credential: {
-  //       id: webAuthData.registrationInfo?.credential.id ?? "",
-  //       publicKey,
-  //     },
-  //     rpId: webAuthData.registrationInfo?.rpID,
-  //   });
-  //   return account;
-  // }
+    const account = toWebAuthnAccount({
+      credential: {
+        id: authInfo.id,
+        publicKey,
+      },
+      rpId: authInfo.rpID,
+    });
+    return account;
+  }
 };
-
 
 export const initWebAuthRegistration = async (
   options: PublicKeyCredentialCreationOptionsJSON,
   email: string
 ) => {
-  console.log(options);
   const regRes = await startRegistration({
     optionsJSON: options,
   });
@@ -58,7 +56,7 @@ export const initWebAuthRegistration = async (
     const webAuthData = verifyRes.data as WebAuthVerification;
     const publicKey = await base64URLStringToPublicKey(
       regRes.response.publicKey,
-      regRes.response.attestationObject
+      false
     );
     if (!publicKey) return;
 

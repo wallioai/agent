@@ -13,6 +13,8 @@ import { initAuthentication } from "@/actions/auth.action";
 import { type PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/browser";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess } from "@/components/auth/auth";
+import Link from "next/link";
+import { routes } from "@/lib/routes";
 
 export default function Login() {
   const { error, loading, success } = useToast();
@@ -76,7 +78,7 @@ export default function Login() {
                   <div className="flex justify-center mb-2">
                     <DexaSWIcon className="rounded-full" />
                   </div>
-                  <h2 className="font-bold text-2xl">Quick Login</h2>
+                  <h2 className="font-bold text-2xl">Login to Wallet</h2>
                   <p className="text-sm text-foreground/60">
                     100% secured. No more seed phrase and private keys
                   </p>
@@ -113,10 +115,13 @@ export default function Login() {
                         disabled={!isValid || isSubmitting || isLoading}
                         type="submit"
                         variant={"default"}
-                        className="h-11 -mt-2"
+                        className="h-11 -mt-4"
                       >
                         Continue
                       </Button>
+                      <Link className="text-primary" href={routes.auth.create}>
+                        Create a Smart Wallet
+                      </Link>
                     </div>
                   </form>
                 </div>
