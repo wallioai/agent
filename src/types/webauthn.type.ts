@@ -1,6 +1,8 @@
 import { type VerifiedRegistrationResponse } from "@simplewebauthn/server";
 
 export type WebAuthVerification = VerifiedRegistrationResponse & {
+  accessToken: string;
+  refreshToken: string;
   message: string;
 };
 

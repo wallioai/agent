@@ -44,7 +44,7 @@ export default function Login() {
           );
           if (webAuthAccount) {
             reset({ email: undefined });
-            success({ msg: "Registration successful" });
+            success({ msg: "Login successful" });
           }
         }
       } catch (err: any) {
