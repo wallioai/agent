@@ -31,7 +31,7 @@ export async function initRegistration(data: InitRegType) {
   try {
     const response = await postApi<PublicKeyCredentialCreationOptionsJSON>(
       apiRoutes.auth.initRegistration,
-      data
+      data,
     );
     return response;
   } catch (error) {
@@ -46,7 +46,7 @@ export async function verifyRegistration(options: string, email: string) {
       {
         options,
         email,
-      }
+      },
     );
     return response;
   } catch (error) {
@@ -57,17 +57,17 @@ export async function verifyRegistration(options: string, email: string) {
 export async function initAuthentication(email: string) {
   try {
     const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
-      apiRoutes.auth.initAuthentication(email)
+      apiRoutes.auth.initAuthentication(email),
     );
     return response;
   } catch (error) {
-    return transformError(error);
+    return error;
   }
 }
 
 export async function verifyAuthenication(
   options: AuthenticationResponseJSON,
-  email: string
+  email: string,
 ) {
   try {
     const response = await postApi<VerifiedAuthenticationResponseJSON>(
@@ -75,19 +75,8 @@ export async function verifyAuthenication(
       {
         options: JSON.stringify(options),
         email,
-      }
+      },
     );
-    if (response.status && response.statusCode === 201 && response.data) {
-      const { accessToken, refreshToken } = response.data;
-      await createSession(accessToken, CookieKeys.ACCESS_TOKEN);
-      await createSession(
-        refreshToken,
-        CookieKeys.REFRESH_TOKEN,
-        false,
-        REFRESH_SESSION_MAXAGE,
-        new Date(Date.now() + REFRESH_SESSION_DURATION)
-      );
-    }
     return response;
   } catch (error) {
     return transformError(error);
@@ -98,7 +87,7 @@ export async function encodeAccountCredentials(cred: AccountCredentials) {
   const encodedCredentials = await encodeString(
     JSON.stringify(cred),
     true,
-    ENCRYPTION_KEY
+    ENCRYPTION_KEY,
   );
   return encodedCredentials;
 }
@@ -107,7 +96,7 @@ export async function decodeAccountCredentials(encodedCredentials: string) {
   const decodedCredentials = await decodeString(
     encodedCredentials,
     true,
-    ENCRYPTION_KEY
+    ENCRYPTION_KEY,
   );
   const data = JSON.parse(decodedCredentials);
   return data as AccountCredentials;

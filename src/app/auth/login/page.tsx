@@ -9,15 +9,15 @@ import { Label } from "@/components/ui/label";
 import { useForm, Controller, FieldValues } from "react-hook-form";
 import { DexaSWIcon, DexaSWLogo } from "@/components/icons/logo";
 import { loginSchemaResolve } from "@/schemas/login.schema";
-import { initAuthentication } from "@/actions/auth.action";
 import { type PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/browser";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess } from "@/components/auth/auth";
 import Link from "next/link";
-import { routes } from "@/lib/routes";
+import { apiRoutes, routes } from "@/lib/routes";
 import { useAppDispatch } from "@/hooks/redux.hook";
 import { useAccount } from "@/context/account.context";
 import { setAuth } from "@/slices/account/auth.slice";
+import { getApi } from "@/actions/api.action";
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -38,14 +38,14 @@ export default function Login() {
   const login = async (data: FieldValues) => {
     try {
       loading({ msg: "Authenticating..." });
-      const response = await initAuthentication(data.email);
       try {
-        if (response.status) {
-          const options =
-            response.data as PublicKeyCredentialRequestOptionsJSON;
+        const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
+          apiRoutes.auth.initAuthentication(data.email),
+        );
+        if (response) {
           const authResponse = await initWebAuthLoginProcess(
-            options,
-            data.email
+            response,
+            data.email,
           );
           if (authResponse && authResponse.status) {
             dispatch(setAuth(true));
@@ -71,28 +71,28 @@ export default function Login() {
   return (
     <Container>
       <Section>
-        <div className="overflow-y-scroll h-svh relative">
-          <div className="size-full flex">
-            <div className="w-80 lg:w-96 hidden md:block bg-primary p-5">
+        <div className="relative h-svh overflow-y-scroll">
+          <div className="flex size-full">
+            <div className="hidden w-80 bg-primary p-5 md:block lg:w-96">
               <DexaSWLogo
                 textClass="text-background"
                 logoClass="bg-background p-1 rounded-full"
               />
             </div>
-            <div className="flex-1 h-full flex items-center px-5 justify-center">
+            <div className="flex h-full flex-1 items-center justify-center px-5">
               <div className="w-full">
-                <div className="max-w-sm mx-auto text-center">
-                  <div className="flex justify-center mb-2">
+                <div className="mx-auto max-w-sm text-center">
+                  <div className="mb-2 flex justify-center">
                     <DexaSWIcon className="rounded-full" />
                   </div>
-                  <h2 className="font-bold text-2xl">Login to Wallet</h2>
+                  <h2 className="text-2xl font-bold">Login to Wallet</h2>
                   <p className="text-sm text-foreground/60">
                     100% secured. No more seed phrase and private keys
                   </p>
-                  <div className="flex flex-col gap-4 mt-5 my-5">
+                  <div className="my-5 mt-5 flex flex-col gap-4">
                     <GoogleConnector type={"login"} name="Login with Google" />
                   </div>
-                  <div className="flex items-center mb-2">
+                  <div className="mb-2 flex items-center">
                     <hr className="w-1/2" />
                     <p className="px-2 text-foreground/50">OR</p>
                     <hr className="w-1/2" />
@@ -102,7 +102,7 @@ export default function Login() {
                       <Controller
                         control={control}
                         render={({ field: { value, onChange } }) => (
-                          <div className="text-left mb-5">
+                          <div className="mb-5 text-left">
                             <Label className="font-semibold">
                               Email<span className="text-destructive">*</span>
                             </Label>
@@ -122,7 +122,7 @@ export default function Login() {
                         disabled={!isValid || isSubmitting || isLoading}
                         type="submit"
                         variant={"default"}
-                        className="h-11 -mt-4"
+                        className="-mt-4 h-11"
                       >
                         Continue
                       </Button>

@@ -1,5 +1,16 @@
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { PublicKey } from "ox";
+import ShortUniqueId from "short-unique-id";
+
+export const generateId = ({
+  isUUID = false,
+  length = 6,
+  ...prop
+}: Partial<ShortUniqueId.ShortUniqueIdOptions> & { isUUID?: boolean }) => {
+  const uid = new ShortUniqueId({ length, ...prop });
+  return isUUID ? uid.stamp(32) : uid.randomUUID();
+};
+
 export async function base64URLStringToPublicKey(
   base64PubKeyOrAttestation: string,
   isAttestation: boolean

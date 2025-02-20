@@ -1,5 +1,7 @@
-import { verifyAuthenication, verifyRegistration } from "@/actions/auth.action";
+import { postApi } from "@/actions/api.action";
+import { verifyRegistration } from "@/actions/auth.action";
 import { base64URLStringToPublicKey } from "@/lib/helpers";
+import { apiRoutes } from "@/lib/routes";
 import {
   VerifiedAuthenticationResponseJSON,
   WebAuthVerification,
@@ -13,45 +15,41 @@ import {
 
 export const initWebAuthLoginProcess = async (
   options: PublicKeyCredentialRequestOptionsJSON,
-  email: string
+  email: string,
 ) => {
   const authJson = await startAuthentication({
     optionsJSON: options,
   });
 
-  const verifyRes = await verifyAuthenication(authJson, email);
-  if (verifyRes.status) {
-    const webAuthData = verifyRes.data as VerifiedAuthenticationResponseJSON;
-    const authInfo = webAuthData.authenticationInfo;
+  const response = await postApi<VerifiedAuthenticationResponseJSON>(
+    apiRoutes.auth.verifyAuthentication,
+    {
+      options: JSON.stringify(authJson),
+      email,
+    },
+  );
+  if (response) {
+    const authInfo = response.authenticationInfo;
     const publicKey = await base64URLStringToPublicKey(
       authInfo.attestationObject,
-      true
+      true,
     );
     if (!publicKey) return;
 
     return {
-      status: verifyRes.status,
+      status: true,
       credentials: {
         id: authInfo.id,
         publicKey,
         rpId: authInfo.rpID,
       },
     };
-
-    // const account = toWebAuthnAccount({
-    //   credential: {
-    //     id: authInfo.id,
-    //     publicKey,
-    //   },
-    //   rpId: authInfo.rpID,
-    // });
-    // return account;
   }
 };
 
 export const initWebAuthRegistration = async (
   options: PublicKeyCredentialCreationOptionsJSON,
-  email: string
+  email: string,
 ) => {
   const regRes = await startRegistration({
     optionsJSON: options,
@@ -64,7 +62,7 @@ export const initWebAuthRegistration = async (
     const webAuthData = verifyRes.data as WebAuthVerification;
     const publicKey = await base64URLStringToPublicKey(
       regRes.response.publicKey,
-      false
+      false,
     );
     if (!publicKey) return;
 

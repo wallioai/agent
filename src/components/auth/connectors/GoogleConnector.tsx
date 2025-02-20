@@ -3,12 +3,14 @@ import { ConnectorWrapper } from "../ConnectorWrapper";
 import { GoogleLogo } from "@/components/icons/logo";
 import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import { API_URL } from "@/config/env.config";
-import { initAuthentication, initRegistration } from "@/actions/auth.action";
+import { initRegistration } from "@/actions/auth.action";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess, initWebAuthRegistration } from "../auth";
 import { useAccount } from "@/context/account.context";
 import { useAppDispatch } from "@/hooks/redux.hook";
 import { setAuth } from "@/slices/account/auth.slice";
+import { getApi } from "@/actions/api.action";
+import { apiRoutes } from "@/lib/routes";
 
 type Props = {
   type: "register" | "login";
@@ -58,7 +60,7 @@ export default function GoogleConnector({
 
             const regResponse = await initWebAuthRegistration(
               options,
-              event.data.email
+              event.data.email,
             );
             if (regResponse && regResponse.status) {
               dispatch(setAuth(true));
@@ -89,15 +91,15 @@ export default function GoogleConnector({
   const handleGoogleAuthentication = async (event: MessageEvent) => {
     loading({ msg: "Authenticating..." });
     try {
-      const response = await initAuthentication(event.data.email);
-      if (response.status) {
-        const options = response.data;
+      const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
+        apiRoutes.auth.initAuthentication(event.data.email),
+      );
+      if (response) {
         const authResponse = await initWebAuthLoginProcess(
-          options,
-          event.data.email
+          response,
+          event.data.email,
         );
         if (authResponse && authResponse.status) {
-          console.log(authResponse);
           dispatch(setAuth(true));
           setCredentials(authResponse.credentials);
           success({ msg: "Login successful" });
@@ -105,7 +107,6 @@ export default function GoogleConnector({
         }
       }
     } catch (err: any) {
-      console.log(err);
       if (
         typeof err.message === "string" &&
         err.message.includes("not allowed")
@@ -119,14 +120,14 @@ export default function GoogleConnector({
   const openGoogleAuthPopup = () => {
     setIsLoading(true);
 
-    const redirectUrl = new URL(`${API_URL}/auth/google/login`);
+    const redirectUrl = new URL(`${API_URL}/api/auth/google`);
     const popupLeft = (screenSize.width - POPUP_WIDTH) / 2;
     const popupTop = (screenSize.height - POPUP_HEIGHT) / 2;
 
     const popup = window.open(
       redirectUrl,
       "popup",
-      `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},top=${popupTop},left=${popupLeft},popup=true`
+      `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},top=${popupTop},left=${popupLeft},popup=true`,
     );
 
     if (popup) {

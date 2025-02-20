@@ -13,13 +13,13 @@ export default function GoogleCallback() {
     const email = hashParams.get("email");
     const request = hashParams.get("type");
     const name = hashParams.get("name");
-    
+
     if (email) {
       if (window.opener) {
         // Send the email and requestType to the parent window
         window.opener.postMessage(
           { type: "GOOGLE_AUTH_SUCCESS", email, request, name },
-          window.location.origin
+          window.location.origin,
         );
       } else {
         // If opened directly (not in a popup), redirect to the home page or handle the token
