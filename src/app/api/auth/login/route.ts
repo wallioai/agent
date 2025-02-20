@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import clientPromise from "@/lib/db";
-import { createSession } from "@/lib/session";
-import { WebAuth } from "@/models/webauth.model";
+import { createSession, encrypt } from "@/lib/session";
 import { LoginWebAuthSchema } from "@/schemas/login.schema";
 import {
   AuthenticationResponseJSON,
@@ -13,23 +11,29 @@ import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { CookieKeys } from "@/enums/cookie.enum";
 import { ORIGIN, RP_ID } from "@/config/env.config";
 import { z } from "zod";
-import { User } from "@/models/user.model";
+import webAuthService from "@/db/repo/webAuthService";
+import userService from "@/db/repo/userService";
+import { cookies } from "next/headers";
+import { isDev } from "@/lib/helpers";
+import { SESSION_DURATION, SESSION_MAXAGE } from "@/config/session.config";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const email = searchParams.get("email");
 
   if (!RP_ID || !email) {
-    return NextResponse.json({ error: "rpId is required" }, { status: 401 });
+    return NextResponse.json({ message: "rpId is required" }, { status: 401 });
   }
 
-  const { db } = await clientPromise();
   const [webAuth, user] = await Promise.all([
-    db.collection<WebAuth>("webauths").findOne({ email: email.toLowerCase() }),
-    db.collection<User>("users").findOne({ email: email.toLowerCase() }),
+    webAuthService.findOne({ email: email.toLowerCase() }),
+    userService.findOne({ email: email.toLowerCase() }),
   ]);
   if (!webAuth || !user) {
-    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    return NextResponse.json(
+      { message: "Invalid credentials" },
+      { status: 401 },
+    );
   }
 
   const options = await generateAuthenticationOptions({
@@ -42,12 +46,10 @@ export async function GET(req: NextRequest) {
     ],
     userVerification: "required",
   });
-  await db
-    .collection("webauths")
-    .findOneAndUpdate(
-      { id: webAuth.id },
-      { $set: { challenge: options.challenge } },
-    );
+  await webAuthService.update(
+    { id: webAuth.id },
+    { challenge: options.challenge },
+  );
 
   return NextResponse.json(options, { status: 200, statusText: "OK" });
 }
@@ -59,22 +61,19 @@ export async function POST(req: NextRequest) {
 
     if (!RP_ID || !ORIGIN) {
       return NextResponse.json(
-        { error: "rpId and origin is required" },
+        { message: "rpId and origin is required" },
         { status: 401 },
       );
     }
 
-    const { db } = await clientPromise();
     const [webAuth, user] = await Promise.all([
-      db
-        .collection<WebAuth>("webauths")
-        .findOne({ email: email.toLowerCase() }),
-      db.collection<User>("users").findOne({ email: email.toLowerCase() }),
+      webAuthService.findOne({ email: email.toLowerCase() }),
+      userService.findOne({ email: email.toLowerCase() }),
     ]);
 
     if (!webAuth || !user) {
       return NextResponse.json(
-        { error: "Invalid credentials" },
+        { message: "Invalid credentials" },
         { status: 401 },
       );
     }
@@ -105,9 +104,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await db
-      .collection("webauths")
-      .findOneAndUpdate({ id: webAuth.id }, { $set: { challenge: null } });
+    await webAuthService.update({ id: webAuth.id }, { challenge: null });
 
     const payload = {
       id: user._id.toString(),
@@ -117,9 +114,9 @@ export async function POST(req: NextRequest) {
       emailVerified: user.emailVerified,
     };
 
-    await createSession(payload, CookieKeys.ACCESS_TOKEN, true);
-
+    const accessToken = await encrypt(payload);
     return NextResponse.json({
+      accessToken,
       message: "Webauth verified successfully",
       verified: response.verified,
       authenticationInfo: {
@@ -130,11 +127,12 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
+    console.log(error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      return NextResponse.json({ message: error.errors }, { status: 400 });
     }
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { message: "Internal Server Error" },
       { status: 500 },
     );
   }

@@ -44,9 +44,6 @@ export default function Dashboard() {
       chain: APP_CHAIN,
       transport: http("/api/rpc"),
     });
-    await walletClient.sendTransaction({
-      to: 
-    })
   };
   return (
     <Container>

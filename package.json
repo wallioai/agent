@@ -37,7 +37,7 @@
     "jwt-decode": "^4.0.0",
     "lru-cache": "^11.0.2",
     "lucide-react": "^0.475.0",
-    "mongodb": "^6.13.0",
+    "mongoose": "^8.10.1",
     "next": "15.2.0-canary.63",
     "next-nprogress-bar": "^2.4.5",
     "ox": "^0.6.9",

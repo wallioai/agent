@@ -4,12 +4,11 @@ import {
   GOOGLE_SECRET_ID,
   ORIGIN,
 } from "@/config/env.config";
-import clientPromise from "@/lib/db";
 import { generateId } from "@/lib/helpers";
-import { User } from "@/models/user.model";
-import { WebAuth } from "@/models/webauth.model";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { NextRequest, NextResponse } from "next/server";
+import userService from "@/db/repo/userService";
+import webAuthService from "@/db/repo/webAuthService";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const searchParams = req.nextUrl.searchParams;
@@ -53,14 +52,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
     );
     const userData = await userRes.json();
 
-    const { db } = await clientPromise();
-    const [webAuth, existingUser] = await Promise.all([
-      db
-        .collection<WebAuth>("webauths")
-        .findOne({ email: userData.email.toLowerCase() }),
-      db
-        .collection<User>("users")
-        .findOne({ email: userData.email.toLowerCase() }),
+    let [webAuth, existingUser] = await Promise.all([
+      webAuthService.findOne({ email: userData.email.toLowerCase() }),
+      userService.findOne({ email: userData.email.toLowerCase() }),
     ]);
 
     if (!existingUser) {
@@ -76,10 +70,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
         avatar: userData.picture,
         emailVerified: userData.verified_email,
       };
-      await db.collection("users").insertOne(newUser);
+      existingUser = await userService.create(newUser);
     }
 
-    let type: "login" | "register" = "login";
+    let type: "login" | "register" = 'login';
     if (existingUser && webAuth) {
       type = "login";
     } else if (existingUser && !webAuth) {

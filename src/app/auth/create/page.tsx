@@ -19,8 +19,10 @@ import { useAccount } from "@/context/account.context";
 import { useAppDispatch } from "@/hooks/redux.hook";
 import { setAuth } from "@/slices/account/auth.slice";
 import { postApi } from "@/actions/api.action";
+import { useRouter } from "next/navigation";
 
 export default function Create() {
+  const router = useRouter();
   const { error, loading, success } = useToast();
   const { setCredentials } = useAccount();
   const dispatch = useAppDispatch();
@@ -58,6 +60,7 @@ export default function Create() {
             setCredentials(regResponse.credentials);
             reset({ name: undefined, email: undefined, terms: false });
             success({ msg: "Registration successful" });
+            router.push(routes.app.home);
           }
         }
       } catch (err: any) {

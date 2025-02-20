@@ -1,10 +1,5 @@
-import { postApi } from "@/actions/api.action";
+import { verifyAuthenication, verifyRegistration } from "@/actions/auth.action";
 import { base64URLStringToPublicKey } from "@/lib/helpers";
-import { apiRoutes } from "@/lib/routes";
-import {
-  VerifiedAuthenticationResponseJSON,
-  WebAuthVerification,
-} from "@/types/webauthn.type";
 import {
   startAuthentication,
   startRegistration,
@@ -20,13 +15,7 @@ export const initWebAuthLoginProcess = async (
     optionsJSON: options,
   });
 
-  const response = await postApi<VerifiedAuthenticationResponseJSON>(
-    apiRoutes.auth.verifyAuthentication,
-    {
-      options: JSON.stringify(authJson),
-      email,
-    },
-  );
+  const response = await verifyAuthenication(authJson, email);
   if (response) {
     const authInfo = response.authenticationInfo;
     const publicKey = await base64URLStringToPublicKey(
@@ -55,13 +44,7 @@ export const initWebAuthRegistration = async (
   });
   if (!regRes.response.publicKey || !regRes.response.attestationObject) return;
 
-  const response = await postApi<WebAuthVerification>(
-    apiRoutes.auth.verifyRegistration,
-    {
-      options: JSON.stringify(regRes),
-      email,
-    },
-  );
+  const response = await verifyRegistration(JSON.stringify(regRes), email);
   if (response) {
     const publicKey = await base64URLStringToPublicKey(
       regRes.response.publicKey,

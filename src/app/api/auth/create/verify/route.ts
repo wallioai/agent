@@ -1,17 +1,16 @@
 import { ORIGIN, RP_ID } from "@/config/env.config";
 import { LoginWebAuthSchema as VerifyWebAuthSchema } from "@/schemas/login.schema";
 import { NextRequest, NextResponse } from "next/server";
-import clientPromise from "@/lib/db";
-import { WebAuth } from "@/models/webauth.model";
-import { User } from "@/models/user.model";
 import {
   RegistrationResponseJSON,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
-import { createSession } from "@/lib/session";
+import { createSession, encrypt } from "@/lib/session";
 import { CookieKeys } from "@/enums/cookie.enum";
 import { z } from "zod";
+import webAuthService from "@/db/repo/webAuthService";
+import userService from "@/db/repo/userService";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,12 +24,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { db } = await clientPromise();
     const [webAuth, user] = await Promise.all([
-      db
-        .collection<WebAuth>("webauths")
-        .findOne({ email: email.toLowerCase() }),
-      db.collection<User>("users").findOne({ email: email.toLowerCase() }),
+      webAuthService.findOne({ email: email.toLowerCase() }),
+      userService.findOne({ email: email.toLowerCase() }),
     ]);
 
     if (!webAuth || !user) {
@@ -58,22 +54,20 @@ export async function POST(req: NextRequest) {
     const publicKey = isoBase64URL.fromBuffer(
       response.registrationInfo.credential.publicKey,
     );
-    await db.collection("webauths").findOneAndUpdate(
+    await webAuthService.update(
       { email: email.toLowerCase() },
       {
-        $set: {
-          id: response.registrationInfo.credential.id,
-          publicKey,
-          challenge: null,
-          attestationObject: isoBase64URL.fromBuffer(
-            response.registrationInfo.attestationObject,
-            "base64url",
-          ),
-          deviceType: response.registrationInfo.credentialDeviceType,
-          counter: response.registrationInfo.credential.counter,
-          credentialBackedUp: response.registrationInfo.credentialBackedUp,
-          transports: response.registrationInfo.credential.transports,
-        },
+        id: response.registrationInfo.credential.id,
+        publicKey,
+        challenge: null,
+        attestationObject: isoBase64URL.fromBuffer(
+          response.registrationInfo.attestationObject,
+          "base64url",
+        ),
+        deviceType: response.registrationInfo.credentialDeviceType,
+        counter: response.registrationInfo.credential.counter,
+        credentialBackedUp: response.registrationInfo.credentialBackedUp,
+        transports: response.registrationInfo.credential.transports as [string],
       },
     );
 
@@ -85,9 +79,9 @@ export async function POST(req: NextRequest) {
       emailVerified: user.emailVerified,
     };
 
-    await createSession(payload, CookieKeys.ACCESS_TOKEN, true);
-
+    const accessToken = await encrypt(payload);
     return NextResponse.json({
+      accessToken,
       message: "Webauth verified successfully",
       verified: response.verified,
       registrationInfo: {
@@ -95,6 +89,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
+    console.log(error);
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }

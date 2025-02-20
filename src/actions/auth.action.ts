@@ -7,7 +7,11 @@ import {
   WebAuthVerification,
 } from "@/types/webauthn.type";
 import { transformError } from "@/types/api-response.type";
-import { AuthenticationResponseJSON } from "@simplewebauthn/browser";
+import {
+  AuthenticationResponseJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
+  type PublicKeyCredentialCreationOptionsJSON,
+} from "@simplewebauthn/browser";
 import { apiRoutes, routes } from "@/lib/routes";
 import { CookieKeys } from "@/enums/cookie.enum";
 import { createSession } from "@/lib/session";
@@ -27,37 +31,57 @@ type InitRegType = {
   fromGoogle: boolean;
 };
 
-export async function verifyRegistration(options: string, email: string) {
-  try {
-    const response = await postApi<WebAuthVerification>(
-      apiRoutes.auth.verifyRegistration,
-      {
-        options,
-        email,
-      },
-    );
-    return response;
-  } catch (error) {
-    return transformError(error);
+export async function initRegistration(data: InitRegType) {
+  const response = await postApi<PublicKeyCredentialCreationOptionsJSON>(
+    apiRoutes.auth.initRegistration,
+    data,
+  );
+  return response;
+}
+
+export async function verifyRegistration(
+  options: string,
+  email: string,
+): Promise<Omit<WebAuthVerification, "accessToken" | "refreshToken">> {
+  const response = await postApi<WebAuthVerification>(
+    apiRoutes.auth.verifyRegistration,
+    {
+      options,
+      email,
+    },
+  );
+  if (response) {
+    const { accessToken } = response;
+    await createSession(accessToken, CookieKeys.ACCESS_TOKEN);
   }
+  return response;
+}
+
+export async function initAuthentication(email: string) {
+  const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
+    apiRoutes.auth.initAuthentication(email),
+  );
+  return response;
 }
 
 export async function verifyAuthenication(
   options: AuthenticationResponseJSON,
   email: string,
-) {
-  try {
-    const response = await postApi<VerifiedAuthenticationResponseJSON>(
-      apiRoutes.auth.verifyAuthentication,
-      {
-        options: JSON.stringify(options),
-        email,
-      },
-    );
-    return response;
-  } catch (error) {
-    return transformError(error);
+): Promise<
+  Omit<VerifiedAuthenticationResponseJSON, "accessToken" | "refreshToken">
+> {
+  const response = await postApi<VerifiedAuthenticationResponseJSON>(
+    apiRoutes.auth.verifyAuthentication,
+    {
+      options: JSON.stringify(options),
+      email,
+    },
+  );
+  if (response) {
+    const { accessToken } = response;
+    await createSession(accessToken, CookieKeys.ACCESS_TOKEN);
   }
+  return response;
 }
 
 export async function encodeAccountCredentials(cred: AccountCredentials) {

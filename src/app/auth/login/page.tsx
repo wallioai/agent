@@ -9,17 +9,18 @@ import { Label } from "@/components/ui/label";
 import { useForm, Controller, FieldValues } from "react-hook-form";
 import { DexaSWIcon, DexaSWLogo } from "@/components/icons/logo";
 import { loginSchemaResolve } from "@/schemas/login.schema";
-import { type PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/browser";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess } from "@/components/auth/auth";
 import Link from "next/link";
-import { apiRoutes, routes } from "@/lib/routes";
+import { routes } from "@/lib/routes";
 import { useAppDispatch } from "@/hooks/redux.hook";
 import { useAccount } from "@/context/account.context";
 import { setAuth } from "@/slices/account/auth.slice";
-import { getApi } from "@/actions/api.action";
+import { initAuthentication } from "@/actions/auth.action";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { error, loading, success } = useToast();
   const { setCredentials } = useAccount();
@@ -39,9 +40,7 @@ export default function Login() {
     try {
       loading({ msg: "Authenticating..." });
       try {
-        const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
-          apiRoutes.auth.initAuthentication(data.email),
-        );
+        const response = await initAuthentication(data.email);
         if (response) {
           const authResponse = await initWebAuthLoginProcess(
             response,
@@ -52,18 +51,20 @@ export default function Login() {
             setCredentials(authResponse.credentials);
             reset({ email: undefined });
             success({ msg: "Login successful" });
+            router.push(routes.app.home);
           }
         }
       } catch (err: any) {
+        console.log(err.message);
         if (
           typeof err.message === "string" &&
           err.message.includes("not allowed")
         ) {
           return error({ msg: "Operation rejected" });
         }
-        error({ msg: "Error registering user" });
+        error({ msg: err.message ?? "Error logging in" });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error:", err);
     }
   };

@@ -1,16 +1,16 @@
-import { CreateUserSchema, User } from "@/models/user.model";
+import { z } from "zod";
+import { CreateUserSchema } from "@/db/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
-import clientPromise from "@/lib/db";
 import { generateId } from "@/lib/helpers";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { RP_ID } from "@/config/env.config";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
-import { Db } from "mongodb";
-import { z } from "zod";
+import userService from "@/db/repo/userService";
+import { IUser } from "@/db/models/user.model";
+import webAuthService from "@/db/repo/webAuthService";
 
 async function generateRegistionCredentials(
-  user: Pick<User, "uniqueId" | "email" | "name" | "_id">,
-  db: Db,
+  user: Pick<IUser, "uniqueId" | "email" | "name" | "_id">,
 ) {
   const userId = isoBase64URL.toBuffer(user.uniqueId, "base64url");
   const options = await generateRegistrationOptions({
@@ -20,8 +20,8 @@ async function generateRegistionCredentials(
     userDisplayName: user.name,
     userID: userId,
   });
-  await db.collection("webauths").insertOne({
-    user: user._id.toString(),
+  await webAuthService.create({
+    user: `${user._id}`,
     id: options.user.id,
     challenge: options.challenge,
     email: user.email,
@@ -31,17 +31,13 @@ async function generateRegistionCredentials(
 
 export async function POST(req: NextRequest) {
   try {
-    console.log(req);
     const body = await req.json();
     const { email, name, fromGoogle } = CreateUserSchema.parse(body);
 
-    const { db } = await clientPromise();
-    const user = await db
-      .collection<User>("users")
-      .findOne({ email: email.toLowerCase() });
-
+    const user = await userService.findOne({ email: email.toLowerCase() });
     if (fromGoogle && user) {
-      return await generateRegistionCredentials(user, db);
+      const options = await generateRegistionCredentials(user);
+      return NextResponse.json(options);
     }
 
     if (user) {
@@ -51,20 +47,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newUser: Partial<User> = {
+    const newUser = await userService.create({
       email,
       name,
       uniqueId: generateId({ length: 64, dictionary: "hex" }),
-    };
-    const result = await db.collection("users").insertOne(newUser);
-    newUser._id = result.insertedId;
+    });
 
-    const options = await generateRegistionCredentials(
-      newUser as unknown as User,
-      db,
-    );
+    const options = await generateRegistionCredentials(newUser);
     return NextResponse.json(options);
   } catch (error) {
+    console.log(error);
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }

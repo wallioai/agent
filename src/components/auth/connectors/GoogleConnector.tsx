@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { ConnectorWrapper } from "../ConnectorWrapper";
 import { GoogleLogo } from "@/components/icons/logo";
-import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import { API_URL } from "@/config/env.config";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess, initWebAuthRegistration } from "../auth";
 import { useAccount } from "@/context/account.context";
 import { useAppDispatch } from "@/hooks/redux.hook";
 import { setAuth } from "@/slices/account/auth.slice";
-import { getApi, postApi } from "@/actions/api.action";
-import { apiRoutes } from "@/lib/routes";
+import { initAuthentication, initRegistration } from "@/actions/auth.action";
+import { useRouter } from "next/navigation";
+import { routes } from "@/lib/routes";
 
 type Props = {
   type: "register" | "login";
@@ -23,7 +23,7 @@ export default function GoogleConnector({
   type,
   name = "Create with Google",
 }: Props) {
-  //const router = useRouter();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
@@ -43,20 +43,26 @@ export default function GoogleConnector({
     return () => window.removeEventListener("resize", updateScreenSize);
   }, []);
 
+  const handleAuthError = (err: any, defaultMessage: string) => {
+    if (
+      typeof err.message === "string" &&
+      err.message.includes("not allowed")
+    ) {
+      return error({ msg: "Operation rejected" });
+    }
+    error({ msg: defaultMessage });
+  };
+
   const handleGoogleRegistration = async (event: MessageEvent) => {
     switch (event.data.request) {
       case "register": {
         loading({ msg: "Generating credentials" });
         try {
-          const response =
-            await postApi<PublicKeyCredentialCreationOptionsJSON>(
-              apiRoutes.auth.initRegistration,
-              {
-                name: event.data.name,
-                email: event.data.email,
-                fromGoogle: true,
-              },
-            );
+          const response = await initRegistration({
+            name: event.data.name,
+            email: event.data.email,
+            fromGoogle: true,
+          });
           if (response) {
             const regResponse = await initWebAuthRegistration(
               response,
@@ -66,17 +72,13 @@ export default function GoogleConnector({
               dispatch(setAuth(true));
               setCredentials(regResponse.credentials);
               success({ msg: "Registration successful" });
-              setIsLoading(false);
+              router.push(routes.app.home);
             }
           }
         } catch (err: any) {
-          if (
-            typeof err.message === "string" &&
-            err.message.includes("not allowed")
-          ) {
-            return error({ msg: "Operation rejected" });
-          }
-          error({ msg: "Error registering user" });
+          handleAuthError(err, "Error registering user");
+        } finally {
+          setIsLoading(false);
         }
         break;
       }
@@ -90,12 +92,9 @@ export default function GoogleConnector({
   const handleGoogleAuthentication = async (event: MessageEvent) => {
     loading({ msg: "Authenticating..." });
     try {
-      const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
-        apiRoutes.auth.initAuthentication(event.data.email),
-      );
+      const response = await initAuthentication(event.data.email);
       if (response) {
         const authResponse = await initWebAuthLoginProcess(
-          //@ts-ignore
           response,
           event.data.email,
         );
@@ -103,17 +102,13 @@ export default function GoogleConnector({
           dispatch(setAuth(true));
           setCredentials(authResponse.credentials);
           success({ msg: "Login successful" });
-          setIsLoading(false);
+          router.push(routes.app.home);
         }
       }
     } catch (err: any) {
-      if (
-        typeof err.message === "string" &&
-        err.message.includes("not allowed")
-      ) {
-        return error({ msg: "Operation rejected" });
-      }
-      error({ msg: "Error logging in" });
+      handleAuthError(err, "Error logging in");
+    } finally {
+      setIsLoading(false);
     }
   };
 
