@@ -27,18 +27,6 @@ type InitRegType = {
   fromGoogle: boolean;
 };
 
-export async function initRegistration(data: InitRegType) {
-  try {
-    const response = await postApi<PublicKeyCredentialCreationOptionsJSON>(
-      apiRoutes.auth.initRegistration,
-      data,
-    );
-    return response;
-  } catch (error) {
-    return transformError(error);
-  }
-}
-
 export async function verifyRegistration(options: string, email: string) {
   try {
     const response = await postApi<WebAuthVerification>(
@@ -51,17 +39,6 @@ export async function verifyRegistration(options: string, email: string) {
     return response;
   } catch (error) {
     return transformError(error);
-  }
-}
-
-export async function initAuthentication(email: string) {
-  try {
-    const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
-      apiRoutes.auth.initAuthentication(email),
-    );
-    return response;
-  } catch (error) {
-    return error;
   }
 }
 

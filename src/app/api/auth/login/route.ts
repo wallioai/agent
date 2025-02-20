@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/db";
 import { createSession } from "@/lib/session";
 import { WebAuth } from "@/models/webauth.model";
-import { LoginSchema, LoginWebAuthSchema } from "@/schemas/login.schema";
+import { LoginWebAuthSchema } from "@/schemas/login.schema";
 import {
   AuthenticationResponseJSON,
   AuthenticatorTransportFuture,

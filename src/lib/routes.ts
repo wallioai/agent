@@ -19,8 +19,8 @@ export const publicRoutes = [
 
 export const apiRoutes = {
   auth: {
-    initRegistration: "api/auth/register/webauthn",
-    verifyRegistration: "api/auth/register/webauthn/verify",
+    initRegistration: "api/auth/create",
+    verifyRegistration: "api/auth/create/verify",
     initAuthentication: (email: string) => `api/auth/login?email=${email}`,
     verifyAuthentication: "api/auth/login",
   },

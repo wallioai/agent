@@ -13,7 +13,7 @@ export const UserSchema = z.object({
   wallet: z.string().toLowerCase().optional(),
   avatar: z.string().optional(),
   name: z.string().optional(),
-  username: z.string().toLowerCase(),
+  username: z.string().toLowerCase().optional(),
   email: z.string().email().toLowerCase(),
   emailVerified: z.boolean().optional(),
   isOnboarded: z.boolean().default(false),
@@ -26,11 +26,13 @@ export type User = z.infer<typeof UserSchema>;
 // Schema for creating a new User (without _id, createdAt, updatedAt)
 export const CreateUserSchema = UserSchema.omit({
   _id: true,
+  uniqueId: true,
   createdAt: true,
   updatedAt: true,
 }).extend({
   email: z.string().email().toLowerCase(),
-  username: z.string().toLowerCase(),
+  name: z.string().toLowerCase(),
+  fromGoogle: z.boolean(),
 });
 
 export type CreateUser = z.infer<typeof CreateUserSchema>;

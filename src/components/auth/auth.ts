@@ -1,5 +1,4 @@
 import { postApi } from "@/actions/api.action";
-import { verifyRegistration } from "@/actions/auth.action";
 import { base64URLStringToPublicKey } from "@/lib/helpers";
 import { apiRoutes } from "@/lib/routes";
 import {
@@ -56,10 +55,14 @@ export const initWebAuthRegistration = async (
   });
   if (!regRes.response.publicKey || !regRes.response.attestationObject) return;
 
-  const verifyRes = await verifyRegistration(JSON.stringify(regRes), email);
-
-  if (verifyRes.status) {
-    const webAuthData = verifyRes.data as WebAuthVerification;
+  const response = await postApi<WebAuthVerification>(
+    apiRoutes.auth.verifyRegistration,
+    {
+      options: JSON.stringify(regRes),
+      email,
+    },
+  );
+  if (response) {
     const publicKey = await base64URLStringToPublicKey(
       regRes.response.publicKey,
       false,
@@ -67,21 +70,12 @@ export const initWebAuthRegistration = async (
     if (!publicKey) return;
 
     return {
-      status: verifyRes.status,
+      status: response.verified,
       credentials: {
-        id: webAuthData.registrationInfo?.credential.id ?? "",
+        id: response.registrationInfo?.credential.id ?? "",
         publicKey,
-        rpId: webAuthData.registrationInfo?.rpID,
+        rpId: response.registrationInfo?.rpID,
       },
     };
-
-    // const account = toWebAuthnAccount({
-    //   credential: {
-    //     id: webAuthData.registrationInfo?.credential.id ?? "",
-    //     publicKey,
-    //   },
-    //   rpId: webAuthData.registrationInfo?.rpID,
-    // });
-    // return account;
   }
 };

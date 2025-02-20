@@ -3,13 +3,12 @@ import { ConnectorWrapper } from "../ConnectorWrapper";
 import { GoogleLogo } from "@/components/icons/logo";
 import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import { API_URL } from "@/config/env.config";
-import { initRegistration } from "@/actions/auth.action";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess, initWebAuthRegistration } from "../auth";
 import { useAccount } from "@/context/account.context";
 import { useAppDispatch } from "@/hooks/redux.hook";
 import { setAuth } from "@/slices/account/auth.slice";
-import { getApi } from "@/actions/api.action";
+import { getApi, postApi } from "@/actions/api.action";
 import { apiRoutes } from "@/lib/routes";
 
 type Props = {
@@ -49,17 +48,18 @@ export default function GoogleConnector({
       case "register": {
         loading({ msg: "Generating credentials" });
         try {
-          const response = await initRegistration({
-            name: event.data.name,
-            email: event.data.email,
-            fromGoogle: true,
-          });
-          if (response.status) {
-            const options =
-              response.data as PublicKeyCredentialCreationOptionsJSON;
-
+          const response =
+            await postApi<PublicKeyCredentialCreationOptionsJSON>(
+              apiRoutes.auth.initRegistration,
+              {
+                name: event.data.name,
+                email: event.data.email,
+                fromGoogle: true,
+              },
+            );
+          if (response) {
             const regResponse = await initWebAuthRegistration(
-              options,
+              response,
               event.data.email,
             );
             if (regResponse && regResponse.status) {
@@ -70,7 +70,6 @@ export default function GoogleConnector({
             }
           }
         } catch (err: any) {
-          console.log(err);
           if (
             typeof err.message === "string" &&
             err.message.includes("not allowed")
@@ -96,6 +95,7 @@ export default function GoogleConnector({
       );
       if (response) {
         const authResponse = await initWebAuthLoginProcess(
+          //@ts-ignore
           response,
           event.data.email,
         );
