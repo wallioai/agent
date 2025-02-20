@@ -1,5 +1,5 @@
 import type { Address } from "abitype";
-import { Assign, Client, Hex, LocalAccount, Prettify } from "viem";
+import { Assign, Client, Hex, LocalAccount, Prettify, WalletClient } from "viem";
 import {
   entryPoint07Abi,
   SmartAccount,
@@ -11,7 +11,7 @@ import factoryAbi from "../abis/factory.abi";
 
 export type ToDexaSmartAccountParameters = {
   address?: Address | undefined;
-  client: Client;
+  client: WalletClient;
   nonce?: bigint | undefined;
   owner: Address | LocalAccount | WebAuthnAccount;
 };
