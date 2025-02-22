@@ -1,22 +1,57 @@
 "use client";
 
-import React, { useRef } from "react";
-import { NextPage } from "next";
+import React, { ReactNode, useRef, useState } from "react";
 import { ArrowLeftIcon } from "lucide-react";
 import { DexaSWIcon } from "../icons/logo";
 import { Button } from "../ui/button";
 import SendMessage from "./SendMessage";
+import { useChat } from "ai/react";
+import useToast from "@/hooks/toast.hook";
+import { StickToBottom } from "use-stick-to-bottom";
+import ChatContainer from "./ChatContainer";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
-const Chats: NextPage = () => {
+type Props = {
+  endpoint: string;
+  placeholder?: string;
+  welcomeComponent: ReactNode;
+  aiImage: string | StaticImport;
+};
+
+const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
+  const { error } = useToast();
   const endOfMsgRef = useRef<HTMLParagraphElement>(null);
+  const [sourcesForMessages, setSourcesForMessages] = useState<
+    Record<string, any>
+  >({});
+
+  const { messages, input, isLoading, handleInputChange, handleSubmit } =
+    useChat({
+      api: endpoint,
+      onResponse(response) {
+        const sourcesHeader = response.headers.get("x-sources");
+        const sources = sourcesHeader
+          ? JSON.parse(Buffer.from(sourcesHeader, "base64").toString("utf8"))
+          : [];
+
+        const messageIndexHeader = response.headers.get("x-message-index");
+        if (sources.length && messageIndexHeader !== null) {
+          setSourcesForMessages({
+            ...sourcesForMessages,
+            [messageIndexHeader]: sources,
+          });
+        }
+      },
+      streamMode: "text",
+      onError: (e: any) =>
+        error(e.message ?? `Error while processing your request`),
+    });
 
   return (
     <div className="h-full">
-      <div
-        className={`flex h-full w-auto flex-col justify-between bg-white`}
-      >
+      <div className={`flex h-full w-auto flex-col justify-between bg-white`}>
         <header className="z-10 h-14">
-          <div className="border-light flex h-14 items-center justify-between border-b bg-white px-4 md:bg-primary/10">
+          <div className="border-light flex h-14 items-center justify-between border-b bg-white px-4">
             <div className="flex -translate-x-3 lg:hidden">
               <Button type={"button"}>
                 <ArrowLeftIcon size={18} />
@@ -24,7 +59,7 @@ const Chats: NextPage = () => {
             </div>
             <div className="max-w-[10rem] md:max-w-xs">
               <p className="truncate font-semibold text-gray-800 dark:text-gray-400">
-                SonicAi
+                DexAi
               </p>
             </div>
             <div className="flex items-center justify-between space-x-2">
@@ -32,26 +67,23 @@ const Chats: NextPage = () => {
             </div>
           </div>
         </header>
-        <section className="flex scrollbar-hide flex-1 overflow-scroll px-4">
-          {/* <div className="w-full" ref={elementRef}>
-            {currentMsg?.chats
-              .sort(
-                (a, b) =>
-                  new Date(a.createdAt).getTime() -
-                  new Date(b.createdAt).getTime(),
-              )
-              .map((msg: MessageInterface, i: number) => (
-                <ChatItem key={i} chat={msg} />
-              ))}
-            <p
-              ref={endOfMsgRef}
-              className={`bg-dark mb-1 text-sm text-gray-100 transition`}
-            >
-              <span className={`hidden font-thin`}></span>
-            </p>
-          </div> */}
+        <section className="flex flex-1 overflow-hidden">
+          <StickToBottom className="w-full flex-1">
+            <ChatContainer
+              messages={messages}
+              welcomeComponent={welcomeComponent}
+              aiImage={aiImage}
+            />
+          </StickToBottom>
         </section>
-        <SendMessage endOfMsgRef={endOfMsgRef} />
+        <SendMessage
+          handleSubmit={handleSubmit}
+          onInput={handleInputChange}
+          endOfMsgRef={endOfMsgRef}
+          input={input}
+          isLoading={isLoading}
+          placeholder={placeholder}
+        />
       </div>
     </div>
   );

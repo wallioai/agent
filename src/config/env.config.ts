@@ -12,3 +12,4 @@ export const ORIGIN = process.env.NEXT_PRIVATE_ORIGIN;
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PRIVATE_AUTH_GOOGLE_ID;
 export const GOOGLE_SECRET_ID = process.env.NEXT_PRIVATE_AUTH_GOOGLE_SECRET;
 export const GOOGLE_CALLBACK_URL = process.env.NEXT_PRIVATE_CALLBACK_URL;
+export const WALLET_SECRET = process.env.NEXT_PRIVATE_WALLET_SECRET;

@@ -24,4 +24,7 @@ export const apiRoutes = {
     initAuthentication: (email: string) => `api/auth/login?email=${email}`,
     verifyAuthentication: "api/auth/login",
   },
+  agents: {
+    dexai: "api/agents/dexai",
+  },
 };

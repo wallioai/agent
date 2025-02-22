@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 
 function Aside({
@@ -8,7 +9,7 @@ function Aside({
   className?: string;
 }>) {
   return (
-    <div className={`hidden border-l lg:block w-[26rem] bg-primary/10 ${className}`}>
+    <div className={cn("hidden border-l lg:block w-[26rem] bg-primary/10", className)}>
       {children}
     </div>
   );
