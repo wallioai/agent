@@ -9,8 +9,8 @@ import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { createSession, encrypt } from "@/lib/session";
 import { CookieKeys } from "@/enums/cookie.enum";
 import { z } from "zod";
-import webAuthService from "@/db/repo/webAuthService";
-import userService from "@/db/repo/userService";
+import webAuthService from "@/db/mongodb/webauth/webauth.service";
+import userService from "@/db/mongodb/user/user.service";
 
 export async function POST(req: NextRequest) {
   try {

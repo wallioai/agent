@@ -1,5 +1,5 @@
 import { Model, Document, FilterQuery } from "mongoose";
-import dbConnect from "..";
+import dbConnect from ".";
 
 abstract class Base<T extends Document> {
   protected model: Model<T>;

@@ -2,8 +2,11 @@
 
 import React from "react";
 import {
+  BotMessageSquareIcon,
   HandCoinsIcon,
   HomeIcon,
+  RadarIcon,
+  ReplaceAllIcon,
   Rotate3DIcon,
   SettingsIcon,
   Wallet2Icon,
@@ -19,19 +22,29 @@ export default function Sidebar() {
   const navigation = [
     { name: "Dashboard", href: routes.app.home, icon: HomeIcon },
     {
-      name: "ePay",
-      href: routes.app.others,
-      icon: Wallet2Icon,
-    },
-    {
-      name: "Taxes",
-      href: routes.app.others,
+      name: "Bridge",
+      href: routes.app.bridge,
       icon: Rotate3DIcon,
     },
     {
-      name: "Funding",
+      name: "Swap",
+      href: routes.app.others,
+      icon: ReplaceAllIcon,
+    },
+    {
+      name: "Earn",
       href: routes.app.others,
       icon: HandCoinsIcon,
+    },
+    {
+      name: "Chats",
+      href: routes.app.others,
+      icon: BotMessageSquareIcon,
+    },
+    {
+      name: "Discover",
+      href: routes.app.others,
+      icon: RadarIcon,
     },
     {
       name: "Settings",

@@ -1,6 +1,7 @@
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { PublicKey } from "ox";
 import ShortUniqueId from "short-unique-id";
+import mongoose from "mongoose";
 
 export const generateId = ({
   isUUID = false,
@@ -13,11 +14,11 @@ export const generateId = ({
 
 export async function base64URLStringToPublicKey(
   base64PubKeyOrAttestation: string,
-  isAttestation: boolean
+  isAttestation: boolean,
 ): Promise<`0x${string}` | undefined> {
   const uint8ArrayKey = isoBase64URL.toBuffer(
     base64PubKeyOrAttestation,
-    "base64url"
+    "base64url",
   );
   const publicKeyBytes = new Uint8Array(uint8ArrayKey);
   let publicKey: `0x${string}`;
@@ -32,10 +33,10 @@ export async function base64URLStringToPublicKey(
         hash: "SHA-256",
       },
       true,
-      ["verify"]
+      ["verify"],
     );
     const publicKeyBuffer = new Uint8Array(
-      await crypto.subtle.exportKey("raw", cryptoKey)
+      await crypto.subtle.exportKey("raw", cryptoKey),
     );
     const credentialPubK = PublicKey.from(publicKeyBuffer);
     publicKey = PublicKey.toHex(credentialPubK, {
@@ -61,7 +62,7 @@ export async function base64URLStringToPublicKey(
         0x04,
         ...publicKeyBytes.slice(xStart, xStart + coordinateLength),
         ...publicKeyBytes.slice(yStart, yStart + coordinateLength),
-      ])
+      ]),
     );
     publicKey = PublicKey.toHex(credPubKey, {
       includePrefix: false,
@@ -69,6 +70,10 @@ export async function base64URLStringToPublicKey(
   }
 
   return publicKey;
+}
+
+export function toObjectId(value: string) {
+  return new mongoose.Types.ObjectId(value);
 }
 
 export const isDev = process.env.NODE_ENV === "development";

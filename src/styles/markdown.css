@@ -1,0 +1,168 @@
+/* Markdown CSS - Professional Style */
+.markdown {
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Headings */
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.markdown h1 {
+  font-size: 2.2em;
+  border-bottom: 2px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.markdown h2 {
+  font-size: 1.8em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.2em;
+}
+
+.markdown h3 {
+  font-size: 1.5em;
+}
+
+.markdown h4 {
+  font-size: 1.3em;
+}
+
+.markdown h5 {
+  font-size: 1.1em;
+}
+
+.markdown h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+/* Paragraphs */
+.markdown p {
+  margin-bottom: 0;
+}
+
+/* Links */
+.markdown a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.markdown a:hover {
+  text-decoration: underline;
+}
+
+/* Lists */
+.markdown ul,
+.markdown ol {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5em;
+  padding-left: 1.5em;
+}
+
+.markdown li {
+  display: list-item;
+  margin-bottom: 0.2em;
+}
+
+.markdown li > p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Code */
+.markdown code {
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 0.9em;
+  background-color: #f6f8fa;
+  padding: 0.2em 0.4em;
+  margin-top: 1rem;
+  border-radius: 3px;
+  color: #d63200;
+}
+
+.markdown pre {
+  background-color: #f6f8fa;
+  padding: 1em;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.markdown pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* Blockquotes */
+.markdown blockquote {
+  margin: 0;
+  padding: 0 1em;
+  color: #6a737d;
+  border-left: 4px solid #dfe2e5;
+}
+
+/* Tables */
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+.markdown th,
+.markdown td {
+  padding: 0.5em 1em;
+  border: 1px solid #dfe2e5;
+}
+
+.markdown th {
+  background-color: #f6f8fa;
+  font-weight: 600;
+}
+
+/* Images */
+.markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* Horizontal Rule */
+.markdown hr {
+  border: 0;
+  height: 1px;
+  background-color: #eaecef;
+  margin: 2em 0;
+}
+
+/* Emphasis */
+.markdown strong {
+  font-weight: 600;
+  color: #000;
+}
+
+.markdown em {
+  font-style: italic;
+}
+
+/* Task Lists */
+.markdown .task-list-item {
+  list-style-type: none;
+}
+
+.markdown .task-list-item-checkbox {
+  margin-right: 0.5em;
+}

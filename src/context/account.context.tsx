@@ -55,6 +55,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
       if (account) return account; // Return existing account if available
       try {
         const smartAccount = await toDexaSmartAccount({
+          //@ts-ignore
           client: publicClient,
           owner: ownerAccount,
         });

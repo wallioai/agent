@@ -25,12 +25,14 @@ export function DexaSWIcon({
   alt = "DexaSW icon",
   className,
 }: DexaSWIconProps) {
+  console.log(className);
   return (
     <Image
       src={src}
       width={width}
       height={height}
       alt={alt}
+      priority
       className={cn("h-8 w-8", className)}
     />
   );
@@ -50,7 +52,7 @@ export function DexaSWLogo({
       className={cn("flex items-center gap-x-2", className)}
     >
       <DexaSWIcon className={logoClass} />
-      <p className={cn("text-primary text-2xl font-black", textClass)}>
+      <p className={cn("text-2xl font-black text-primary", textClass)}>
         DexaSW
       </p>
     </Link>

@@ -9,20 +9,20 @@ export const CreateUserSchema = z.object({
 });
 
 export interface IUser extends Document {
-  _id: string;
   uniqueId: string;
   wallet: string;
   avatar?: string;
   name: string;
   username?: string;
   email: string;
+  password: string;
   emailVerified: boolean;
   isOnboarded: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new mongoose.Schema<IUser>(
   {
     uniqueId: { type: String, unique: true, required: true },
     wallet: { type: String, lowercase: true },
@@ -34,7 +34,15 @@ const UserSchema = new mongoose.Schema(
     emailVerified: Boolean,
     isOnboarded: { type: Boolean, default: false },
   },
-  { timestamps: true },
+  {
+    toJSON: {
+      transform(doc, ret, options) {
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
+    timestamps: true,
+  },
 );
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

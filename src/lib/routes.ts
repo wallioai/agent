@@ -6,6 +6,7 @@ export const routes = {
   },
   app: {
     home: "/home",
+    bridge: "/bridge",
     others: "/others",
   },
 };

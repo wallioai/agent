@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { CreateUserSchema } from "@/db/models/user.model";
+import { CreateUserSchema } from "@/db/mongodb/user/user.model";
 import { NextRequest, NextResponse } from "next/server";
-import { generateId } from "@/lib/helpers";
+import { generateId, toObjectId } from "@/lib/helpers";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { RP_ID } from "@/config/env.config";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
-import userService from "@/db/repo/userService";
-import { IUser } from "@/db/models/user.model";
-import webAuthService from "@/db/repo/webAuthService";
+import userService from "@/db/mongodb/user/user.service";
+import { IUser } from "@/db/mongodb/user/user.model";
+import webAuthService from "@/db/mongodb/webauth/webauth.service";
 
 async function generateRegistionCredentials(
   user: Pick<IUser, "uniqueId" | "email" | "name" | "_id">,
@@ -21,7 +21,7 @@ async function generateRegistionCredentials(
     userID: userId,
   });
   await webAuthService.create({
-    user: `${user._id}`,
+    user: toObjectId(user._id.toString()),
     id: options.user.id,
     challenge: options.challenge,
     email: user.email,

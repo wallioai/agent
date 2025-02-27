@@ -1,7 +1,7 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 
 export interface IWebAuth extends Document {
-  user: string;
+  user: Types.ObjectId;
   id: string;
   challenge?: string | null;
   email: string;
@@ -15,7 +15,7 @@ export interface IWebAuth extends Document {
   updatedAt: Date;
 }
 
-const WebAuthSchema = new mongoose.Schema(
+const WebAuthSchema = new mongoose.Schema<IWebAuth>(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     id: { type: String, required: true, unique: true },
@@ -28,7 +28,15 @@ const WebAuthSchema = new mongoose.Schema(
     credentialBackedUp: Boolean,
     transports: [String],
   },
-  { timestamps: true },
+  {
+    toJSON: {
+      transform(doc, ret, options) {
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
+    timestamps: true,
+  },
 );
 
 export default mongoose.models.WebAuth ||

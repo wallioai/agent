@@ -7,8 +7,8 @@ import {
 import { generateId } from "@/lib/helpers";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { NextRequest, NextResponse } from "next/server";
-import userService from "@/db/repo/userService";
-import webAuthService from "@/db/repo/webAuthService";
+import userService from "@/db/mongodb/user/user.service";
+import webAuthService from "@/db/mongodb/webauth/webauth.service";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const searchParams = req.nextUrl.searchParams;
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       existingUser = await userService.create(newUser);
     }
 
-    let type: "login" | "register" = 'login';
+    let type: "login" | "register" = "login";
     if (existingUser && webAuth) {
       type = "login";
     } else if (existingUser && !webAuth) {

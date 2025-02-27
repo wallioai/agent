@@ -5,7 +5,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { DexaSWIcon } from "../icons/logo";
 import { Button } from "../ui/button";
 import SendMessage from "./SendMessage";
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import useToast from "@/hooks/toast.hook";
 import { StickToBottom } from "use-stick-to-bottom";
 import ChatContainer from "./ChatContainer";
@@ -25,27 +25,27 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
     Record<string, any>
   >({});
 
-  const { messages, input, isLoading, handleInputChange, handleSubmit } =
-    useChat({
-      api: endpoint,
-      onResponse(response) {
-        const sourcesHeader = response.headers.get("x-sources");
-        const sources = sourcesHeader
-          ? JSON.parse(Buffer.from(sourcesHeader, "base64").toString("utf8"))
-          : [];
+  const { messages, input, status, handleInputChange, handleSubmit } = useChat({
+    api: endpoint,
+    onResponse(response) {
+      const sourcesHeader = response.headers.get("x-sources");
+      const sources = sourcesHeader
+        ? JSON.parse(Buffer.from(sourcesHeader, "base64").toString("utf8"))
+        : [];
 
-        const messageIndexHeader = response.headers.get("x-message-index");
-        if (sources.length && messageIndexHeader !== null) {
-          setSourcesForMessages({
-            ...sourcesForMessages,
-            [messageIndexHeader]: sources,
-          });
-        }
-      },
-      streamMode: "text",
-      onError: (e: any) =>
-        error(e.message ?? `Error while processing your request`),
-    });
+      const messageIndexHeader = response.headers.get("x-message-index");
+      if (sources.length && messageIndexHeader !== null) {
+        setSourcesForMessages({
+          ...sourcesForMessages,
+          [messageIndexHeader]: sources,
+        });
+      }
+    },
+    onError: (e: any) => {
+      console.log(e);
+      error(e.message ?? `Error while processing your request`);
+    },
+  });
 
   return (
     <div className="h-full">
@@ -73,6 +73,7 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
               messages={messages}
               welcomeComponent={welcomeComponent}
               aiImage={aiImage}
+              status={status}
             />
           </StickToBottom>
         </section>
@@ -81,7 +82,7 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
           onInput={handleInputChange}
           endOfMsgRef={endOfMsgRef}
           input={input}
-          isLoading={isLoading}
+          isLoading={status == "streaming"}
           placeholder={placeholder}
         />
       </div>

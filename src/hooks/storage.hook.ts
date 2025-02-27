@@ -20,7 +20,7 @@ function useStorage() {
     }
   }
 
-  function getItem(key: string) {
+  function getItem<T>(key: string) {
     const expires = (window as any).localStorage.getItem(`${key}_exp`);
     if (expires) {
       if (Number(expires) < Date.now()) {
@@ -28,12 +28,12 @@ function useStorage() {
         (window as any).localStorage.removeItem(`${key}_exp`);
       }
     }
-    const data = (window as any).localStorage.getItem(key);
-    if (!data) return data;
+    const data: string = (window as any).localStorage.getItem(key);
+    if (!data) return data as T;
     try {
-      return JSON.parse(data);
+      return JSON.parse(data) as T;
     } catch (e) {
-      return data;
+      return data as T;
     }
   }
 

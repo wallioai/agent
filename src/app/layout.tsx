@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Barlow } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
 import RootProvider from "@/providers/RootProvider";
@@ -7,15 +7,11 @@ import { HelperProvider } from "@/providers/HelperProvider";
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import { AccountProvider } from "@/context/account.context";
 import { AuthProvider } from "@/context/auth.context";
+import { NetworkProvider } from "@/context/network.context";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const barlow = Barlow({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -30,18 +26,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${barlow.className} antialiased`}>
         <ReduxProvider>
           <RootProvider>
             <ReactQueryProvider>
-              <AuthProvider>
-                <AccountProvider>
-                  {children}
-                  <HelperProvider />
-                </AccountProvider>
-              </AuthProvider>
+              <NetworkProvider>
+                <AuthProvider>
+                  <AccountProvider>
+                    {children}
+                    <HelperProvider />
+                  </AccountProvider>
+                </AuthProvider>
+              </NetworkProvider>
             </ReactQueryProvider>
           </RootProvider>
         </ReduxProvider>

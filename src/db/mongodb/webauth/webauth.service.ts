@@ -1,5 +1,5 @@
-import WebAuth, { IWebAuth } from "../models/webauth.model";
-import Base from "./base";
+import WebAuth, { IWebAuth } from "./webauth.model";
+import Base from "../base";
 
 class WebAuthService extends Base<IWebAuth> {
   constructor() {
