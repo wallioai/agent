@@ -12,5 +12,6 @@ export async function listAllNetworks() {
 
 export async function listTokensByChain(chainId: number) {
   await verifySession();
-  return await tokenService.findByChain(chainId);
+  const tokens = await tokenService.findAll({chainId});
+  return tokens.map((t) => t.toJSON());
 }

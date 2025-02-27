@@ -104,7 +104,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
   > => {
     if (credentials) return credentials; // Return existing credentials if available
     try {
-      const encodedCredentials = await getItem(StoreKey.WALLET_CREDENTIAL);
+      const encodedCredentials = getItem<string>(StoreKey.WALLET_CREDENTIAL);
       if (encodedCredentials) {
         const decodedCredentials = await decodeAccountCredentials(
           encodedCredentials

@@ -25,7 +25,6 @@ export function DexaSWIcon({
   alt = "DexaSW icon",
   className,
 }: DexaSWIconProps) {
-  console.log(className);
   return (
     <Image
       src={src}

@@ -1,34 +1,18 @@
-import type { DBSchema } from "idb";
-import { BaseIDB, type BaseModel } from "./base";
-import { INetwork } from "../mongodb/network/network.model";
+import { INetwork } from "@/db/mongodb/network/network.model";
+import { BaseIDB, BaseModel } from "../base.repo";
+import { dbManager, WallioAppDB } from "../config";
 
 export interface Network extends INetwork, BaseModel {}
 
-interface NetworkDBSchema extends DBSchema {
-  networks: {
-    key: string;
-    value: Network;
-    indexes: {
-      chainId: number;
-      nameId: string;
-    };
-  };
-}
-
-export class NetworkIDB extends BaseIDB<Network, NetworkDBSchema> {
+export class NetworkRepository extends BaseIDB<Network, WallioAppDB> {
   constructor() {
-    super("wallio-db", 1, "networks");
-
-    this.indexes = [
-      { name: "chainId", keyPath: "chainId" },
-      { name: "nameId", keyPath: "nameId" },
-    ];
+    super(dbManager, "networks");
   }
 
   async createBatch(data: Omit<Network, "id" | "createdAt" | "updatedAt">[]) {
     if (!data.length) return [];
 
-    const db = await this.initDB();
+    const db = await this.dbManager.getDB();
     const tx = db.transaction(this.storeName, "readwrite");
     const store = tx.objectStore(this.storeName);
 
@@ -56,4 +40,5 @@ export class NetworkIDB extends BaseIDB<Network, NetworkDBSchema> {
     return newRecords;
   }
 }
-export const networkIDB = new NetworkIDB();
+
+export const networkRepo = new NetworkRepository();
