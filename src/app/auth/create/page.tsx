@@ -50,9 +50,9 @@ export default function Create() {
         },
       );
       try {
-        if (response) {
+        if (response.status && response.data) {
           const regResponse = await initWebAuthRegistration(
-            response,
+            response.data,
             data.email,
           );
           if (regResponse && regResponse.status) {

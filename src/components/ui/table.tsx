@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import clsx from "clsx";
 import React, { Fragment } from "react";
 
 type Column<T> = {
@@ -12,12 +13,17 @@ type Column<T> = {
 type TableProps<T> = {
   columns: Column<T>[];
   data: T[];
+  hideHeader?: boolean;
 };
 
-const Table = <T,>({ columns, data }: TableProps<T>) => {
+const Table = <T,>({ columns, data, hideHeader = false }: TableProps<T>) => {
   return (
     <table className="w-full table-auto">
-      <thead className="border-b px-4">
+      <thead
+        className={clsx("border-b px-4", {
+          hidden: hideHeader,
+        })}
+      >
         <tr className="h-14 text-left font-bold">
           {columns.map((column, index) => (
             <th

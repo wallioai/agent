@@ -19,6 +19,20 @@ export const publicRoutes = [
 ];
 
 export const apiRoutes = {
+  server: {
+    auth: {
+      initSignup: "auth/register/webauthn",
+      verifySignup: "auth/register/webauthn/verify",
+      initLogin: (email: string) => `auth/login/webauthn/${email}`,
+      verifyLogin: "auth/login/webauthn/verify",
+    },
+    network: {
+      list: "network/list",
+    },
+    token: {
+      byChainId: (chainId: number) => `token/${chainId}`,
+    },
+  },
   auth: {
     initRegistration: "api/auth/create",
     verifyRegistration: "api/auth/create/verify",

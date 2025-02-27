@@ -16,6 +16,8 @@ import TabsList from "../tabs/TabsList";
 import TabsHeader from "../tabs/TabsHeader";
 import TabsContent from "../tabs/TabsContent";
 import Table from "../ui/table";
+import { useNetwork } from "@/context/network.context";
+import { DexaSWIcon } from "../icons/logo";
 
 type Props = {};
 
@@ -24,6 +26,7 @@ function Overview({}: Props) {
   const isHidden = useAppSelector(selectHideBalance);
   const [activeTab, setActiveTab] = useState("tab1");
   const { setItem } = useStorage();
+  const { defaultTokens } = useNetwork();
 
   const onTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -37,8 +40,8 @@ function Overview({}: Props) {
 
   return (
     <Fragment>
-      <div className="scrollbar-hide flex h-full flex-1 flex-col overflow-scroll">
-        <div className="mt-10">
+      <div className="flex h-full flex-1 flex-col">
+        <div className="mt-8">
           <div className="px-5">
             <p className="text-sm">Total Balance</p>
             <div className="flex items-end">
@@ -100,7 +103,7 @@ function Overview({}: Props) {
             </div>
             <div className="pt-5 pb-20">
               <TabsRoot>
-                <TabsList className="">
+                <TabsList className="sticky top-0 z-50 bg-white pt-3">
                   <TabsHeader
                     isActiveText={true}
                     title="Assets"
@@ -119,40 +122,68 @@ function Overview({}: Props) {
                     isCenter={false}
                     //isActiveBg={true}
                   />
+                  <TabsHeader
+                    isActiveText={true}
+                    title="Manage Tokens"
+                    value="tab3"
+                    activeTabId={activeTab}
+                    onTabChange={onTabChange}
+                    isCenter={false}
+                    //isActiveBg={true}
+                  />
                 </TabsList>
                 <TabsContent value="tab1" activeTabId={activeTab}>
                   <div className="mt-1 flex-1">
-                    <div className="max-w-full flex-1 overflow-auto border">
+                    <div className="max-w-full flex-1 border">
                       <Table
+                        hideHeader={true}
                         columns={[
                           {
-                            header: "Name",
-                            accessor: "name",
-                          },
-                          { header: "Age", accessor: "age" },
-                          { header: "Email", accessor: "email" },
-                          {
-                            header: "Actions",
-                            accessor: "actions",
+                            header: "Tokens",
+                            accessor: "token",
                             render: (_, row) => (
-                              <button className="text-blue-500">
-                                Edit {row.name}
-                              </button>
+                              <div className="flex items-center gap-x-2 text-nowrap">
+                                {row.icon && (
+                                  <DexaSWIcon
+                                    src={row.icon}
+                                    className="size-8 rounded-full"
+                                  />
+                                )}
+                                <div className="max-w-[7rem]">
+                                  <p className="text-sm font-bold">
+                                    {row.symbol}
+                                  </p>
+                                  <p className="text-medium truncate text-xs">
+                                    {row.name}
+                                  </p>
+                                </div>
+                              </div>
+                            ),
+                          },
+                          { header: "Balance", accessor: "age" },
+                          {
+                            header: "",
+                            accessor: "actions",
+                            headerClass: "text-center",
+                            render: (_, row) => (
+                              <div className="flex items-center justify-center gap-x-1">
+                                <p
+                                  role="button"
+                                  className="px-2 text-sm font-bold text-primary"
+                                >
+                                  Withdraw
+                                </p>
+                                <p
+                                  role="button"
+                                  className="px-2 text-sm font-bold text-primary"
+                                >
+                                  Transfer
+                                </p>
+                              </div>
                             ),
                           },
                         ]}
-                        data={[
-                          {
-                            name: "John Doe",
-                            age: 30,
-                            email: "john@example.com",
-                          },
-                          {
-                            name: "Jane Smith",
-                            age: 25,
-                            email: "jane@example.com",
-                          },
-                        ]}
+                        data={defaultTokens}
                       />
                     </div>
                   </div>
@@ -160,6 +191,55 @@ function Overview({}: Props) {
                 <TabsContent value="tab2" activeTabId={activeTab}>
                   <div className="mt-1 flex-1">
                     {/* <ListTransactions /> */}
+                  </div>
+                </TabsContent>
+                <TabsContent value="tab3" activeTabId={activeTab}>
+                  <div className="mt-1 flex-1">
+                    <div className="max-w-full flex-1 border">
+                      <Table
+                        //hideHeader={true}
+                        columns={[
+                          {
+                            header: "Tokens",
+                            accessor: "token",
+                            render: (_, row) => (
+                              <div className="flex items-center gap-x-2 text-nowrap">
+                                {row.icon && (
+                                  <DexaSWIcon
+                                    src={row.icon}
+                                    className="size-8 rounded-full"
+                                  />
+                                )}
+                                <div>
+                                  <p className="text-sm font-bold">
+                                    {row.symbol}
+                                  </p>
+                                  <p className="text-medium truncate text-xs">
+                                    {row.name}
+                                  </p>
+                                </div>
+                              </div>
+                            ),
+                          },
+                          {
+                            header: "Status",
+                            accessor: "status",
+                            headerClass: "text-center",
+                            render: (_, row) => (
+                              <div className="flex items-center justify-center">
+                                <p
+                                  role="button"
+                                  className="p-2 text-sm font-bold text-primary"
+                                >
+                                  
+                                </p>
+                              </div>
+                            ),
+                          },
+                        ]}
+                        data={defaultTokens}
+                      />
+                    </div>
                   </div>
                 </TabsContent>
               </TabsRoot>

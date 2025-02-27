@@ -2,14 +2,26 @@
 
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { ApiResponse } from "@/types/api-response.type";
+import { SERVER_API, APP_KEY } from "@/config/env.config";
+import { cookies } from "next/headers";
+import { CookieKeys } from "@/enums/cookie.enum";
 
-const API = "http://localhost:3000";
+const API = SERVER_API;
 
 export async function getApi<T>(url: string, config?: AxiosRequestConfig<any>) {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;
   const apiUrl = `${API}/${url}`;
   return axios
-    .get(apiUrl)
-    .then((res) => res.data as T)
+    .get(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${cookie}`,
+        "Access-Control-Allow-Credentials": true,
+        [CookieKeys.APP_KEY]: `${APP_KEY}`,
+      },
+      withCredentials: true,
+    })
+    .then((res) => res.data as ApiResponse<T>)
     .catch((err: AxiosError) => {
       throw new Error((err.response?.data as any).message);
     });
@@ -20,7 +32,18 @@ export async function postApi<T>(
   data: any,
   config?: AxiosRequestConfig<any>,
 ) {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;
   const apiUrl = `${API}/${url}`;
   const payload = data;
-  return axios.post(apiUrl, payload).then((res) => res.data as T);
+  return axios
+    .post(apiUrl, payload, {
+      headers: {
+        Authorization: `Bearer ${cookie}`,
+        "Access-Control-Allow-Credentials": true,
+        [CookieKeys.APP_KEY]: `${APP_KEY}`,
+      },
+      withCredentials: true,
+    })
+    .then((res) => res.data as ApiResponse<T>);
 }

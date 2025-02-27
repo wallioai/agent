@@ -41,9 +41,9 @@ export default function Login() {
       loading({ msg: "Authenticating..." });
       try {
         const response = await initAuthentication(data.email);
-        if (response) {
+        if (response.status && response.data) {
           const authResponse = await initWebAuthLoginProcess(
-            response,
+            response.data,
             data.email,
           );
           if (authResponse && authResponse.status) {

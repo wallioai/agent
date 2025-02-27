@@ -6,7 +6,7 @@ import {
   VerifiedAuthenticationResponseJSON,
   WebAuthVerification,
 } from "@/types/webauthn.type";
-import { transformError } from "@/types/api-response.type";
+import { ApiResponse, transformError } from "@/types/api-response.type";
 import {
   AuthenticationResponseJSON,
   type PublicKeyCredentialRequestOptionsJSON,
@@ -33,7 +33,7 @@ type InitRegType = {
 
 export async function initRegistration(data: InitRegType) {
   const response = await postApi<PublicKeyCredentialCreationOptionsJSON>(
-    apiRoutes.auth.initRegistration,
+    apiRoutes.server.auth.initSignup,
     data,
   );
   return response;
@@ -42,24 +42,35 @@ export async function initRegistration(data: InitRegType) {
 export async function verifyRegistration(
   options: string,
   email: string,
-): Promise<Omit<WebAuthVerification, "accessToken" | "refreshToken">> {
+): Promise<
+  ApiResponse<Omit<WebAuthVerification, "accessToken" | "refreshToken">>
+> {
   const response = await postApi<WebAuthVerification>(
-    apiRoutes.auth.verifyRegistration,
+    apiRoutes.server.auth.verifySignup,
     {
       options,
       email,
     },
   );
   if (response) {
-    const { accessToken } = response;
+    const { accessToken, refreshToken } = response.data;
     await createSession(accessToken, CookieKeys.ACCESS_TOKEN);
+    await createSession(
+      refreshToken,
+      CookieKeys.REFRESH_TOKEN,
+      false,
+      REFRESH_SESSION_MAXAGE,
+      new Date(Date.now() + REFRESH_SESSION_DURATION),
+    );
+    delete response.data.accessToken;
+    delete response.data.refreshToken;
   }
   return response;
 }
 
 export async function initAuthentication(email: string) {
   const response = await getApi<PublicKeyCredentialRequestOptionsJSON>(
-    apiRoutes.auth.initAuthentication(email),
+    apiRoutes.server.auth.initLogin(email),
   );
   return response;
 }
@@ -68,18 +79,29 @@ export async function verifyAuthenication(
   options: AuthenticationResponseJSON,
   email: string,
 ): Promise<
-  Omit<VerifiedAuthenticationResponseJSON, "accessToken" | "refreshToken">
+  ApiResponse<
+    Omit<VerifiedAuthenticationResponseJSON, "accessToken" | "refreshToken">
+  >
 > {
   const response = await postApi<VerifiedAuthenticationResponseJSON>(
-    apiRoutes.auth.verifyAuthentication,
+    apiRoutes.server.auth.verifyLogin,
     {
       options: JSON.stringify(options),
       email,
     },
   );
-  if (response) {
-    const { accessToken } = response;
+  if (response.status && response.statusCode === 201 && response.data) {
+    const { accessToken, refreshToken } = response.data;
     await createSession(accessToken, CookieKeys.ACCESS_TOKEN);
+    await createSession(
+      refreshToken,
+      CookieKeys.REFRESH_TOKEN,
+      false,
+      REFRESH_SESSION_MAXAGE,
+      new Date(Date.now() + REFRESH_SESSION_DURATION),
+    );
+    delete response.data.accessToken;
+    delete response.data.refreshToken;
   }
   return response;
 }

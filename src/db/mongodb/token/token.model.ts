@@ -9,6 +9,8 @@ export interface IToken extends Document {
   name: string;
   symbol: string;
   decimal: number;
+  isEnabled: boolean;
+  isActive: boolean;
   icon: string;
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +29,8 @@ const TokenSchema = new mongoose.Schema<IToken>(
     name: String,
     symbol: String,
     decimal: Number,
+    isEnabled: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
     icon: String,
   },
   {

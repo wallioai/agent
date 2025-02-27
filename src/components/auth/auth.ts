@@ -16,8 +16,8 @@ export const initWebAuthLoginProcess = async (
   });
 
   const response = await verifyAuthenication(authJson, email);
-  if (response) {
-    const authInfo = response.authenticationInfo;
+  if (response.status && response.data) {
+    const authInfo = response.data.authenticationInfo;
     const publicKey = await base64URLStringToPublicKey(
       authInfo.attestationObject,
       true,
@@ -25,7 +25,7 @@ export const initWebAuthLoginProcess = async (
     if (!publicKey) return;
 
     return {
-      status: true,
+      status: response.data.verified,
       credentials: {
         id: authInfo.id,
         publicKey,
@@ -45,7 +45,7 @@ export const initWebAuthRegistration = async (
   if (!regRes.response.publicKey || !regRes.response.attestationObject) return;
 
   const response = await verifyRegistration(JSON.stringify(regRes), email);
-  if (response) {
+  if (response.status && response.data) {
     const publicKey = await base64URLStringToPublicKey(
       regRes.response.publicKey,
       false,
@@ -53,11 +53,11 @@ export const initWebAuthRegistration = async (
     if (!publicKey) return;
 
     return {
-      status: response.verified,
+      status: response.data.verified,
       credentials: {
-        id: response.registrationInfo?.credential.id ?? "",
+        id: response.data.registrationInfo?.credential.id ?? "",
         publicKey,
-        rpId: response.registrationInfo?.rpID,
+        rpId: response.data.registrationInfo?.rpID,
       },
     };
   }

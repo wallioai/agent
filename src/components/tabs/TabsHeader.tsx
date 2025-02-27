@@ -45,14 +45,14 @@ function TabsHeader({
     <div
       {...prop}
       onClick={() => onTabChange(value)}
-      className={`h-8 font-medium relative select-none ${bg} text-medium text-sm flex ${alignClass} ${textPosClass[textPos]} hover:bg-text-primary cursor-pointer ${className}`}
+      className={`relative h-8 font-medium select-none ${bg} text-medium flex text-sm ${alignClass} ${textPosClass[textPos]} hover:bg-text-primary cursor-pointer ${className}`}
     >
-      <p className={`${textColor}`}>{title}</p>
+      <p className={`${textColor} whitespace-nowrap`}>{title}</p>
       {isMarker && (
         <>
           {activeTabId === value && (
             <div
-              className={`h-1 bg-primary w-8 rounded-md absolute bottom-0`}
+              className={`absolute bottom-0 h-1 w-8 rounded-md bg-primary`}
             ></div>
           )}
         </>

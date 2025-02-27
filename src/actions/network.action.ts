@@ -1,17 +1,20 @@
 "use server";
 
-import networkService from "@/db/mongodb/network/network.service";
-import tokenService from "@/db/mongodb/token/token.service";
+import { INetwork } from "@/db/mongodb/network/network.model";
+import { postApi, getApi } from "./api.action";
 import { verifySession } from "@/lib/dal";
+import { apiRoutes } from "@/lib/routes";
+import { IToken } from "@/db/mongodb/token/token.model";
 
 export async function listAllNetworks() {
-  await verifySession();
-  const networks = await networkService.findAll();
-  return networks.map((n) => n.toJSON());
+  const response = await getApi<INetwork[]>(apiRoutes.server.network.list);
+  return response;
 }
 
 export async function listTokensByChain(chainId: number) {
-  await verifySession();
-  const tokens = await tokenService.findAll({chainId});
-  return tokens.map((t) => t.toJSON());
+  const response = await getApi<IToken[]>(
+    apiRoutes.server.token.byChainId(chainId),
+  );
+  console.log(response.data.length);
+  return response;
 }

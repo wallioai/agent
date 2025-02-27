@@ -23,6 +23,7 @@ import { tokenRepo } from "@/db/indexdb/repos/token.repo";
 
 type NetworkContextType = {
   defaultChain: INetwork;
+  defaultTokens: IToken[];
   networks: INetwork[];
   changeNetwork: (chain: INetwork) => void;
 };
@@ -36,7 +37,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
   const [defaultTokens, setDefaultTokens] = useState<IToken[]>([]);
   const { setItem, getItem } = useStorage();
 
-  const { data: externalNetworks } = useQuery({
+  const { data: externalNetworks, } = useQuery({
     queryKey: [QueryKey.Networks],
     queryFn: listAllNetworks,
     enabled: isAuthenticated,
@@ -74,7 +75,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       const localChainIds = new Set(localNetworks.map((net) => net.chainId));
 
       // Find networks that are in the API but not in IndexedDB
-      const missingNetworks = externalNetworks.filter(
+      const missingNetworks = externalNetworks.data?.filter(
         (net) => !localChainIds.has(net.chainId),
       );
 
@@ -97,11 +98,11 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
         defaultChain.chainId,
       );
       const externalTokenAddresses = new Set(
-        externalNetworkTokens.map((token) => token.address),
+        externalNetworkTokens.data.map((token) => token.address),
       );
 
       // Find tokens that are in the external source but not in IndexedDB
-      const missingTokens = externalNetworkTokens.filter(
+      const missingTokens = externalNetworkTokens.data.filter(
         (token) =>
           !localTokens.some(
             (localToken) => localToken.address === token.address,

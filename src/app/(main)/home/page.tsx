@@ -9,7 +9,7 @@ export default function Home() {
         <div className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-white px-5">
           <Header title="Dashboard" isBack={false} />
         </div>
-        <div>
+        <div className="flex-1 scrollbar-hide overflow-scroll">
           <Dashboard />
         </div>
       </div>

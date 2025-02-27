@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ConnectorWrapper } from "../ConnectorWrapper";
 import { GoogleLogo } from "@/components/icons/logo";
-import { API_URL } from "@/config/env.config";
+import { API_URL, SERVER_API } from "@/config/env.config";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess, initWebAuthRegistration } from "../auth";
 import { useAccount } from "@/context/account.context";
@@ -63,9 +63,9 @@ export default function GoogleConnector({
             email: event.data.email,
             fromGoogle: true,
           });
-          if (response) {
+          if (response.status && response.data) {
             const regResponse = await initWebAuthRegistration(
-              response,
+              response.data,
               event.data.email,
             );
             if (regResponse && regResponse.status) {
@@ -93,9 +93,9 @@ export default function GoogleConnector({
     loading({ msg: "Authenticating..." });
     try {
       const response = await initAuthentication(event.data.email);
-      if (response) {
+      if (response.status && response.data) {
         const authResponse = await initWebAuthLoginProcess(
-          response,
+          response.data,
           event.data.email,
         );
         if (authResponse && authResponse.status) {
@@ -115,7 +115,7 @@ export default function GoogleConnector({
   const openGoogleAuthPopup = () => {
     setIsLoading(true);
 
-    const redirectUrl = new URL(`${API_URL}/api/auth/google`);
+    const redirectUrl = new URL(`${SERVER_API}/auth/google/login`);
     const popupLeft = (screenSize.width - POPUP_WIDTH) / 2;
     const popupTop = (screenSize.height - POPUP_HEIGHT) / 2;
 
