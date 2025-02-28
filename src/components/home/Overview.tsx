@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 import WalletSearch from "../wallet/WalletSearch";
 import useStorage from "@/hooks/storage.hook";
 import { StoreKey } from "@/enums/storage.enum";
-import Radio from "../ui/Radio";
+import Radio from "../ui/radio";
 import TabsRoot from "../tabs/TabsRoot";
 import TabsList from "../tabs/TabsList";
 import TabsHeader from "../tabs/TabsHeader";
@@ -18,6 +18,10 @@ import TabsContent from "../tabs/TabsContent";
 import Table from "../ui/table";
 import { useNetwork } from "@/context/network.context";
 import { DexaSWIcon } from "../icons/logo";
+import { Switch } from "../ui/switch";
+import EnableToken from "../wallet/EnableToken";
+import clsx from "clsx";
+import { PlusIcon } from "lucide-react";
 
 type Props = {};
 
@@ -26,7 +30,7 @@ function Overview({}: Props) {
   const isHidden = useAppSelector(selectHideBalance);
   const [activeTab, setActiveTab] = useState("tab1");
   const { setItem } = useStorage();
-  const { defaultTokens } = useNetwork();
+  const { defaultTokens, defaultChain } = useNetwork();
 
   const onTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -34,7 +38,7 @@ function Overview({}: Props) {
 
   const toggleHide = () => {
     const value = !isHidden;
-    setItem(StoreKey.DEXA_HIDE_BAL, value);
+    // setItem(StoreKey.DEXA_HIDE_BAL, value);
     dispatch(setHideBalance(value));
   };
 
@@ -160,7 +164,16 @@ function Overview({}: Props) {
                               </div>
                             ),
                           },
-                          { header: "Balance", accessor: "age" },
+                          {
+                            header: "Balance",
+                            accessor: "balance",
+                            render: (_, row) => (
+                              <div>
+                                <p>0.00</p>
+                                <p className="-mt-1 text-xs">$0.54</p>
+                              </div>
+                            ),
+                          },
                           {
                             header: "",
                             accessor: "actions",
@@ -183,7 +196,7 @@ function Overview({}: Props) {
                             ),
                           },
                         ]}
-                        data={defaultTokens}
+                        data={defaultTokens.filter((t) => t.isEnabled)}
                       />
                     </div>
                   </div>
@@ -197,7 +210,7 @@ function Overview({}: Props) {
                   <div className="mt-1 flex-1">
                     <div className="max-w-full flex-1 border">
                       <Table
-                        //hideHeader={true}
+                        hideHeader={true}
                         columns={[
                           {
                             header: "Tokens",
@@ -211,9 +224,22 @@ function Overview({}: Props) {
                                   />
                                 )}
                                 <div>
-                                  <p className="text-sm font-bold">
-                                    {row.symbol}
-                                  </p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm font-bold">
+                                      {row.symbol}
+                                    </p>
+                                    <p
+                                      className={clsx("px-1 text-xs", {
+                                        "bg-destructive/10":
+                                          defaultChain.type == "testnet",
+                                        "bg-primary/10":
+                                          defaultChain.type == "mainnet",
+                                      })}
+                                    >
+                                      {defaultChain.name}
+                                    </p>
+                                  </div>
+
                                   <p className="text-medium truncate text-xs">
                                     {row.name}
                                   </p>
@@ -226,20 +252,21 @@ function Overview({}: Props) {
                             accessor: "status",
                             headerClass: "text-center",
                             render: (_, row) => (
-                              <div className="flex items-center justify-center">
-                                <p
-                                  role="button"
-                                  className="p-2 text-sm font-bold text-primary"
-                                >
-                                  
-                                </p>
-                              </div>
+                              <EnableToken key={row.address} token={row} />
                             ),
                           },
                         ]}
                         data={defaultTokens}
+                        errorText={`There are no default tokens for ${defaultChain?.name}`}
                       />
                     </div>
+                    <Button
+                      variant={"outline"}
+                      className="mt-5 h-12 w-full rounded-none border border-dashed"
+                    >
+                      <PlusIcon />
+                      <p>Add Token</p>
+                    </Button>
                   </div>
                 </TabsContent>
               </TabsRoot>
