@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ConnectorWrapper } from "../ConnectorWrapper";
 import { GoogleLogo } from "@/components/icons/logo";
-import { API_URL, SERVER_API } from "@/config/env.config";
+import { SERVER_API } from "@/config/env.config";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthLoginProcess, initWebAuthRegistration } from "../auth";
 import { useAccount } from "@/context/account.context";

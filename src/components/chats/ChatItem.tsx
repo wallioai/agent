@@ -15,7 +15,7 @@ const ChatItem = ({ messages, aiImage }: Props) => {
           <div key={m.id}>System</div>;
         }
 
-        const sourceKey = (messages.length - 1 - i).toString();
+        //const sourceKey = (messages.length - 1 - i).toString();
         return <ChatBubble key={m.id} message={m} aiImage={aiImage} />;
       })}
     </div>

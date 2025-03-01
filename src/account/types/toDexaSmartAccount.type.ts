@@ -1,5 +1,5 @@
 import type { Address } from "abitype";
-import { Assign, Client, Hex, LocalAccount, Prettify, WalletClient } from "viem";
+import { Assign, LocalAccount, Prettify, WalletClient } from "viem";
 import {
   entryPoint07Abi,
   SmartAccount,

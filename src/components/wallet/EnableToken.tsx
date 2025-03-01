@@ -1,10 +1,10 @@
-import { IToken } from "@/db/mongodb/token/token.model";
+import { Token } from "@/db/repos/token.repo";
 import React, { useState } from "react";
 import { Switch } from "../ui/switch";
-import { idb } from "@/db/indexdb/idb";
+import { idb } from "@/db/idb";
 
 type Props = {
-  token: IToken;
+  token: Token;
 };
 
 function EnableToken({ token }: Props) {

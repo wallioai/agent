@@ -6,7 +6,7 @@ import {
   VerifiedAuthenticationResponseJSON,
   WebAuthVerification,
 } from "@/types/webauthn.type";
-import { ApiResponse, transformError } from "@/types/api-response.type";
+import { ApiResponse } from "@/types/api-response.type";
 import {
   AuthenticationResponseJSON,
   type PublicKeyCredentialRequestOptionsJSON,
@@ -140,6 +140,7 @@ export async function isAuthenticated() {
     }
     return true;
   } catch (error) {
+    console.log(error);
     redirect(routes.auth.login);
   }
 }

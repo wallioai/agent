@@ -8,7 +8,7 @@ import { CookieKeys } from "@/enums/cookie.enum";
 
 const API = SERVER_API;
 
-export async function getApi<T>(url: string, config?: AxiosRequestConfig<any>) {
+export async function getApi<T>(url: string) {
   const cookieStore = await cookies();
   const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;
   const apiUrl = `${API}/${url}`;
@@ -30,7 +30,6 @@ export async function getApi<T>(url: string, config?: AxiosRequestConfig<any>) {
 export async function postApi<T>(
   url: string,
   data: any,
-  config?: AxiosRequestConfig<any>,
 ) {
   const cookieStore = await cookies();
   const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;

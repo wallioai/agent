@@ -1,6 +1,5 @@
 import Section from "@/components/layouts/Section";
 import Header from "@/components/ui/header";
-import Dashboard from "@/components/home/Dashboard";
 
 export default function Bridge() {
   return (
@@ -10,7 +9,6 @@ export default function Bridge() {
           <Header title="Dashboard" isBack={false} />
         </div>
         <div>
-          
         </div>
       </div>
     </Section>

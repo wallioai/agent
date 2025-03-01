@@ -14,17 +14,15 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { DexaSWIcon } from "../icons/logo";
-import { INetwork } from "@/db/mongodb/network/network.model";
+import { Network } from "@/db/repos/network.repo";
 
-type Props = {};
-
-function NetworkSelector({}: Props) {
+function NetworkSelector() {
   const [open, setOpen] = useState<boolean>(false);
   const { defaultChain, changeNetwork, networks } = useNetwork();
   const networkColor =
     defaultChain?.type == "testnet" ? "bg-destructive" : "bg-primary";
 
-  const onSelect = (network: INetwork) => {
+  const onSelect = (network: Network) => {
     changeNetwork(network);
     setTimeout(() => {
       setOpen(false);

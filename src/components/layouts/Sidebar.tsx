@@ -9,12 +9,11 @@ import {
   ReplaceAllIcon,
   Rotate3DIcon,
   SettingsIcon,
-  Wallet2Icon,
 } from "lucide-react";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DexaSWIcon, DexaSWLogo } from "../icons/logo";
+import { DexaSWIcon } from "../icons/logo";
 
 export default function Sidebar() {
   const path = usePathname();

@@ -4,6 +4,8 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { SESSION_DURATION, SESSION_MAXAGE } from "@/config/session.config";
 import { isDev } from "./helpers";
+import { IDecodedToken } from "./dal";
+import { jwtDecode } from "jwt-decode";
 
 const secretKey = process.env.AUTH_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -52,6 +54,12 @@ export async function getSession(name: string) {
   const session = (await cookies()).get(name)?.value;
   if (!session) return null;
   return await decrypt(session);
+}
+
+export async function getServerSession(name: string) {
+  const session = (await cookies()).get(name)?.value;
+  if (!session) return null;
+  return jwtDecode(session) as IDecodedToken;
 }
 
 export async function deleteSession(name: string) {

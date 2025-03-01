@@ -2,39 +2,32 @@
 
 import { useAppSelector } from "@/hooks/redux.hook";
 import { selectAuth } from "@/slices/account/auth.slice";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import useStorage from "@/hooks/storage.hook";
-import { INetwork } from "@/db/mongodb/network/network.model";
 import { listAllNetworks, listTokensByChain } from "@/actions/network.action";
 import { DEFAULT_CHAIN_ID } from "@/config/env.config";
 import { StoreKey } from "@/enums/storage.enum";
 import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/enums/query.enum";
-import { IToken } from "@/db/mongodb/token/token.model";
-import { idb } from "@/db/indexdb/idb";
+import { Token } from "@/db/repos/token.repo";
+import { idb } from "@/db/idb";
 import { useLiveQuery } from "dexie-react-hooks";
+import { Network } from "@/db/repos/network.repo";
 
 type NetworkContextType = {
-  defaultChain: INetwork;
-  defaultTokens: IToken[];
-  networks: INetwork[];
-  changeNetwork: (chain: INetwork) => void;
+  defaultChain: Network;
+  defaultTokens: Token[];
+  networks: Network[];
+  changeNetwork: (chain: Network) => void;
 };
 
 const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 
 export function NetworkProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAppSelector(selectAuth);
-  const [defaultChain, setDefaultChain] = useState<INetwork>();
-  //const [networks, setNetworks] = useState<INetwork[]>([]);
-  const [defaultTokens, setDefaultTokens] = useState<IToken[]>([]);
+  const [defaultChain, setDefaultChain] = useState<Network>();
+  //const [networks, setNetworks] = useState<Network[]>([]);
+  const [defaultTokens, setDefaultTokens] = useState<Token[]>([]);
   const { setItem, getItem } = useStorage();
 
   const { data: externalNetworks } = useQuery({
@@ -134,13 +127,13 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
   // Set the default chain from IndexedDB or external networks
   useEffect(() => {
     if (!isAuthenticated || networks?.length === 0) return;
-    let dChain = getItem<INetwork>(StoreKey.DEFAULT_CHAIN);
+    let dChain = getItem<Network>(StoreKey.DEFAULT_CHAIN);
     if (!dChain)
       dChain = networks.find((c) => c.chainId === parseInt(DEFAULT_CHAIN_ID));
     changeNetwork(dChain);
   }, [isAuthenticated, networks]);
 
-  const changeNetwork = (chain: INetwork) => {
+  const changeNetwork = (chain: Network) => {
     if (!chain) return;
     setItem(StoreKey.DEFAULT_CHAIN, chain);
     setDefaultChain(chain);

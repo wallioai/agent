@@ -8,7 +8,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-function Header({ title, isBack = true, children }: Props) {
+function Header({ title, isBack = true }: Props) {
   return (
     <div className="sticky top-0 z-50 w-full flex-1">
       <div className="flex items-center justify-between">

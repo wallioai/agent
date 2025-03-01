@@ -2,20 +2,18 @@
 import React, { useEffect } from "react";
 import { HandCoinsIcon, HomeIcon, SettingsIcon, Wallet2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/auth.context";
 import { routes } from "@/lib/routes";
 import { Button } from "../ui/button";
 
 function MobileMenu() {
   const router = useRouter();
-  const { user } = useAuth();
 
   useEffect(() => {
     router.prefetch(routes.app.home);
     router.prefetch(routes.app.home);
     router.prefetch(routes.app.home);
     router.prefetch(routes.app.home);
-  }, []);
+  }, [router]);
 
   const navigateTo = (url: string) => {
     router.push(url);

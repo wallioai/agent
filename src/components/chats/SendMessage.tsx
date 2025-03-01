@@ -20,7 +20,6 @@ type Props = {
 };
 
 const SendMessage = ({
-  endOfMsgRef,
   handleSubmit,
   onInput,
   input,

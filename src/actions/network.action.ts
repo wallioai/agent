@@ -1,18 +1,17 @@
 "use server";
 
-import { INetwork } from "@/db/mongodb/network/network.model";
-import { postApi, getApi } from "./api.action";
-import { verifySession } from "@/lib/dal";
+import { getApi } from "./api.action";
 import { apiRoutes } from "@/lib/routes";
-import { IToken } from "@/db/mongodb/token/token.model";
+import { Token } from "@/db/repos/token.repo";
+import { Network } from "@/db/repos/network.repo";
 
 export async function listAllNetworks() {
-  const response = await getApi<INetwork[]>(apiRoutes.server.network.list);
+  const response = await getApi<Network[]>(apiRoutes.server.network.list);
   return response;
 }
 
 export async function listTokensByChain(chainId: number) {
-  const response = await getApi<IToken[]>(
+  const response = await getApi<Token[]>(
     apiRoutes.server.token.byChainId(chainId),
   );
   console.log(response.data.length);

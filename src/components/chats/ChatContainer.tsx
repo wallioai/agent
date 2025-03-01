@@ -7,7 +7,7 @@ import ChatItem from "./ChatItem";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import clsx from "clsx";
 import { Button } from "../ui/button";
-import { ArrowDown, ArrowDown01Icon } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { DotLoader } from "../ui/dotloader";
 
 type Props = {

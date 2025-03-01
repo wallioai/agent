@@ -1,5 +1,6 @@
 import {
   BaseError,
+  createPublicClient,
   decodeFunctionData,
   encodeAbiParameters,
   encodeFunctionData,
@@ -63,7 +64,9 @@ export async function toDexaSmartAccount(
     return owner;
   })();
 
+  //@ts-ignore
   return toSmartAccount({
+    //@ts-ignore
     client,
     entryPoint,
     extend: { abi, factory },
@@ -114,6 +117,7 @@ export async function toDexaSmartAccount(
     },
 
     async getAddress() {
+      //@ts-ignore
       address ??= await readContract(client, {
         ...factory,
         functionName: "getAddress",

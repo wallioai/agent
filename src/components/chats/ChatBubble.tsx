@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState } from "react";
 import { Message } from "ai";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { DexaSWIcon } from "../icons/logo";

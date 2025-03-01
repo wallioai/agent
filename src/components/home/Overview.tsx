@@ -9,7 +9,6 @@ import {
 import { Button } from "../ui/button";
 import WalletSearch from "../wallet/WalletSearch";
 import useStorage from "@/hooks/storage.hook";
-import { StoreKey } from "@/enums/storage.enum";
 import Radio from "../ui/radio";
 import TabsRoot from "../tabs/TabsRoot";
 import TabsList from "../tabs/TabsList";
@@ -18,18 +17,15 @@ import TabsContent from "../tabs/TabsContent";
 import Table from "../ui/table";
 import { useNetwork } from "@/context/network.context";
 import { DexaSWIcon } from "../icons/logo";
-import { Switch } from "../ui/switch";
 import EnableToken from "../wallet/EnableToken";
 import clsx from "clsx";
 import { PlusIcon } from "lucide-react";
 
-type Props = {};
 
-function Overview({}: Props) {
+function Overview() {
   const dispatch = useAppDispatch();
   const isHidden = useAppSelector(selectHideBalance);
   const [activeTab, setActiveTab] = useState("tab1");
-  const { setItem } = useStorage();
   const { defaultTokens, defaultChain } = useNetwork();
 
   const onTabChange = (tabId: string) => {
