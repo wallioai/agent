@@ -128,6 +128,28 @@ export const ChainById = {
   [Chain.TRON]: 728126428,
 };
 
+export const DLNInternalId = {
+  [Chain.ABSTRACT]: 100000017,
+  [Chain.ARBITRUM]: 42161,
+  [Chain.AVALANCHE]: 43114,
+  [Chain.BASE]: 8453,
+  [Chain.BERACHAIN]: 100000020,
+  [Chain.BITROCK]: 100000005,
+  [Chain.BNBCHAIN]: 56,
+  [Chain.CRONOS_ZKEVM]: 100000010,
+  [Chain.CROSS_FI]: 100000006,
+  [Chain.ETHEREUM]: 1,
+  [Chain.GNOSIS]: 100000002,
+  [Chain.HYPER_EVM]: 100000022,
+  [Chain.LINEA]: 59144,
+  [Chain.METIS]: 100000004,
+  [Chain.NEON]: 100000001,
+  [Chain.OPTIMISM]: 10,
+  [Chain.POLYGON]: 137,
+  [Chain.SONIC]: 100000014,
+  [Chain.STORY]: 100000013,
+};
+
 export const CoingeckoChainId = {
   [Chain.ABSTRACT]: "abstract-ecosystem",
   [Chain.ARBITRUM]: "arbitrum-ecosystem",

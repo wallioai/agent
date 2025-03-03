@@ -3,7 +3,11 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { Calculator } from "@langchain/community/tools/calculator";
 import { SystemMessage } from "@langchain/core/messages";
 import { DexAi } from "dexai";
-import { venusAdapterProvider, walletAdapterProvider } from "dexai/adapters";
+import {
+  venusAdapterProvider,
+  walletAdapterProvider,
+  dlnAdapterProvider,
+} from "dexai/adapters";
 import { ViemAccount } from "dexai/accounts";
 import { generateLangChainTools } from "dexai/tools";
 import { privateKeyToAccount } from "viem/accounts";
@@ -11,7 +15,7 @@ import { createWalletClient, Hex, http } from "viem";
 import { sonicTestnet } from "viem/chains";
 import { OPEN_AI_KEY } from "@/config/env.config";
 import { AGENT_SYSTEM_TEMPLATE } from "@/config/const.config";
-import { dlnAdapterProvider } from "@/agent-actions/debridge";
+//import { dlnAdapterProvider } from "@/agent-actions/debridge";
 import { LRUCache } from "lru-cache";
 
 // Initialize the ChatOpenAI instance

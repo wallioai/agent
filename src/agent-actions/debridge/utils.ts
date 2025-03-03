@@ -1,12 +1,13 @@
 import {
   isAddress,
   parseUnits,
+  formatEther,
   zeroAddress,
   encodeAbiParameters,
   Hex,
 } from "viem";
-import { Chain, ChainById, supportedChains } from "./constants";
-import { z } from "zod";
+import { Chain, ChainById, DLNInternalId, supportedChains } from "./constants";
+import { symbol, z } from "zod";
 import { bridgeTokenSchema } from "./schemas/bridge.schema";
 import {
   CoingeckoChainCategoryId,
@@ -14,7 +15,8 @@ import {
 } from "../coingecko/constants";
 import { Token } from "../coingecko/type";
 import { LRUCache } from "lru-cache";
-import { getChain } from "dexai";
+import { getChain, Result } from "dexai";
+import { PrepareTxResponse, ValidateChainResponse } from "./type";
 
 export const validateDLNInputs = ({
   sourceChain,
@@ -130,7 +132,6 @@ export const fetchSrcDestTokens = async ({
     );
 
     const dstChain = getChain(ChainById[toChain].toString());
-    console.log(dstChain);
     const mappedDestTokens = destTokens.map(
       ({ id, symbol, name, current_price, market_cap }: Token) => {
         const cleanSymbol = symbol.replace(/[^a-zA-Z]/g, "");
@@ -231,18 +232,18 @@ export const validateSrcDestInput = async (
   };
 };
 
-export const prepareTransaction = (
+export const prepareTransaction = async (
   args: z.infer<typeof bridgeTokenSchema> & {
     tokensCache: LRUCache<string, Token[]>;
+    fromChain: Chain;
+    toChain: Chain;
+    sender: string;
   },
 ) => {
   try {
+    const chain = getChain(ChainById[args.fromChain].toString());
     const sourceObj = args.tokensCache.get(args.sourceChain);
     const destObj = args.tokensCache.get(args.destinationChain);
-
-    console.log(sourceObj);
-    console.log(destObj);
-
     const sourceToken = sourceObj?.find(
       (t) => t.address == args.sourceTokenAddress,
     );
@@ -251,24 +252,59 @@ export const prepareTransaction = (
     );
 
     if (!sourceToken || !destToken) {
-      console.log("token not found");
       return {
         success: false,
         errorMessage: "Token not found",
       };
     }
 
-    const amountInUsd =
-      parseFloat(args.amount) *
-      parseFloat(sourceToken.current_price.toString());
+    const orderParam = {
+      srcChainId: DLNInternalId[args.fromChain],
+      srcChainTokenIn: sourceToken.address,
+      dstChainId: DLNInternalId[args.toChain],
+      dstChainTokenOut: destToken.address,
+      srcChainTokenInAmount: parseUnits(args.amount, sourceToken.decimal),
+      srcChainOrderAuthorityAddress: args.sender,
+      dstChainTokenOutAmount: "auto",
+      prependOperatingExpense: true,
+      dstChainOrderAuthorityAddress: args.to,
+      dstChainTokenOutRecipient: args.to,
+      referralCode: 31565,
+    };
 
-    const estTakeValueInUsd = (amountInUsd * (10000 - 8)) / 10000 - 6;
+    const queryString = new URLSearchParams(orderParam as any).toString();
+    const url = `https://dln.debridge.finance/v1.0/dln/order/create-tx?${queryString}`;
+    const txResponse = await fetch(url).then((res) => res.json());
 
-    const takeAmountInUint = estTakeValueInUsd / destToken.current_price;
+    const amountInUsd = parseFloat(
+      txResponse.estimation.srcChainTokenIn.approximateUsdValue,
+    );
+    const estTakeValueInUsd = parseFloat(
+      txResponse.estimation.dstChainTokenOut.recommendedApproximateUsdValue,
+    );
+    const takeAmountInUint = parseInt(
+      txResponse.estimation.dstChainTokenOut.recommendedAmount,
+    );
+
+    const protocolFee = txResponse.estimation.costsDetails.find(
+      (f) => f.type == "DlnProtocolFee",
+    );
+    const protocolFeeInUsd = protocolFee.payload.feeApproximateUsdValue;
+    const baseProtocolFee = formatEther(txResponse.fixFee);
 
     return {
       success: true,
       data: {
+        tx: {
+          data: txResponse.tx.data,
+          value: txResponse.tx.value,
+          to: txResponse.tx.to,
+        },
+        fees: {
+          protocolFee: parseFloat(protocolFeeInUsd.toString()).toFixed(2),
+          fixedFee: baseProtocolFee,
+          symbol: chain.nativeCurrency.symbol,
+        },
         giveTokenAddress: sourceToken.address,
         giveAmount: parseUnits(args.amount, sourceToken.decimal),
         takeTokenAddress: encodeAbiParameters(
@@ -291,10 +327,9 @@ export const prepareTransaction = (
         sourceToken,
         affiliateFee: "0x",
         permitEnvelope: "0x",
-      },
+      } as PrepareTxResponse,
     };
   } catch (error) {
-    console.log(error);
     return { success: false, errorMessage: error.message };
   }
 };
