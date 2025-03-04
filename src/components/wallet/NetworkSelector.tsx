@@ -34,7 +34,7 @@ function NetworkSelector() {
       <DialogTrigger asChild>
         <div
           role="button"
-          className={cn("flex cursor-pointer items-center gap-2 py-1")}
+          className={cn("flex cursor-pointer bg-secondary px-4 items-center gap-2 h-9 rounded-full")}
         >
           <div className="flex items-center gap-1">
             {defaultChain && (

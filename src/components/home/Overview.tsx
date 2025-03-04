@@ -8,7 +8,6 @@ import {
 } from "@/slices/account/hide-balance.slice";
 import { Button } from "../ui/button";
 import WalletSearch from "../wallet/WalletSearch";
-import useStorage from "@/hooks/storage.hook";
 import Radio from "../ui/radio";
 import TabsRoot from "../tabs/TabsRoot";
 import TabsList from "../tabs/TabsList";
@@ -20,7 +19,7 @@ import { DexaSWIcon } from "../icons/logo";
 import EnableToken from "../wallet/EnableToken";
 import clsx from "clsx";
 import { PlusIcon } from "lucide-react";
-
+import { Label } from "../ui/label";
 
 function Overview() {
   const dispatch = useAppDispatch();
@@ -93,12 +92,15 @@ function Overview() {
               <WalletSearch />
               <div className="flex items-center gap-x-2">
                 <Radio
+                  id="hide-balance"
                   className="rounded-none"
                   type="checkbox"
                   checked={isHidden}
                   onChange={toggleHide}
                 />
-                <p className="text-sm">Hide balance</p>
+                <Label htmlFor="hide-balance" className="text-sm">
+                  Hide balance
+                </Label>
               </div>
             </div>
             <div className="pt-5 pb-20">

@@ -1,6 +1,7 @@
 import React from "react";
 import BackButton from "./back";
 import NetworkSelector from "../wallet/NetworkSelector";
+import QuickWallet from "../wallet/QuickWallet";
 
 type Props = {
   title?: string;
@@ -16,7 +17,10 @@ function Header({ title, isBack = true }: Props) {
           {isBack && <BackButton />}
           <p className="text-lg font-normal">{title}</p>
         </div>
-        <NetworkSelector />
+        <div className="flex items-center gap-2">
+          <NetworkSelector />
+          <QuickWallet />
+        </div>
       </div>
     </div>
   );

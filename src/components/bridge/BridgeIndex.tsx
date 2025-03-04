@@ -9,6 +9,7 @@ import { RefreshCwIcon, Settings2Icon, WalletMinimalIcon } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import Radio from "../ui/radio";
 
 type Props = {};
 
@@ -55,13 +56,13 @@ function BridgeIndex({}: Props) {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex h-12 flex-1 items-center gap-2 rounded-2xl bg-primary/10 px-4">
-              <div className="rounded-md bg-primary/20 px-1">
-                <Checkbox
-                  id="another"
-                  checked={toAnother}
-                  onCheckedChange={toggleToAnother}
-                />
-              </div>
+              <Radio
+                id="another"
+                className="rounded-none"
+                type="checkbox"
+                checked={toAnother}
+                onChange={() => toggleToAnother(!toAnother)}
+              />
               <Label htmlFor="another">Bridge and send to another wallet</Label>
             </div>
             <div className="flex justify-end gap-2">
