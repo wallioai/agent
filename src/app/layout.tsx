@@ -32,14 +32,14 @@ export default function RootLayout({
           <RootProvider>
             <ReactQueryProvider>
               <NetworkProvider>
-                <BridgeProvider>
-                  <AuthProvider>
-                    <AccountProvider>
+                <AuthProvider>
+                  <AccountProvider>
+                    <BridgeProvider>
                       {children}
                       <HelperProvider />
-                    </AccountProvider>
-                  </AuthProvider>
-                </BridgeProvider>
+                    </BridgeProvider>
+                  </AccountProvider>
+                </AuthProvider>
               </NetworkProvider>
             </ReactQueryProvider>
           </RootProvider>

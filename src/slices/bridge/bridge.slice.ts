@@ -25,6 +25,7 @@ export interface BridgeState {
   destinationAmount: number;
   destinationUsdValue: number;
   destinationBalance: number;
+  desiinationAddress?: string;
 }
 
 const initialState: BridgeState = {
@@ -212,6 +213,11 @@ export const bridgeSlice = createSlice({
       state.sourceBalance = state.destinationBalance;
       state.destinationBalance = tempBalance;
     },
+
+    updateDestinationAddress(state, action: PayloadAction<string>) {
+      const address = action.payload;
+      if (address) state.desiinationAddress = address;
+    },
   },
 });
 
@@ -284,6 +290,7 @@ export const {
   updateSourceDetails,
   updateDestinationDetails,
   switchNetworks,
+  updateDestinationAddress,
 } = bridgeSlice.actions;
 
 export default bridgeSlice.reducer;

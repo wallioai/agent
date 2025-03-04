@@ -30,7 +30,9 @@ import {
   selectSourceTokenOptions,
   selectDestinationTokenOptions,
   selectIsSameNetwork,
+  updateDestinationAddress,
 } from "@/slices/bridge/bridge.slice";
+import { useAccount } from "./account.context";
 
 type BridgeContextType = {
   networks: Network[];
@@ -61,8 +63,11 @@ type BridgeContextType = {
     usdValue?: number;
     balance?: number;
   }) => void;
+  changeDestinationAddress: (address: string) => void;
   switchForm: () => void;
   isFormValid: boolean;
+  toAnother: boolean;
+  toggleToAnother: (value: boolean) => void;
 };
 
 const srcDataKeys = {
@@ -86,6 +91,7 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
     reValidateMode: "onChange",
   });
 
+  const [toAnother, setToAnother] = useState(false);
   const [init, setInit] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
@@ -149,8 +155,10 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
       const destNetwork =
         networks.find((n) => n.chainId !== defaultChain.chainId) ||
         defaultChain;
-      console.log(destNetwork);
       dispatch(setDestinationNetwork(destNetwork));
+
+      // Initialize destination address to owners address
+      // dispatch(updateDestinationAddress());
 
       setInit(true);
 
@@ -216,6 +224,14 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
     [dispatch],
   );
 
+  const changeDestinationAddress = useCallback(
+    (address: string) => {
+      console.log(address);
+      dispatch(updateDestinationAddress(address));
+    },
+    [dispatch],
+  );
+
   // Handler for updating source amount details
   const updateSourceAmountDetails = useCallback(
     (details: { amount?: number; usdValue?: number; balance?: number }) => {
@@ -251,6 +267,16 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [bridge, dispatch]);
 
+  const toggleToAnother = useCallback(
+    (value: boolean) => {
+      if (!value) {
+        changeDestinationAddress("");
+      }
+      setToAnother(value)
+    },
+    [setToAnother],
+  );
+
   const contextValue = useMemo(
     () => ({
       networks,
@@ -273,7 +299,10 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
       changeDestinationToken,
       updateSourceAmountDetails,
       updateDestinationAmountDetails,
+      changeDestinationAddress,
       switchForm,
+      toAnother,
+      toggleToAnother,
       isFormValid: isValid,
     }),
     [
@@ -288,7 +317,10 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
       changeDestinationToken,
       updateSourceAmountDetails,
       updateDestinationAmountDetails,
+      changeDestinationAddress,
       switchForm,
+      toAnother,
+      toggleToAnother,
       isValid,
     ],
   );
