@@ -24,6 +24,8 @@ import { PrepareTxResponse, ValidateChainResponse } from "./type";
 // Define bridge step types for better type safety
 type BridgeStep = "initial" | "confirmation" | "execution";
 
+// @Todo: Add Balance check before proceeding
+
 /**
  * DeBridgeLiquidityAdapterProvider is an adapter provider that enables user seamlessly bridge tokens.
  * This provider provides the ability for user to bridge token from one chain to another.

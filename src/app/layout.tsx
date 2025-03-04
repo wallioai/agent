@@ -8,6 +8,7 @@ import { ReduxProvider } from "@/providers/ReduxProvider";
 import { AccountProvider } from "@/context/account.context";
 import { AuthProvider } from "@/context/auth.context";
 import { NetworkProvider } from "@/context/network.context";
+import { BridgeProvider } from "@/context/bridge.context";
 
 const barlow = Barlow({
   subsets: ["latin"],
@@ -31,12 +32,14 @@ export default function RootLayout({
           <RootProvider>
             <ReactQueryProvider>
               <NetworkProvider>
-                <AuthProvider>
-                  <AccountProvider>
-                    {children}
-                    <HelperProvider />
-                  </AccountProvider>
-                </AuthProvider>
+                <BridgeProvider>
+                  <AuthProvider>
+                    <AccountProvider>
+                      {children}
+                      <HelperProvider />
+                    </AccountProvider>
+                  </AuthProvider>
+                </BridgeProvider>
               </NetworkProvider>
             </ReactQueryProvider>
           </RootProvider>

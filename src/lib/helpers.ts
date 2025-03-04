@@ -77,3 +77,24 @@ export function toObjectId(value: string) {
 }
 
 export const isDev = process.env.NODE_ENV === "development";
+
+export function formatWalletAddress(
+  walletAddress: string,
+  separator?: string,
+  startAt?: number,
+  endAt?: number,
+) {
+  if (typeof walletAddress !== "string" || walletAddress.length < 6) {
+    return "Invalid wallet address";
+  }
+
+  const prefix = startAt
+    ? walletAddress.substring(0, startAt)
+    : walletAddress.substring(0, 5);
+  const suffix = endAt
+    ? walletAddress.substring(walletAddress.length - endAt)
+    : walletAddress.substring(walletAddress.length - 4);
+  const div = separator ? separator : "...";
+
+  return `${prefix}${div}${suffix}`;
+}
