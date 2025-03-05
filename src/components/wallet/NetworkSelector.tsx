@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 import { Network } from "@/db/repos/network.repo";
 
 function NetworkSelector() {
@@ -34,15 +34,14 @@ function NetworkSelector() {
       <DialogTrigger asChild>
         <div
           role="button"
-          className={cn("flex cursor-pointer bg-secondary px-4 items-center gap-2 h-9 rounded-full")}
+          className={cn(
+            "flex h-9 cursor-pointer items-center gap-2 rounded-full bg-secondary px-4",
+          )}
         >
           <div className="flex items-center gap-1">
             {defaultChain && (
               <div className="relative size-5">
-                <DexaSWIcon
-                  src={defaultChain.icon}
-                  className="size-5 rounded-full"
-                />
+                <Icon src={defaultChain.icon} className="size-5 rounded-full" />
                 <div
                   className={cn(
                     "absolute -right-0 bottom-0 size-2 rounded-full",
@@ -72,7 +71,7 @@ function NetworkSelector() {
               className="flex cursor-pointer items-center justify-between border-b px-5 py-3 hover:bg-secondary"
             >
               <div className="flex items-center gap-2">
-                <DexaSWIcon src={n.icon} className="size-8 rounded-full" />
+                <Icon src={n.icon} className="size-8 rounded-full" />
                 <p>{n.name}</p>
                 {n.type == "testnet" && (
                   <p className="bg-destructive/10 px-2 text-xs">Testnet</p>

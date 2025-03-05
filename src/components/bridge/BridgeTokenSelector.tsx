@@ -9,7 +9,7 @@ import {
   CircleHelpIcon,
   SearchIcon,
 } from "lucide-react";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 import { Input } from "../ui/input";
 import { formatWalletAddress } from "@/lib/helpers";
 import Link from "next/link";
@@ -59,7 +59,7 @@ function BridgeTokenSelector({
           <div className="flex items-center gap-2">
             <div>
               {selectedToken ? (
-                <DexaSWIcon
+                <Icon
                   src={selectedToken?.icon}
                   className="size-6 rounded-full"
                 />
@@ -107,7 +107,7 @@ function BridgeTokenSelector({
                 key={`${network?.chainId}-${t.address}`}
                 className="flex cursor-pointer items-center gap-2"
               >
-                <DexaSWIcon src={t.icon} className="size-7 rounded-full" />
+                <Icon src={t.icon} className="size-7 rounded-full" />
                 <div className="flex flex-1 items-center justify-between">
                   <div className="w-[12rem] flex-1 overflow-hidden">
                     <p className="truncate font-medium">{t.name}</p>

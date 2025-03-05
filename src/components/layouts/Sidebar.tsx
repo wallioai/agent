@@ -13,7 +13,7 @@ import {
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 
 export default function Sidebar() {
   const path = usePathname();
@@ -59,7 +59,7 @@ export default function Sidebar() {
       className={`hidden w-20 flex-col justify-between border-r py-5 sm:flex xl:w-60`}
     >
       <div className="flex-1">
-        <DexaSWIcon className="mb-5 ml-5 size-10 rounded-sm" />
+        <Icon className="mb-5 ml-5 size-10 rounded-sm" />
         <div className="flex flex-col gap-y-1">
           {navigation.map((nav, key) => (
             <Link

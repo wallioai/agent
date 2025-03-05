@@ -4,7 +4,7 @@ import Container from "@/components/layouts/Container";
 import MobileMenu from "@/components/layouts/MobileMenu";
 import Sidebar from "@/components/layouts/Sidebar";
 import { apiRoutes } from "@/lib/routes";
-import { DexAiInfo } from "@/components/info-cards/dexai.card";
+import { WallioInfo } from "@/components/info-cards/wallio.card";
 import Ai from "@/assets/images/ai.png";
 
 export default function MainLayout({
@@ -21,7 +21,7 @@ export default function MainLayout({
           <Aside className="w-[38rem]">
             <Chats
               endpoint={apiRoutes.agents.dexai}
-              welcomeComponent={DexAiInfo}
+              welcomeComponent={WallioInfo}
               aiImage={Ai}
             />
           </Aside>

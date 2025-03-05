@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import { useForm, Controller, FieldValues } from "react-hook-form";
-import { DexaSWIcon, DexaSWLogo } from "@/components/icons/logo";
+import { Icon, Logo } from "@/components/icons/logo";
 import { registerSchemaResolve } from "@/schemas/register.schema";
 import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import useToast from "@/hooks/toast.hook";
@@ -84,7 +84,7 @@ export default function Create() {
         <div className="relative h-svh overflow-y-scroll">
           <div className="flex size-full">
             <div className="hidden w-80 bg-primary p-5 md:block lg:w-96">
-              <DexaSWLogo
+              <Logo
                 textClass="text-background"
                 logoClass="bg-background p-1 rounded-full"
               />
@@ -93,7 +93,7 @@ export default function Create() {
               <div className="w-full">
                 <div className="mx-auto max-w-sm text-center">
                   <div className="mb-2 flex justify-center">
-                    <DexaSWIcon className="rounded-full" />
+                    <Icon className="rounded-full" />
                   </div>
                   <h2 className="text-2xl font-bold">Create a smart account</h2>
                   <p className="text-sm text-foreground/60">
@@ -156,7 +156,7 @@ export default function Create() {
                               onCheckedChange={onChange}
                             />
                             <Label htmlFor="terms">
-                              I agree to all SonicSW&apos;s{" "}
+                              I agree to all Wallio&apos;s{" "}
                               <Link className="text-primary" href="">
                                 Terms and Conditions
                               </Link>

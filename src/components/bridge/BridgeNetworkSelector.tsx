@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ChevronDownIcon, WebcamIcon } from "lucide-react";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 import { Network } from "@/db/repos/network.repo";
 import { useBridge } from "@/context/bridge.context";
 import clsx from "clsx";
@@ -52,7 +52,7 @@ function BridgeNetworkSelector({
               <WebcamIcon size={28} />
               {selectedNetwork && (
                 <div className="absolute right-0 bottom-0 h-4 w-4 rounded-full">
-                  <DexaSWIcon
+                  <Icon
                     src={selectedNetwork.icon}
                     className="size-4 rounded-full"
                   />
@@ -92,7 +92,7 @@ function BridgeNetworkSelector({
                 },
               )}
             >
-              <DexaSWIcon src={n.icon} className="size-6 rounded-full" />
+              <Icon src={n.icon} className="size-6 rounded-full" />
               <p className="text-nowrap">{n.shortName}</p>
             </div>
           ))}

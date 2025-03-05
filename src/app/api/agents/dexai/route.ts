@@ -12,8 +12,9 @@ import { CookieKeys } from "@/enums/cookie.enum";
 import { getServerSession } from "@/lib/session";
 import { IDecodedToken } from "@/lib/dal";
 import { getAgent } from "@/lib/agent";
+import { SavedWallet } from "@/types/wallet.type";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
   if (message.role === "user") {
@@ -48,7 +49,7 @@ const convertLangChainMessageToVercelMessage = (message: BaseMessage) => {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log("here here");
+    const wallet = body.wallet as SavedWallet;
     const returnIntermediateSteps = body.show_intermediate_steps;
     const session = (await getServerSession(
       CookieKeys.ACCESS_TOKEN,
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
       .map(convertVercelMessageToLangChainMessage);
 
     // Get the singleton agent instance
-    const agent = await getAgent(session.name);
+    const agent = await getAgent(session.name, wallet);
 
     if (!returnIntermediateSteps) {
       const eventStream = agent.streamEvents({ messages }, { version: "v2" });

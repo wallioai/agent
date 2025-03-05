@@ -6,8 +6,9 @@ import { redirect } from "next/navigation";
 import { CookieKeys } from "@/enums/cookie.enum";
 import { jwtDecode } from "jwt-decode";
 import { routes } from "./routes";
+import { IUser } from "@/types/user.type";
 
-export type IDecodedToken = {
+export interface IDecodedToken extends IUser {
   id: string;
   email: string;
   name: string;

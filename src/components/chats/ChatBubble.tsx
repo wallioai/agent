@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Message } from "ai";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 import useClipBoard from "@/hooks/clipboard.hook";
 import { CheckCheckIcon, CopyIcon } from "lucide-react";
 import { EnhancedChatMarkdown } from "./ChatMarkdown";
@@ -55,7 +55,7 @@ export default function ChatBubble({ message, aiImage }: Props) {
               whiteSpace: "normal",
             }}
           >
-            {!isOwnerMsg && <DexaSWIcon src={aiImage} className="size-6" />}
+            {!isOwnerMsg && <Icon src={aiImage} className="size-6" />}
             <div className="inline-block w-full break-words select-text">
               <EnhancedChatMarkdown id={message.id} content={message.content} />
             </div>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 
 export default function Loader() {
   return (
@@ -41,7 +41,7 @@ export default function Loader() {
               ease: "easeInOut",
             }}
           >
-            <DexaSWIcon className="h-14 w-14 rounded-md" />
+            <Icon className="h-14 w-14 rounded-md" />
           </motion.div>
         </motion.div>
       </div>

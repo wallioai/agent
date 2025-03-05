@@ -30,6 +30,7 @@ export const initWebAuthLoginProcess = async (
         id: authInfo.id,
         publicKey,
         rpId: authInfo.rpID,
+        user: response.data.user,
       },
     };
   }
@@ -58,6 +59,7 @@ export const initWebAuthRegistration = async (
         id: response.data.registrationInfo?.credential.id ?? "",
         publicKey,
         rpId: response.data.registrationInfo?.rpID,
+        user: response.data.user,
       },
     };
   }

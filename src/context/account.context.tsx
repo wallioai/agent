@@ -4,18 +4,14 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
+  useEffect,
   useState,
 } from "react";
 import { useAppSelector } from "@/hooks/redux.hook";
 import { selectAuth } from "@/slices/account/auth.slice";
 import useStorage from "@/hooks/storage.hook";
 import { StoreKey } from "@/enums/storage.enum";
-import {
-  decodeAccountCredentials,
-  encodeAccountCredentials,
-} from "@/actions/auth.action";
 import {
   toWebAuthnAccount,
   type WebAuthnAccount,
@@ -24,12 +20,30 @@ import { AccountCredentials } from "@/types/webauthn.type";
 import { publicClient } from "@/clients/viem.client";
 import { toDexaSmartAccount } from "@/account/account/toDexaSmartAccount";
 import { ToDexaSmartAccountReturnType } from "@/account/types/toDexaSmartAccount.type";
+import {
+  HDAccount,
+  Hex,
+  PrivateKeyAccount,
+  createWalletClient,
+  http,
+} from "viem";
+import {
+  decryptWalletData,
+  generateMasterSeed,
+  makeNewWallet,
+} from "@/actions/wallet.action";
+import { SavedWallet, WalletCredential } from "@/types/wallet.type";
+import { privateKeyToAccount, HDKey, hdKeyToAccount } from "viem/accounts";
+import { isoUint8Array } from "@simplewebauthn/server/helpers";
+import { accountFromWallet } from "@/lib/account";
+import { set } from "mongoose";
 
 interface AccountContextType {
-  account: ToDexaSmartAccountReturnType | null;
-  owner: WebAuthnAccount | null;
-  disconnect: () => void;
   setCredentials: (credentials: AccountCredentials) => Promise<void>;
+  wallets: SavedWallet[];
+  activeWallet?: SavedWallet;
+  addAccount: () => Promise<void>;
+  activateAccount: (wallet: SavedWallet) => Promise<void>;
 }
 
 const AccountContext = createContext<AccountContextType | undefined>(undefined);
@@ -37,136 +51,157 @@ const AccountContext = createContext<AccountContextType | undefined>(undefined);
 export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated } = useAppSelector(selectAuth);
-  const [owner, setOwner] = useState<WebAuthnAccount | null>(null);
-  const [account, setAccount] = useState<ToDexaSmartAccountReturnType | null>(
-    null
-  );
-  const [credentials, setCredentials] = useState<
-    AccountCredentials | undefined
+  const [wallets, setWallets] = useState<SavedWallet[]>([]);
+  const [activeWallet, setActiveWallet] = useState<SavedWallet>();
+  const [activeAccount, setActiveAccount] = useState<
+    ToDexaSmartAccountReturnType | HDAccount
   >();
-  const { getItem, removeItem, setItem } = useStorage();
-
-  const getSmartAccount = useCallback(
-    async (
-      ownerAccount: WebAuthnAccount
-    ): Promise<ToDexaSmartAccountReturnType | undefined> => {
-      console.log(account);
-      if (account) return account; // Return existing account if available
-      try {
-        const smartAccount = await toDexaSmartAccount({
-          //@ts-ignore
-          client: publicClient,
-          owner: ownerAccount,
-        });
-        console.log(smartAccount);
-        setAccount(smartAccount);
-        return smartAccount;
-      } catch (error) {
-        console.error("Error getting smart account:", error);
-      }
-    },
-    [account]
-  );
-
-  const getSmartAccountOwner = useCallback(
-    (creds: AccountCredentials): WebAuthnAccount => {
-      return toWebAuthnAccount({
-        credential: {
-          id: creds.id,
-          publicKey: creds.publicKey,
-        },
-        rpId: creds.rpId,
-      });
-    },
-    []
-  );
-
-  const initAccountCredentials = useCallback(
-    async (newCredentials: AccountCredentials) => {
-      try {
-        const encodedCredentials = await encodeAccountCredentials(
-          newCredentials
-        );
-        setItem(StoreKey.WALLET_CREDENTIAL, encodedCredentials);
-        setCredentials(newCredentials);
-        return newCredentials;
-      } catch (error) {
-        console.error("Error setting account credentials:", error);
-        throw error;
-      }
-    },
-    [setItem]
-  );
-
-  const getAccountCredentials = useCallback(async (): Promise<
-    AccountCredentials | undefined
-  > => {
-    if (credentials) return credentials; // Return existing credentials if available
-    try {
-      const encodedCredentials = getItem<string>(StoreKey.WALLET_CREDENTIAL);
-      if (encodedCredentials) {
-        const decodedCredentials = await decodeAccountCredentials(
-          encodedCredentials
-        );
-        setCredentials(decodedCredentials);
-        return decodedCredentials;
-      }
-    } catch (error) {
-      console.error("Error getting account credentials:", error);
-    }
-  }, [getItem, credentials]);
-
-  const initializeAccount = useCallback(async () => {
-    if (!isAuthenticated || owner) return; // Don't initialize if not authenticated or already initialized
-
-    try {
-      const creds = await getAccountCredentials();
-      if (creds) {
-        const ownerAccount = getSmartAccountOwner(creds);
-        setOwner(ownerAccount);
-        await getSmartAccount(ownerAccount);
-      }
-    } catch (error) {
-      console.error("Error initializing account:", error);
-    }
-  }, [
-    isAuthenticated,
-    owner,
-    getAccountCredentials,
-    getSmartAccountOwner,
-    getSmartAccount,
-  ]);
+  const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const { getItem, setItem } = useStorage();
 
   useEffect(() => {
-    initializeAccount();
-  }, [initializeAccount]);
+    const loadWallets = async () => {
+      const wallets: Record<string, SavedWallet[]> =
+        getItem(StoreKey.WALLETS) || {};
 
-  const disconnect = useCallback(() => {
-    setAccount(null);
-    setOwner(null);
-    setCredentials(undefined);
-    removeItem(StoreKey.WALLET_CREDENTIAL);
-  }, [removeItem]);
+      if (wallets && wallets[user.id]) {
+        const encryptedWallets = wallets[user.id];
+        setWallets(encryptedWallets);
+
+        // Get active wallet
+        const lastUsedWallet = encryptedWallets.sort(
+          (a, b) =>
+            new Date(b.lastActiveAt).getTime() -
+            new Date(a.lastActiveAt).getTime(),
+        )[0];
+        setActiveWallet(lastUsedWallet);
+
+        const active = await accountFromWallet(lastUsedWallet);
+        setActiveAccount(active);
+      }
+    };
+    if (isAuthenticated && user) loadWallets();
+  }, [isAuthenticated, user]);
 
   const setNewCredentials = useCallback(
     async (newCredentials: AccountCredentials) => {
-      await initAccountCredentials(newCredentials);
-      const ownerAccount = getSmartAccountOwner(newCredentials);
-      setOwner(ownerAccount);
-      await getSmartAccount(ownerAccount);
+      const { id, publicKey: pubKey, rpId, user } = newCredentials;
+      const userId = user.id;
+      const address = user.address as Hex;
+
+      const wallets: Record<string, SavedWallet[]> =
+        getItem(StoreKey.WALLETS) || {};
+
+      const initMakeSW = async () => {
+        return await makeNewWallet({
+          name: "Smart Account",
+          address,
+          cred: { id, pubKey, rpId },
+          master: true,
+          index: 0,
+          type: "smart-wallet",
+        });
+      };
+
+      if (wallets && wallets[userId]) {
+        const encryptedWallets = wallets[userId];
+        const dSmartAccount = encryptedWallets.find(
+          (w) => w.address.toLowerCase() == address.toLowerCase(),
+        );
+        if (!dSmartAccount) {
+          const encryptWallet = await initMakeSW();
+          encryptedWallets.push(encryptWallet);
+          setItem(StoreKey.WALLETS, encryptedWallets);
+          appendWallet(encryptWallet);
+        }
+      } else {
+        const encryptWallet = await initMakeSW();
+        wallets[userId] = [];
+        wallets[userId].push(encryptWallet);
+        setItem(StoreKey.WALLETS, wallets);
+        appendWallet(encryptWallet);
+      }
     },
-    [initAccountCredentials, getSmartAccountOwner, getSmartAccount]
+    [getItem, setItem],
+  );
+
+  const appendWallet = useCallback(
+    (wallet: SavedWallet) => {
+      setWallets((prev) => [...prev, wallet]);
+    },
+    [setWallets],
+  );
+
+  const addAccount = useCallback(async () => {
+    const masterWallet = wallets.find((w) => w.master);
+    const deFiWallets = wallets.filter((w) => w.type == "defi-wallet");
+    if (masterWallet) {
+      const wallet = await decryptWalletData(masterWallet);
+      
+      const base64Seed = await generateMasterSeed(wallet.cred);
+      const masterSeed = isoUint8Array.fromUTF8String(base64Seed);
+      const hdKey = HDKey.fromMasterSeed(masterSeed);
+      const accountIndex = deFiWallets.length;
+      const account = hdKeyToAccount(hdKey, {
+        accountIndex,
+      });
+
+      const walletRecords: Record<string, SavedWallet[]> =
+        getItem(StoreKey.WALLETS) || {};
+      const encryptedWallets = walletRecords[user.id];
+      const findAccount = encryptedWallets.find(
+        (e) => e.address == account.address,
+      );
+      if (!findAccount) {
+        const nameSuffix = accountIndex > 0 ? ` ${accountIndex}` : "";
+        const newWallet = await makeNewWallet({
+          name: "DeFi Wallet" + nameSuffix,
+          address: account.address,
+          derivedFrom: {
+            id: wallet.cred.id,
+            pubKey: wallet.cred.pubKey,
+            rpId: wallet.cred.rpId,
+          },
+          master: false,
+          index: accountIndex,
+          type: "defi-wallet",
+        });
+        walletRecords[user.id].push(newWallet);
+        setItem(StoreKey.WALLETS, walletRecords);
+        appendWallet(newWallet);
+      }
+    }
+  }, [wallets, user]);
+
+  const activateAccount = useCallback(
+    async (wallet: SavedWallet) => {
+      setActiveWallet(wallet);
+
+      const walletRecords: Record<string, SavedWallet[]> =
+        getItem(StoreKey.WALLETS) || {};
+      walletRecords[user.id].map((w) => {
+        if (w.address == wallet.address) {
+          w.lastActiveAt = new Date();
+        }
+      });
+      setItem(StoreKey.WALLETS, walletRecords);
+
+      const account = await accountFromWallet(wallet);
+      console.log(account);
+      setActiveAccount(account);
+    },
+    [getItem, user, setItem],
   );
 
   const contextValue = useMemo(
     () => ({
-      account,
-      owner,
-      disconnect,
       setCredentials: setNewCredentials,
+      wallets,
+      addAccount,
+      activeWallet,
+      activateAccount,
     }),
-    [account, owner, disconnect, setNewCredentials]
+    [setNewCredentials, wallets, addAccount, activeWallet, activateAccount],
   );
 
   return (

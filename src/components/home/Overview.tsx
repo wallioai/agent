@@ -15,7 +15,7 @@ import TabsHeader from "../tabs/TabsHeader";
 import TabsContent from "../tabs/TabsContent";
 import Table from "../ui/table";
 import { useNetwork } from "@/context/network.context";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 import EnableToken from "../wallet/EnableToken";
 import clsx from "clsx";
 import { PlusIcon } from "lucide-react";
@@ -146,7 +146,7 @@ function Overview() {
                             render: (_, row) => (
                               <div className="flex items-center gap-x-2 text-nowrap">
                                 {row.icon && (
-                                  <DexaSWIcon
+                                  <Icon
                                     src={row.icon}
                                     className="size-8 rounded-full"
                                   />
@@ -216,7 +216,7 @@ function Overview() {
                             render: (_, row) => (
                               <div className="flex items-center gap-x-2 text-nowrap">
                                 {row.icon && (
-                                  <DexaSWIcon
+                                  <Icon
                                     src={row.icon}
                                     className="size-8 rounded-full"
                                   />

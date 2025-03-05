@@ -25,7 +25,7 @@ export default function Welcome() {
         <div className="max-w-3xl">
           <div className="flex flex-col gap-y-4 text-dark/80">
             <p className="text-4xl md:text-6xl lg:text-[5rem] text-nowrap leading-none font-black">
-              Let <span className="text-primary">DexaAi</span>
+              Let <span className="text-primary">Wallio</span>
             </p>
             <p className="text-4xl text-foreground/60 md:text-6xl lg:text-[5rem] text-nowrap leading-none font-black">
               {text}
@@ -37,7 +37,7 @@ export default function Welcome() {
           </div>
           <div className="max-w-lg mt-6 pb-20">
             <p className="text-xl">
-              Dexa smart wallet provides a seamless way to store, send, and
+              Wallio smart wallet provides a seamless way to store, send, and
               receive cryptocurrencies securely, anytime and anywhere.
             </p>
             <div className="flex items-start md:items-center flex-col md:flex-row gap-x-1 mt-10">

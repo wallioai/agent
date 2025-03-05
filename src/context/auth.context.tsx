@@ -3,7 +3,7 @@
 import { isAuthenticated as checkAuthStatus } from "@/actions/auth.action";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
 import { IUser } from "@/types/user.type";
-import { selectAuth, setAuth } from "@/slices/account/auth.slice";
+import { selectAuth, setAuth, setUser } from "@/slices/account/auth.slice";
 import { createContext, useContext, useEffect, useMemo } from "react";
 
 type AuthContextType = {
@@ -19,8 +19,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuthState = async () => {
-      const state = await checkAuthStatus();
+      const { state, user: authUser } = await checkAuthStatus();
+      console.log(authUser);
+      console.log(state);
+      const { iat, exp, ...props } = authUser;
       dispatch(setAuth(state));
+      dispatch(setUser(props));
     };
     initAuthState();
   }, [dispatch]);
@@ -30,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isAuthenticated,
     }),
-    [isAuthenticated, user]
+    [isAuthenticated, user],
   );
 
   return (

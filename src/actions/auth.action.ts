@@ -24,6 +24,7 @@ import { ENCRYPTION_KEY } from "@/config/env.config";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
+import { IDecodedToken } from "@/lib/dal";
 
 type InitRegType = {
   name: string;
@@ -133,12 +134,12 @@ export async function isAuthenticated() {
   }
 
   try {
-    const parsedCookie: any = jwtDecode(cookie);
+    const parsedCookie = jwtDecode(cookie) as IDecodedToken;
     const expires = new Date(parsedCookie.exp * 1000);
     if (expires < new Date()) {
       redirect(routes.auth.login);
     }
-    return true;
+    return { state: true, user: parsedCookie };
   } catch (error) {
     console.log(error);
     redirect(routes.auth.login);

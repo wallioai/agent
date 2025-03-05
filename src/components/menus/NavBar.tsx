@@ -30,10 +30,10 @@ function NavBar() {
                 src={Logo}
                 width={260}
                 height={260}
-                alt={`Dexa wallet logo`}
+                alt={`Wallio wallet logo`}
                 className="h-8 w-8"
               />
-              <p className="text-primary text-2xl font-black">wallet</p>
+              <p className="text-primary text-2xl font-black">Wallio</p>
             </div>
             <Button
               size={"icon"}

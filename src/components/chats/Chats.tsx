@@ -2,7 +2,7 @@
 
 import React, { ReactNode, useRef, useState } from "react";
 import { ArrowLeftIcon } from "lucide-react";
-import { DexaSWIcon } from "../icons/logo";
+import { Icon } from "../icons/logo";
 import { Button } from "../ui/button";
 import SendMessage from "./SendMessage";
 import { useChat } from "@ai-sdk/react";
@@ -10,6 +10,7 @@ import useToast from "@/hooks/toast.hook";
 import { StickToBottom } from "use-stick-to-bottom";
 import ChatContainer from "./ChatContainer";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import { useAccount } from "@/context/account.context";
 
 type Props = {
   endpoint: string;
@@ -20,6 +21,7 @@ type Props = {
 
 const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
   const { error } = useToast();
+  const { activeWallet } = useAccount();
   const endOfMsgRef = useRef<HTMLParagraphElement>(null);
   const [sourcesForMessages, setSourcesForMessages] = useState<
     Record<string, any>
@@ -27,6 +29,9 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
 
   const { messages, input, status, handleInputChange, handleSubmit } = useChat({
     api: endpoint,
+    body: {
+      wallet: activeWallet,
+    },
     onResponse(response) {
       const sourcesHeader = response.headers.get("x-sources");
       const sources = sourcesHeader
@@ -63,7 +68,7 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
               </p>
             </div>
             <div className="flex items-center justify-between space-x-2">
-              <DexaSWIcon />
+              <Icon />
             </div>
           </div>
         </header>
