@@ -14,69 +14,65 @@ import { Token } from "@/db/repos/token.repo";
 import { useQuery } from "@tanstack/react-query";
 import { QueryKey } from "@/enums/query.enum";
 import { listTokensByChain } from "@/actions/network.action";
-import { useForm } from "react-hook-form";
-import { bridgeSchemaResolver } from "@/schemas/bridge.schema";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
 import {
-  setSourceNetwork,
-  setDestinationNetwork,
-  setSourceToken,
-  setDestinationToken,
-  switchNetworks,
-  updateSourceDetails,
-  updateDestinationDetails,
-  setTokensForChain,
-  selectBridge,
-  selectSourceTokenOptions,
-  selectDestinationTokenOptions,
-  selectIsSameNetwork,
-  updateDestinationAddress,
-} from "@/slices/bridge/bridge.slice";
+  erc20Abi,
+  formatEther,
+  formatUnits,
+  Hex,
+  isAddress,
+  parseUnits,
+  zeroAddress,
+} from "viem";
+import { FieldValues, useForm, UseFormReturn } from "react-hook-form";
+import { bridgeSchemaResolver } from "@/schemas/bridge.schema";
+import { LRUCache } from "lru-cache";
+import { useAuth } from "./auth.context";
 import { useAccount } from "./account.context";
+import { accountFromWallet } from "@/lib/account";
+import { getChain } from "dexai";
+import { getDLNByChainId } from "dexai/adapters";
+import { publicClient } from "@/clients/viem.client";
+import { PrepareOrderResponse } from "@/types/bridge.type";
 
 type BridgeContextType = {
   networks: Network[];
-  sourceNetwork?: Network;
-  destinationNetwork?: Network;
-  sourceToken?: Token;
-  destinationToken?: Token;
-  sourceTokens: Token[];
-  destinationTokens: Token[];
-  sourceAmount: number;
-  sourceUsdValue: number;
-  sourceBalance: number;
-  destinationAmount: number;
-  destinationUsdValue: number;
-  destinationBalance: number;
-  isSameNetwork: boolean;
-  changeSourceNetwork: (network: Network) => void;
-  changeDestinationNetwork: (network: Network) => void;
-  changeSourceToken: (token: Token) => void;
-  changeDestinationToken: (token: Token) => void;
-  updateSourceAmountDetails: (details: {
-    amount?: number;
-    usdValue?: number;
-    balance?: number;
-  }) => void;
-  updateDestinationAmountDetails: (details: {
-    amount?: number;
-    usdValue?: number;
-    balance?: number;
-  }) => void;
-  changeDestinationAddress: (address: string) => void;
+  source: BridgeInfo;
+  destination: BridgeInfo;
+  updateSource: (value: Partial<BridgeInfo>) => void;
+  updateDestination: (value: Partial<BridgeInfo>) => void;
   switchForm: () => void;
   isFormValid: boolean;
   toAnother: boolean;
   toggleToAnother: (value: boolean) => void;
+  sourceTokens: Token[];
+  destinationTokens: Token[];
+  isPreparing: boolean;
+  refreshTx: () => Promise<void>;
+  updateDestinationAddress: (value: string) => void;
 };
 
-const srcDataKeys = {
-  token: { attr: "srcTokenAddress", value: "address" },
-  network: { attr: "srcChainId", value: "chainId" },
+export type BridgeInfo = {
+  network?: Network;
+  token?: Token;
+  amount?: string;
+  usdValue?: string;
+  recipient?: string;
+  balance?: string;
 };
-const dstDataKeys = {
-  token: { attr: "dstTokenAddress", value: "address" },
-  network: { attr: "dstChainId", value: "chainId" },
+
+// Define form field mappings for source and destination
+const FORM_MAPPINGS = {
+  source: {
+    token: { attr: "srcTokenAddress", value: "address" },
+    network: { attr: "srcChainId", value: "chainId" },
+    amount: { attr: "srcAmount", value: "amount" },
+  },
+  destination: {
+    token: { attr: "dstTokenAddress", value: "address" },
+    network: { attr: "dstChainId", value: "chainId" },
+    recipient: { attr: "recipient", value: "recipient" },
+    amount: { attr: "dstAmount", value: "amount" },
+  },
 };
 
 const BridgeContext = createContext<BridgeContextType | undefined>(undefined);
@@ -91,237 +87,377 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
     reValidateMode: "onChange",
   });
 
-  const [toAnother, setToAnother] = useState(false);
-  const [init, setInit] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
-
-  // Get state from redux
-  const bridge = useAppSelector(selectBridge);
-  const sourceTokenOptions = useAppSelector(selectSourceTokenOptions);
-  const destinationTokenOptions = useAppSelector(selectDestinationTokenOptions);
-  const isSameNetwork = useAppSelector(selectIsSameNetwork);
-
+  const { activeWallet } = useAccount();
   const { networks, defaultChain, defaultTokens } = useNetwork();
-
-  // Fetch tokens for source chain
-  const { data: sourceTokensResponse } = useQuery({
-    queryKey: [QueryKey.NetworkTokens, bridge.sourceNetwork?.chainId],
-    queryFn: async () => listTokensByChain(bridge.sourceNetwork?.chainId),
-    enabled: !!bridge.sourceNetwork?.chainId,
+  const [chainTokens, setChainTokens] = useState<Record<number, Token[]>>({});
+  const [isPreparing, setIsPreparing] = useState<boolean>(false);
+  const [decimalMap, setDecimalMap] = useState<Record<Hex, number>>({});
+  const [toAnother, setToAnother] = useState(false);
+  const [source, setSource] = useState<BridgeInfo>({
+    network: defaultChain,
+    token: defaultTokens[0],
+    amount: "",
+    balance: "0",
+    usdValue: "",
   });
-
-  // Fetch tokens for destination chain
-  const { data: destinationTokensResponse } = useQuery({
-    queryKey: [QueryKey.NetworkTokens, bridge.destinationNetwork?.chainId],
-    queryFn: async () => listTokensByChain(bridge.destinationNetwork?.chainId),
-    enabled: !!bridge.destinationNetwork?.chainId,
+  const [destination, setDestination] = useState<BridgeInfo>({
+    amount: "",
+    usdValue: "",
   });
+  const isSameNetwork =
+    destination?.network?.chainId == source?.network?.chainId;
 
-  // Update tokens in redux when fetched for source chain
-  useEffect(() => {
-    if (sourceTokensResponse?.data && bridge.sourceNetwork) {
-      dispatch(
-        setTokensForChain({
-          chainId: bridge.sourceNetwork.chainId,
-          tokens: sourceTokensResponse.data,
-        }),
-      );
-    }
-  }, [sourceTokensResponse?.data, bridge.sourceNetwork, dispatch]);
+  // Helper function to find default token (native or first in list)
+  const findDefaultToken = (tokens: Token[]): Token | undefined => {
+    if (!tokens || tokens.length === 0) return undefined;
+    return tokens.find((t) => t.address === zeroAddress) || tokens[0];
+  };
 
-  // Update tokens in redux when fetched for destination chain
-  useEffect(() => {
-    if (destinationTokensResponse?.data && bridge.destinationNetwork) {
-      dispatch(
-        setTokensForChain({
-          chainId: bridge.destinationNetwork.chainId,
-          tokens: destinationTokensResponse.data,
-        }),
-      );
-    }
-  }, [destinationTokensResponse?.data, bridge.destinationNetwork, dispatch]);
+  // Generic function to fetch tokens for a chain
+  const useTokensForChain = (chainId?: number) => {
+    return useQuery({
+      queryKey: [QueryKey.NetworkTokens, chainId],
+      queryFn: async () => listTokensByChain(chainId),
+      enabled: !!chainId,
+    });
+  };
 
-  // Initialize with default values
-  useEffect(() => {
-    if (defaultChain && defaultTokens && !init) {
-      // Set source network and token
-      dispatch(setSourceNetwork(defaultChain));
+  // Fetch tokens for source and destination chains
+  const { data: sourceTokensRes } = useTokensForChain(source?.network?.chainId);
+  const { data: destinationTokensRes } = useTokensForChain(
+    destination?.network?.chainId,
+  );
 
-      if (defaultTokens.length > 0) {
-        dispatch(setSourceToken(defaultTokens[0]));
+  // Update form values when source or destination changes
+  const updateFormValues = useCallback(
+    (type: "source" | "destination", value: Partial<BridgeInfo>) => {
+      Object.keys(value).forEach((key) => {
+        const mapping = FORM_MAPPINGS[type][key];
+        if (mapping && value[key]) {
+          const formValue =
+            typeof value[key] === "object" && value[key] !== null
+              ? value[key][mapping.value]
+              : value[key];
+          setValue(mapping.attr, formValue, {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+        }
+      });
+    },
+    [setValue],
+  );
+
+  // Generic function to select appropriate token for a network
+  const selectTokenForNetwork = useCallback(
+    (
+      networkTokens: Token[],
+      otherToken?: Token,
+      onSameNetwork = false,
+    ): Token | undefined => {
+      if (!networkTokens || networkTokens.length === 0) return undefined;
+
+      if (onSameNetwork && otherToken) {
+        const availableTokens = networkTokens.filter(
+          (t) => t.address !== otherToken.address,
+        );
+        return findDefaultToken(availableTokens);
       }
+
+      return findDefaultToken(networkTokens);
+    },
+    [findDefaultToken],
+  );
+
+  // Update source state and form values
+  const updateSource = useCallback(
+    (value: Partial<BridgeInfo>) => {
+      setSource((prev) => ({ ...prev, ...value }));
+      updateFormValues("source", value);
+    },
+    [updateFormValues],
+  );
+
+  // Update destination state and form values
+  const updateDestination = useCallback(
+    (value: Partial<BridgeInfo>) => {
+      setDestination((prev) => ({ ...prev, ...value }));
+      updateFormValues("destination", value);
+    },
+    [updateFormValues],
+  );
+
+  // Process tokens for a chain and update state
+  const processChainTokens = useCallback(
+    (chainId: number, tokens: Token[]) => {
+      // Update token cache
+      setChainTokens((prev) => ({ ...prev, [chainId]: tokens }));
+
+      // Check if this is the source chain
+      const isSourceChain = source?.network?.chainId === chainId;
+      // Check if this is the destination chain
+      const isDestinationChain = destination?.network?.chainId === chainId;
+
+      if (isSourceChain) {
+        const needsTokenUpdate =
+          !source.token || source.token.chainId !== chainId;
+
+        if (needsTokenUpdate) {
+          const tokenForSource = selectTokenForNetwork(
+            tokens,
+            destination?.token,
+            isSameNetwork,
+          );
+          updateSource({ token: tokenForSource });
+        }
+      }
+
+      if (isDestinationChain) {
+        const needsTokenUpdate =
+          !destination.token || destination.token.chainId !== chainId;
+
+        if (needsTokenUpdate) {
+          const tokenForDestination = selectTokenForNetwork(
+            tokens,
+            source?.token,
+            isSameNetwork,
+          );
+          updateDestination({ token: tokenForDestination });
+        }
+      }
+    },
+    [
+      source,
+      destination,
+      isSameNetwork,
+      selectTokenForNetwork,
+      updateSource,
+      updateDestination,
+    ],
+  );
+
+  const prepareTransaction = useCallback(async () => {
+    const isNative = source?.token?.address == zeroAddress;
+    const getDecimal = decimalMap[source.token.address] || null;
+    let decimal: number = isNative ? 18 : getDecimal;
+    setIsPreparing(true);
+
+    if (!isNative && !getDecimal) {
+      const chain = getChain(source.network.chainId.toString()) as any;
+      decimal = await publicClient(chain).readContract({
+        abi: erc20Abi,
+        address: source.token.address as Hex,
+        functionName: "decimals",
+      });
+      // Update token cache
+      setDecimalMap((prev) => ({ ...prev, [source.token.address]: decimal }));
+    }
+
+    const orderParam = {
+      srcChainId: getDLNByChainId(source.network.chainId),
+      srcChainTokenIn: source.token.address,
+      dstChainId: getDLNByChainId(destination.network.chainId),
+      dstChainTokenOut: destination.token.address,
+      srcChainTokenInAmount: parseUnits(source.amount, decimal),
+      srcChainOrderAuthorityAddress: activeWallet.address,
+      dstChainTokenOutAmount: "auto",
+      prependOperatingExpense: true,
+      dstChainOrderAuthorityAddress: destination.recipient,
+      dstChainTokenOutRecipient: destination.recipient,
+      referralCode: 31565,
+    };
+    const queryString = new URLSearchParams(orderParam as any).toString();
+    const url = `https://dln.debridge.finance/v1.0/dln/order/create-tx?${queryString}`;
+    const txResponse: PrepareOrderResponse = await fetch(url).then((res) =>
+      res.json(),
+    );
+    console.log(txResponse);
+    const src = txResponse.estimation.srcChainTokenIn;
+    const dst = txResponse.estimation.dstChainTokenOut;
+    const dstAmount = formatUnits(dst.recommendedAmount, dst.decimals);
+    updateDestination({
+      amount: parseFloat(dstAmount).toFixed(6),
+      usdValue: dst.recommendedApproximateUsdValue.toString(),
+    });
+    updateSource({
+      usdValue: src.originApproximateUsdValue.toString(),
+    });
+    setIsPreparing(false);
+  }, [source, destination, decimalMap]);
+
+  useEffect(() => {
+    if (destinationTokensRes?.data && destination?.network) {
+      processChainTokens(
+        destination.network.chainId,
+        destinationTokensRes.data,
+      );
+    }
+  }, [destinationTokensRes, destination?.network]);
+
+  useEffect(() => {
+    if (sourceTokensRes?.data && source?.network) {
+      processChainTokens(source.network.chainId, sourceTokensRes.data);
+    }
+  }, [sourceTokensRes, source?.network]);
+
+  useEffect(() => {
+    if (defaultChain && defaultTokens) {
+      updateSource({ network: defaultChain, token: defaultTokens[0] });
 
       // Initialize destination with a different network if available
       const destNetwork =
         networks.find((n) => n.chainId !== defaultChain.chainId) ||
         defaultChain;
-      dispatch(setDestinationNetwork(destNetwork));
+      updateDestination({ network: destNetwork });
+    }
+  }, [defaultChain, defaultTokens]);
 
-      // Initialize destination address to owners address
-      // dispatch(updateDestinationAddress());
+  useEffect(() => {
+    if (activeWallet) {
+      updateDestination({ recipient: activeWallet.address });
+    }
+  }, [activeWallet]);
 
-      setInit(true);
+  useEffect(() => {
+    if (source.amount) {
+      console.log(source.amount);
+      setTimeout(() => {
+        prepareTransaction();
+      }, 500);
+    }
+  }, [source.amount]);
 
-      // Update form values
-      updateFormValues("network", defaultChain, srcDataKeys);
-      if (defaultTokens.length > 0) {
-        updateFormValues("token", defaultTokens[0], srcDataKeys);
+  useEffect(() => {
+    let intervalId;
+    if (
+      source.amount &&
+      source.token &&
+      destination.token &&
+      destination.amount
+    ) {
+      intervalId = setInterval(() => {
+        prepareTransaction();
+      }, 30000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
       }
-      updateFormValues("network", destNetwork, dstDataKeys);
+    };
+  }, [source.amount, source.token, destination.token, destination.amount]);
+
+  const sourceTokens = useMemo(() => {
+    if (!source.network) return [];
+
+    const allTokensForChain = chainTokens[source?.network?.chainId] || [];
+    if (isSameNetwork && destination.token) {
+      return allTokensForChain.filter(
+        (t) => t.address !== destination.token?.address,
+      );
     }
-  }, [defaultChain, defaultTokens, networks, init, dispatch]);
+    return allTokensForChain;
+  }, [chainTokens, source.network, destination.token, isSameNetwork]);
 
-  // Helper function to update form values
-  const updateFormValues = (
-    type: "network" | "token",
-    value: Network | Token,
-    keys: typeof srcDataKeys | typeof dstDataKeys,
-  ) => {
-    const formKey = keys[type];
-    if (formKey) {
-      const attribute = formKey.attr;
-      const valueKey = formKey.value;
-      setValue(attribute, value[valueKey], {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
+  const destinationTokens = useMemo(() => {
+    if (!destination.network) return [];
+
+    const allTokensForChain = chainTokens[destination?.network?.chainId] || [];
+    if (isSameNetwork && source.token) {
+      return allTokensForChain.filter(
+        (t) => t.address !== source.token?.address,
+      );
     }
-  };
+    return allTokensForChain;
+  }, [chainTokens, source.token, destination.network, isSameNetwork]);
 
-  // Handler for changing source network
-  const changeSourceNetwork = useCallback(
-    (network: Network) => {
-      dispatch(setSourceNetwork(network));
-      updateFormValues("network", network, srcDataKeys);
-    },
-    [dispatch],
-  );
+  useEffect(() => {
+    const fetchBalance = async () => {
+      const isNative = source.token.address == zeroAddress;
+      const chain = getChain(source.network.chainId.toString()) as any;
 
-  // Handler for changing destination network
-  const changeDestinationNetwork = useCallback(
-    (network: Network) => {
-      dispatch(setDestinationNetwork(network));
-      updateFormValues("network", network, dstDataKeys);
-    },
-    [dispatch],
-  );
+      let balance: bigint;
+      if (isNative) {
+        balance = (await publicClient(chain).getBalance({
+          address: activeWallet.address as Hex,
+        })) as bigint;
+      } else {
+        balance = await publicClient(chain).readContract({
+          abi: erc20Abi,
+          address: source.token.address as Hex,
+          functionName: "balanceOf",
+          args: [activeWallet.address as Hex],
+        });
+      }
+      const mainBalance = formatEther(balance);
+      updateSource({ balance: mainBalance });
+    };
 
-  // Handler for changing source token
-  const changeSourceToken = useCallback(
-    (token: Token) => {
-      dispatch(setSourceToken(token));
-      updateFormValues("token", token, srcDataKeys);
-    },
-    [dispatch],
-  );
+    if (source.token && defaultChain && activeWallet) {
+      fetchBalance();
+    }
+  }, [source.token, source.network, defaultChain, activeWallet]);
 
-  // Handler for changing destination token
-  const changeDestinationToken = useCallback(
-    (token: Token) => {
-      dispatch(setDestinationToken(token));
-      updateFormValues("token", token, dstDataKeys);
-    },
-    [dispatch],
-  );
-
-  const changeDestinationAddress = useCallback(
-    (address: string) => {
-      console.log(address);
-      dispatch(updateDestinationAddress(address));
-    },
-    [dispatch],
-  );
-
-  // Handler for updating source amount details
-  const updateSourceAmountDetails = useCallback(
-    (details: { amount?: number; usdValue?: number; balance?: number }) => {
-      dispatch(updateSourceDetails(details));
-    },
-    [dispatch],
-  );
-
-  // Handler for updating destination amount details
-  const updateDestinationAmountDetails = useCallback(
-    (details: { amount?: number; usdValue?: number; balance?: number }) => {
-      dispatch(updateDestinationDetails(details));
-    },
-    [dispatch],
-  );
-
-  // Handler for switching source and destination
   const switchForm = useCallback(() => {
-    dispatch(switchNetworks());
-
-    // Update form values after switching
-    if (bridge.destinationNetwork) {
-      updateFormValues("network", bridge.destinationNetwork, srcDataKeys);
-    }
-    if (bridge.sourceNetwork) {
-      updateFormValues("network", bridge.sourceNetwork, dstDataKeys);
-    }
-    if (bridge.destinationToken) {
-      updateFormValues("token", bridge.destinationToken, srcDataKeys);
-    }
-    if (bridge.sourceToken) {
-      updateFormValues("token", bridge.sourceToken, dstDataKeys);
-    }
-  }, [bridge, dispatch]);
+    const src = source;
+    const dst = destination;
+    setSource(dst);
+    setDestination(src);
+  }, [source, destination]);
 
   const toggleToAnother = useCallback(
     (value: boolean) => {
       if (!value) {
-        changeDestinationAddress("");
+        updateDestination({ recipient: activeWallet.address });
       }
-      setToAnother(value)
+      setToAnother(value);
     },
-    [setToAnother],
+    [setToAnother, activeWallet],
+  );
+
+  const updateDestinationAddress = useCallback(
+    (value: string) => {
+      const isValid = isAddress(value);
+      if (isValid) {
+        updateDestination({ recipient: value });
+      }
+    },
+    [updateDestination],
   );
 
   const contextValue = useMemo(
     () => ({
       networks,
-      sourceNetwork: bridge.sourceNetwork,
-      destinationNetwork: bridge.destinationNetwork,
-      sourceToken: bridge.sourceToken,
-      destinationToken: bridge.destinationToken,
-      sourceTokens: sourceTokenOptions,
-      destinationTokens: destinationTokenOptions,
-      sourceAmount: bridge.sourceAmount,
-      sourceUsdValue: bridge.sourceUsdValue,
-      sourceBalance: bridge.sourceBalance,
-      destinationAmount: bridge.destinationAmount,
-      destinationUsdValue: bridge.destinationUsdValue,
-      destinationBalance: bridge.destinationBalance,
-      isSameNetwork,
-      changeSourceNetwork,
-      changeDestinationNetwork,
-      changeSourceToken,
-      changeDestinationToken,
-      updateSourceAmountDetails,
-      updateDestinationAmountDetails,
-      changeDestinationAddress,
+      source,
+      destination,
+      updateDestination,
+      updateSource,
       switchForm,
+      isFormValid: isValid,
       toAnother,
       toggleToAnother,
-      isFormValid: isValid,
+      sourceTokens,
+      destinationTokens,
+      isPreparing,
+      refreshTx: prepareTransaction,
+      updateDestinationAddress,
     }),
     [
       networks,
-      bridge,
-      sourceTokenOptions,
-      destinationTokenOptions,
-      isSameNetwork,
-      changeSourceNetwork,
-      changeDestinationNetwork,
-      changeSourceToken,
-      changeDestinationToken,
-      updateSourceAmountDetails,
-      updateDestinationAmountDetails,
-      changeDestinationAddress,
+      source,
+      destination,
+      updateDestination,
+      updateSource,
+      defaultChain,
       switchForm,
+      isValid,
       toAnother,
       toggleToAnother,
-      isValid,
+      sourceTokens,
+      destinationTokens,
+      isPreparing,
+      prepareTransaction,
+      updateDestinationAddress,
     ],
   );
 
@@ -335,17 +471,7 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
 export function useBridge() {
   const context = useContext(BridgeContext);
   if (context === undefined) {
-    throw new Error("useBridge must be used within a BridgeProvider");
+    throw new Error("useAuth must be used within a BridgeProvider");
   }
   return context;
 }
-
-// For backwards compatibility, keep BridgeInfo type
-export type BridgeInfo = {
-  network?: Network;
-  token?: Token;
-  amount?: number;
-  usdValue?: number;
-  balance?: number;
-  tokens?: Token[];
-};

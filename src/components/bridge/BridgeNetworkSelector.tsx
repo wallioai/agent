@@ -29,7 +29,7 @@ function BridgeNetworkSelector({
     if (open && containerRef.current) {
       setWidth(containerRef.current.offsetWidth);
     }
-  }, [open]);
+  }, [open, containerRef]);
 
   // Update width on window resize
   useEffect(() => {
@@ -41,7 +41,7 @@ function BridgeNetworkSelector({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [open]);
+  }, [open, containerRef]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

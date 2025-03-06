@@ -106,3 +106,57 @@ export function getRandomItem<T>(arr: T[]) {
   const randomIndex = Math.floor(Math.random() * arr.length);
   return arr[randomIndex];
 }
+
+/**
+ * Clean an input for currency format
+ * @param {string} value - The user input to cleanup and format
+ * @param {Function} onChange - The onChange function that recieves the cleaned input
+ * @returns {string} A string of cleaned input
+ */
+export function cleanCurrencyInput(
+  value: string,
+  onChange: (value: string) => void,
+) {
+  if (value === "") {
+    onChange("");
+    return;
+  }
+
+  const cleanInput = value.replace(/[^\d.]/g, "");
+
+  // Validate with regex for numbers with up to 6 decimal places
+  const regex = /^\d*(\.\d{0,6})?$/;
+  if (regex.test(cleanInput)) {
+    onChange(cleanInput);
+    return cleanInput;
+  }
+}
+
+export function formatCurrency(
+  value: string | number,
+  decimal: boolean = true,
+  fixedTo: number = 2,
+) {
+  if (value === "" || value === ".") return value;
+
+  const cur = Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "NGN",
+    maximumSignificantDigits: 10,
+    currencySign: "accounting",
+  });
+
+  // "Currently, DLN does not allows quoting and placing quotes within a same chain. Please use a separate set of endpoints: https://api.dln.trade/v1.0/#/single%20chain%20swap"
+
+  const [integerPart, decimalPart] = decimal
+    ? parseFloat(`${value}`).toFixed(fixedTo).split(".")
+    : value.toString().split(".");
+  const formattedIntegerPart = cur.format(parseFloat(integerPart));
+
+  const amount =
+    decimalPart !== undefined
+      ? `${formattedIntegerPart}.${decimalPart}`
+      : formattedIntegerPart;
+
+  return amount.toString().replace(/(NGN|\s)/g, "");
+}

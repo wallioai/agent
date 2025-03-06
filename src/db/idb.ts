@@ -11,7 +11,7 @@ export class IndexDB extends Dexie {
 
     this.version(1).stores({
       networks: "++id, chainId, nameId",
-      tokens: "++id, address, chainId",
+      tokens: "++id, chainId, address",
     });
   }
 }

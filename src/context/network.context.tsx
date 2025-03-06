@@ -13,6 +13,7 @@ import { Token } from "@/db/repos/token.repo";
 import { idb } from "@/db/idb";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Network } from "@/db/repos/network.repo";
+import { getChain } from "dexai";
 
 type NetworkContextType = {
   defaultChain: Network;
@@ -146,9 +147,9 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       defaultChain,
       defaultTokens: tokens ?? [],
       networks: networks ?? [],
-      changeNetwork,
+      changeNetwork
     }),
-    [defaultChain, networks, tokens],
+    [defaultChain, networks, tokens, changeNetwork],
   );
 
   return (

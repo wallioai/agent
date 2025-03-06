@@ -146,7 +146,7 @@ export async function decryptWalletData(
 ): Promise<WallioWallet> {
   const decodedKey = await decodeString(data.key, true, ENCRYPTION_KEY);
   delete data.key;
-  let newData = {
+  const newData = {
     ...data,
     cred: undefined,
     derivedFrom: undefined,

@@ -38,7 +38,7 @@ function BridgeTokenSelector({
     if (open && containerRef.current) {
       setWidth(containerRef.current.offsetWidth);
     }
-  }, [open]);
+  }, [open, containerRef]);
 
   // Update width on window resize
   useEffect(() => {
@@ -50,7 +50,7 @@ function BridgeTokenSelector({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [open]);
+  }, [open, containerRef]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -69,9 +69,9 @@ function BridgeTokenSelector({
                 </div>
               )}
             </div>
-            <div className="">
+            <div className="flex-1 truncate">
               <p className="font-medium">{selectedToken?.symbol ?? "Select"}</p>
-              <p className="-mt-1 text-xs text-foreground/70">
+              <p className="-mt-1 text-xs truncate text-foreground/70">
                 {selectedToken?.name ?? "Token"}
               </p>
             </div>

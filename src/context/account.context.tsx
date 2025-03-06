@@ -137,7 +137,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
     const deFiWallets = wallets.filter((w) => w.type == "defi-wallet");
     if (masterWallet) {
       const wallet = await decryptWalletData(masterWallet);
-      
+
       const base64Seed = await generateMasterSeed(wallet.cred);
       const masterSeed = isoUint8Array.fromUTF8String(base64Seed);
       const hdKey = HDKey.fromMasterSeed(masterSeed);
