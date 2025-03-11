@@ -42,4 +42,5 @@ yarn-error.log*
 next-env.d.ts
 
 /src/tokens
+/src/agent-actions/security
 network.json
