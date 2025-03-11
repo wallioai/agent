@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  wallioai-kit: link:../../../Library/pnpm/global/5/node_modules/wallioai-kit
-
 importers:
 
   .:
@@ -219,8 +216,8 @@ importers:
         specifier: ^2.23.2
         version: 2.23.9(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
       wallioai-kit:
-        specifier: link:../../../Library/pnpm/global/5/node_modules/wallioai-kit
-        version: link:../../../Library/pnpm/global/5/node_modules/wallioai-kit
+        specifier: ^0.0.1
+        version: 0.0.1(@ton/crypto@3.3.0)(@types/node@20.17.24)(bufferutil@4.0.9)(lightningcss@1.29.2)(openai@4.86.2(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))(react@19.0.0)(typescript@5.8.2)(utf-8-validate@5.0.10)
       zod:
         specifier: ^3.24.2
         version: 3.24.2
@@ -4369,6 +4366,9 @@ packages:
   redux@5.0.1:
     resolution: {integrity: sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==}
 
+  reflect-metadata@0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
+
   reflect.getprototypeof@1.0.10:
     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
     engines: {node: '>= 0.4'}
@@ -4997,6 +4997,9 @@ packages:
 
   vscode-textmate@9.2.0:
     resolution: {integrity: sha512-rkvG4SraZQaPSN/5XjwKswdU0OP9MF28QjrYzUBbhb8QyG3ljB1Ky996m++jiI7KdiAP2CkBiQZd9pqEDTClqA==}
+
+  wallioai-kit@0.0.1:
+    resolution: {integrity: sha512-Gi4DeCJzwNXwPxWv+BGn3EKisENSoC+3V6FniAswUUaYFq7LCnzRXkaiSmSD+/v026GJhYvNtVRCdemRzo0TyA==}
 
   web-streams-polyfill@4.0.0-beta.3:
     resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
@@ -9441,6 +9444,8 @@ snapshots:
 
   redux@5.0.1: {}
 
+  reflect-metadata@0.2.2: {}
+
   reflect.getprototypeof@1.0.10:
     dependencies:
       call-bind: 1.0.8
@@ -10210,6 +10215,43 @@ snapshots:
   vscode-oniguruma@2.0.1: {}
 
   vscode-textmate@9.2.0: {}
+
+  wallioai-kit@0.0.1(@ton/crypto@3.3.0)(@types/node@20.17.24)(bufferutil@4.0.9)(lightningcss@1.29.2)(openai@4.86.2(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))(react@19.0.0)(typescript@5.8.2)(utf-8-validate@5.0.10):
+    dependencies:
+      '@debridge-finance/desdk': 1.0.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@heyanon/sdk': 2.1.6(@ton/crypto@3.3.0)(@types/node@20.17.24)(bufferutil@4.0.9)(lightningcss@1.29.2)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
+      '@langchain/core': 0.3.42(openai@4.86.2(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.2))
+      '@solana/web3.js': 1.98.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      ai: 4.1.54(react@19.0.0)(zod@3.24.2)
+      dotenv: 16.4.7
+      lru-cache: 11.0.2
+      reflect-metadata: 0.2.2
+      viem: 2.23.9(bufferutil@4.0.9)(typescript@5.8.2)(utf-8-validate@5.0.10)(zod@3.24.2)
+      zod: 3.24.2
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@ton/crypto'
+      - '@types/node'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - bufferutil
+      - debug
+      - encoding
+      - happy-dom
+      - jsdom
+      - less
+      - lightningcss
+      - msw
+      - openai
+      - react
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - typescript
+      - utf-8-validate
 
   web-streams-polyfill@4.0.0-beta.3: {}
 
