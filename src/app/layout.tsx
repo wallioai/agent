@@ -16,7 +16,7 @@ const barlow = Barlow({
 });
 
 export const metadata: Metadata = {
-  title: "Dexa Wallet",
+  title: "Wallio",
   description: "A smart wallet powering web3",
 };
 
