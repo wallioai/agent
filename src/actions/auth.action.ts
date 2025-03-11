@@ -130,18 +130,17 @@ export async function isAuthenticated() {
   const cookie = (await cookies()).get(CookieKeys.ACCESS_TOKEN)?.value;
 
   if (!cookie) {
-    redirect(routes.auth.login);
+    return { state: false };
   }
 
   try {
     const parsedCookie = jwtDecode(cookie) as IDecodedToken;
     const expires = new Date(parsedCookie.exp * 1000);
     if (expires < new Date()) {
-      redirect(routes.auth.login);
+      return { state: false };
     }
     return { state: true, user: parsedCookie };
   } catch (error) {
-    console.log(error);
     redirect(routes.auth.login);
   }
 }

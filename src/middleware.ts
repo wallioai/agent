@@ -14,7 +14,20 @@ export async function middleware(request: NextRequest) {
     protectedRoutes.includes(path) ||
     (/^\/[^/]+$/.test(path) && !publicRoutes.includes(path));
 
-  if (token) {
+  console.log(isPublicPage);
+  console.log(path);
+
+  // If the user is on a public page, allow access regardless of token
+  if (isPublicPage) {
+    return NextResponse.next();
+  }
+
+  // If the user is on a protected route, check for a valid token
+  if (isProtectedRoute) {
+    if (!token) {
+      return NextResponse.redirect(new URL(routes.auth.login, nextUrl));
+    }
+
     try {
       const parsedCookie: any = jwtDecode(token);
       const expires = new Date(parsedCookie.exp * 1000);
@@ -24,14 +37,9 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       return NextResponse.redirect(new URL(routes.auth.login, nextUrl));
     }
-
-    if (isPublicPage) {
-      return NextResponse.redirect(new URL(routes.app.home, nextUrl));
-    }
-  } else if (isProtectedRoute) {
-    return NextResponse.redirect(new URL(routes.auth.login, nextUrl));
   }
 
+  // If the user has a valid token and is not on a public page, allow access
   return NextResponse.next();
 }
 

@@ -35,14 +35,6 @@ export function Icon({
       priority
       className={cn("h-8 w-8", className)}
     />
-    // <Image
-    //   src={src}
-    //   width={width}
-    //   height={height}
-    //   alt={alt}
-    //   priority
-    //   className={cn("h-8 w-8", className)}
-    // />
   );
 }
 export function Logo({

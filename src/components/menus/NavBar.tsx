@@ -81,15 +81,6 @@ function NavBar() {
               <div className="flex w-full md:inline md:w-auto">
                 <Link
                   prefetch={true}
-                  href={""}
-                  className="hover:text-primary flex-1 md:flex-none py-1 md:py-0"
-                >
-                  Faucet
-                </Link>
-              </div>
-              <div className="flex w-full md:inline md:w-auto">
-                <Link
-                  prefetch={true}
                   href={routes.auth.login}
                   className="hover:text-primary flex-1 md:flex-none py-1 md:py-0"
                 >

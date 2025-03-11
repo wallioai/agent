@@ -19,10 +19,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuthState = async () => {
-      const { state, user: authUser } = await checkAuthStatus();
-      const { iat, exp, ...props } = authUser;
-      dispatch(setAuth(state));
-      dispatch(setUser(props));
+      const status = await checkAuthStatus();
+      dispatch(setAuth(status.state));
+      if (status.user) {
+        const { iat, exp, ...props } = status.user;
+        dispatch(setUser(props));
+      }
     };
     initAuthState();
   }, [dispatch]);

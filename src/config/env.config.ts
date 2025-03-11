@@ -10,8 +10,8 @@ export const SERVER_API = process.env.NEXT_PUBLIC_SERVER_API;
 export const ENCRYPTION_KEY = process.env.NEXT_PRIVATE_ENCRYPTION_KEY;
 export const WALLET_SECRET = process.env.NEXT_PRIVATE_WALLET_SECRET;
 export const OPEN_AI_KEY = process.env.NEXT_PRIVATE_OPENAI_API_KEY;
-export const COINGECKO_API = process.env.COINGECKO_API;
-export const BLURURL = process.env.BLURURL;
+export const COINGECKO_API = process.env.NEXT_PUBLIC_COINGECKO_API;
+export const BLURURL = process.env.NEXT_PUBLIC_BLURURL;
 
 export const BICONOMY = process.env.BICONOMY;
 export const IMPLEMENTATION = process.env.IMPLEMENTATION;

@@ -2,14 +2,15 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Icon } from "../icons/logo";
+import Image from "next/image";
+import LogoImage from "@/assets/images/logo.png";
 
 export default function Loader() {
   return (
-    <div className="absolute inset-0 bg-foreground/10 backdrop-blur-[1px] z-50">
-      <div className="bg-background/10 size-full flex items-center justify-center">
+    <div className="absolute inset-0 z-50 bg-foreground/10 backdrop-blur-[1px]">
+      <div className="flex size-full items-center justify-center bg-background/10">
         <motion.div
-          className="relative shadow-lg h-[4.5rem] w-[4.5rem] border rounded-2xl flex items-center justify-center overflow-hidden bg-background"
+          className="relative flex h-[4.5rem] w-[4.5rem] items-center justify-center overflow-hidden rounded-2xl border bg-background shadow-lg"
           animate={{
             boxShadow: [
               "0 0 0 0 rgba(0, 0, 0, 0.1)",
@@ -41,7 +42,14 @@ export default function Loader() {
               ease: "easeInOut",
             }}
           >
-            <Icon className="h-14 w-14 rounded-md" />
+            <Image
+              src={LogoImage}
+              width={260}
+              height={260}
+              alt={"Logo"}
+              priority
+              className={"h-14 w-14 rounded-md"}
+            />
           </motion.div>
         </motion.div>
       </div>
