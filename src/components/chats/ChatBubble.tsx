@@ -37,7 +37,7 @@ export default function ChatBubble({ message, aiImage }: Props) {
       }`}
     >
       <div
-        className="flex max-w-md flex-col"
+        className="flex max-w-lg flex-col"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -46,8 +46,8 @@ export default function ChatBubble({ message, aiImage }: Props) {
             <div className="w-5">{isOwnerMsg && isHovered && <CopyItem />}</div>
           )}
           <div
-            className={`relative flex max-w-md flex-1 space-x-2 py-2 break-words ${
-              isOwnerMsg ? "rounded-3xl bg-primary px-4 text-white" : ""
+            className={`relative flex max-w-lg flex-1 px-4 space-x-2 py-2 break-words ${
+              isOwnerMsg ? "rounded-3xl bg-primary text-white" : "bg-primary/5 py-3 rounded-lg"
             }`}
             style={{
               wordWrap: "break-word",
@@ -55,7 +55,7 @@ export default function ChatBubble({ message, aiImage }: Props) {
               whiteSpace: "normal",
             }}
           >
-            {!isOwnerMsg && <Icon src={aiImage} className="size-6" />}
+            
             <div className="inline-block w-full break-words select-text">
               <EnhancedChatMarkdown id={message.id} content={message.content} />
             </div>
@@ -68,7 +68,7 @@ export default function ChatBubble({ message, aiImage }: Props) {
 
         <div className="flex h-5 items-center">
           {!isOwnerMsg && isHovered && (
-            <div className={"flex pl-8"}>
+            <div className={"flex pl-3 mt-2"}>
               <CopyItem />
             </div>
           )}

@@ -1,5 +1,5 @@
 {
-  "name": "dexa-wallet",
+  "name": "wallio",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,6 +17,7 @@
     "@ai-sdk/react": "^1.1.17",
     "@debridge-finance/desdk": "^1.0.2",
     "@headlessui/react": "^2.2.0",
+    "@heyanon/sdk": "^2.1.6",
     "@hookform/resolvers": "^4.1.0",
     "@langchain/community": "^0.3.32",
     "@langchain/core": "^0.3.40",
@@ -45,7 +46,6 @@
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "dexai": "link:../../../Library/pnpm/global/5/node_modules/dexai",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "ethers": "^6.13.5",
@@ -78,8 +78,10 @@
     "tailwind-scrollbar-hide": "^2.0.0",
     "tailwindcss-animate": "^1.0.7",
     "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
     "use-stick-to-bottom": "^1.0.46",
     "viem": "^2.23.2",
+    "wallioai-kit": "link:../../../Library/pnpm/global/5/node_modules/wallioai-kit",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -100,7 +102,7 @@
   },
   "pnpm": {
     "overrides": {
-      "dexai": "link:../../../Library/pnpm/global/5/node_modules/dexai"
+      "wallioai-kit": "link:../../../Library/pnpm/global/5/node_modules/wallioai-kit"
     }
   }
 }

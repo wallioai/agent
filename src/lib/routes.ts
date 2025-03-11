@@ -7,7 +7,11 @@ export const routes = {
   app: {
     home: "/home",
     bridge: "/bridge",
-    others: "/others",
+    settings: {
+      index: "settings",
+      managewallet: "settings/manage-wallets",
+    },
+    others: "others",
   },
 };
 
@@ -30,7 +34,7 @@ export const apiRoutes = {
       list: "network/list",
     },
     token: {
-      byChainId: (chainId: number) => `token/${chainId}`,
+      byChainId: (chainId: number) => `token/debridge/${chainId}`,
     },
   },
   auth: {
@@ -40,6 +44,6 @@ export const apiRoutes = {
     verifyAuthentication: "api/auth/login",
   },
   agents: {
-    dexai: "api/agents/dexai",
+    dexai: "/api/agents/dexai",
   },
 };

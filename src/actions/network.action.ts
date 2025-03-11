@@ -17,7 +17,6 @@ export async function listTokensByChain(chainId: number) {
   const response = await getApi<Token[]>(
     apiRoutes.server.token.byChainId(chainId),
   );
-  console.log(response.data.length);
   return response;
 }
 

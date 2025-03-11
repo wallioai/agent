@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode, useRef, useState } from "react";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, PanelLeftDashedIcon } from "lucide-react";
 import { Icon } from "../icons/logo";
 import { Button } from "../ui/button";
 import SendMessage from "./SendMessage";
@@ -11,6 +11,10 @@ import { StickToBottom } from "use-stick-to-bottom";
 import ChatContainer from "./ChatContainer";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { useAccount } from "@/context/account.context";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
+import { selectViewport, setViewport } from "@/slices/viewport/viewport.slice";
+import clsx from "clsx";
+import SidebarToggle from "../ui/sidebarToggle";
 
 type Props = {
   endpoint: string;
@@ -20,6 +24,7 @@ type Props = {
 };
 
 const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
+  const fullScreen = useAppSelector(selectViewport);
   const { error } = useToast();
   const { activeWallet } = useAccount();
   const endOfMsgRef = useRef<HTMLParagraphElement>(null);
@@ -54,17 +59,26 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
 
   return (
     <div className="h-full">
-      <div className={`flex h-full w-auto flex-col justify-between bg-white`}>
+      <div className={`flex h-full w-auto flex-col justify-between bg-primary/2`}>
         <header className="z-10 h-14">
-          <div className="border-light flex h-14 items-center justify-between border-b bg-white px-4">
-            <div className="flex -translate-x-3 lg:hidden">
-              <Button type={"button"}>
-                <ArrowLeftIcon size={18} />
-              </Button>
-            </div>
-            <div className="max-w-[10rem] md:max-w-xs">
-              <p className="truncate font-semibold text-gray-800 dark:text-gray-400">
-                DexAi
+          <div
+            className={clsx(
+              "flex h-14 items-center justify-between px-4",
+              {
+                "border-light border-b": !fullScreen,
+              },
+            )}
+          >
+            <div className="flex items-center">
+              <div
+                className={clsx("flex -translate-x-3", {
+                  hidden: !fullScreen,
+                })}
+              >
+                <SidebarToggle />
+              </div>
+              <p className="truncate font-semibold text-foreground/70">
+                Wallio
               </p>
             </div>
             <div className="flex items-center justify-between space-x-2">

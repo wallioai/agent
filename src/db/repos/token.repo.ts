@@ -1,5 +1,6 @@
 export interface Token {
   network: string;
+  _id: string;
   id: string;
   chainId: number;
   address: string;

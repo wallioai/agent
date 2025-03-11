@@ -29,10 +29,9 @@ import { LRUCache } from "lru-cache";
 import { useAuth } from "./auth.context";
 import { useAccount } from "./account.context";
 import { accountFromWallet } from "@/lib/account";
-import { getChain } from "dexai";
-import { getDLNByChainId } from "dexai/adapters";
+import { getChain } from "wallioai-kit";
 import { publicClient } from "@/clients/viem.client";
-import { PrepareOrderResponse } from "@/types/bridge.type";
+import { createOrder, fetchSupportedNetworks } from "@/actions/debridge.action";
 
 type BridgeContextType = {
   networks: Network[];
@@ -253,34 +252,18 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
       setDecimalMap((prev) => ({ ...prev, [source.token.address]: decimal }));
     }
 
-    const orderParam = {
-      srcChainId: getDLNByChainId(source.network.chainId),
-      srcChainTokenIn: source.token.address,
-      dstChainId: getDLNByChainId(destination.network.chainId),
-      dstChainTokenOut: destination.token.address,
-      srcChainTokenInAmount: parseUnits(source.amount, decimal),
-      srcChainOrderAuthorityAddress: activeWallet.address,
-      dstChainTokenOutAmount: "auto",
-      prependOperatingExpense: true,
-      dstChainOrderAuthorityAddress: destination.recipient,
-      dstChainTokenOutRecipient: destination.recipient,
-      referralCode: 31565,
-    };
-    const queryString = new URLSearchParams(orderParam as any).toString();
-    const url = `https://dln.debridge.finance/v1.0/dln/order/create-tx?${queryString}`;
-    const txResponse: PrepareOrderResponse = await fetch(url).then((res) =>
-      res.json(),
+    const { sourceIn, destinationOut, amountOut } = await createOrder(
+      source,
+      destination,
+      activeWallet.address,
     );
-    console.log(txResponse);
-    const src = txResponse.estimation.srcChainTokenIn;
-    const dst = txResponse.estimation.dstChainTokenOut;
-    const dstAmount = formatUnits(dst.recommendedAmount, dst.decimals);
+
     updateDestination({
-      amount: parseFloat(dstAmount).toFixed(6),
-      usdValue: dst.recommendedApproximateUsdValue.toString(),
+      amount: parseFloat(amountOut).toFixed(6),
+      usdValue: destinationOut.recommendedApproximateUsdValue.toString(),
     });
     updateSource({
-      usdValue: src.originApproximateUsdValue.toString(),
+      usdValue: sourceIn.originApproximateUsdValue.toString(),
     });
     setIsPreparing(false);
   }, [source, destination, decimalMap]);
@@ -313,17 +296,23 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
   }, [defaultChain, defaultTokens]);
 
   useEffect(() => {
+    const init = async () => {
+      const supportedNetworks = await fetchSupportedNetworks();
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
     if (activeWallet) {
       updateDestination({ recipient: activeWallet.address });
     }
   }, [activeWallet]);
 
   useEffect(() => {
-    if (source.amount) {
-      console.log(source.amount);
+    if (source.amount && parseFloat(source.amount) > 0) {
       setTimeout(() => {
         prepareTransaction();
-      }, 500);
+      }, 1000);
     }
   }, [source.amount]);
 
@@ -331,6 +320,7 @@ export function BridgeProvider({ children }: { children: React.ReactNode }) {
     let intervalId;
     if (
       source.amount &&
+      parseFloat(source.amount) > 0 &&
       source.token &&
       destination.token &&
       destination.amount

@@ -9,14 +9,18 @@ import {
   ReplaceAllIcon,
   Rotate3DIcon,
   SettingsIcon,
+  WalletMinimalIcon,
 } from "lucide-react";
 import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "../icons/logo";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
+import { selectViewport, setViewport } from "@/slices/viewport/viewport.slice";
 
 export default function Sidebar() {
   const path = usePathname();
+  const dispatch = useAppDispatch();
 
   const navigation = [
     { name: "Dashboard", href: routes.app.home, icon: HomeIcon },
@@ -26,43 +30,52 @@ export default function Sidebar() {
       icon: Rotate3DIcon,
     },
     {
-      name: "Swap",
-      href: routes.app.others,
-      icon: ReplaceAllIcon,
-    },
-    {
-      name: "Earn",
-      href: routes.app.others,
-      icon: HandCoinsIcon,
-    },
-    {
-      name: "Chats",
-      href: routes.app.others,
-      icon: BotMessageSquareIcon,
-    },
-    {
-      name: "Discover",
-      href: routes.app.others,
-      icon: RadarIcon,
-    },
-    {
-      name: "Settings",
-      href: routes.app.others,
-      icon: SettingsIcon,
-    },
+      name: "Wallets",
+      href: routes.app.settings.managewallet,
+      icon: WalletMinimalIcon
+    }
+    // {
+    //   name: "Swap",
+    //   href: routes.app.others,
+    //   icon: ReplaceAllIcon,
+    // },
+    // {
+    //   name: "Earn",
+    //   href: routes.app.others,
+    //   icon: HandCoinsIcon,
+    // },
+    // {
+    //   name: "Chats",
+    //   href: routes.app.others,
+    //   icon: BotMessageSquareIcon,
+    // },
+    // {
+    //   name: "Discover",
+    //   href: routes.app.others,
+    //   icon: RadarIcon,
+    // },
+    // {
+    //   name: "Settings",
+    //   href: routes.app.others,
+    //   icon: SettingsIcon,
+    // },
   ];
 
   const isActive = (url: string) => path.includes(url);
 
   return (
     <div
-      className={`hidden w-20 flex-col justify-between border-r py-5 sm:flex xl:w-60`}
+      className={`hidden w-20 flex-col bg-primary/5 justify-between border-r py-5 sm:flex xl:w-60`}
     >
       <div className="flex-1">
         <Icon className="mb-5 ml-5 size-10 rounded-sm" />
         <div className="flex flex-col gap-y-1">
           {navigation.map((nav, key) => (
             <Link
+            onClick={(e) => {
+              e.stopPropagation();
+              dispatch(setViewport(false));
+            }}
               prefetch={true}
               href={nav.href}
               key={key}

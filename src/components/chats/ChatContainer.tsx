@@ -9,6 +9,8 @@ import clsx from "clsx";
 import { Button } from "../ui/button";
 import { ArrowDown } from "lucide-react";
 import { DotLoader } from "../ui/dotloader";
+import { useAppSelector } from "@/hooks/redux.hook";
+import { selectViewport } from "@/slices/viewport/viewport.slice";
 
 type Props = {
   messages: Message[];
@@ -20,15 +22,18 @@ type Props = {
 function ChatContainer({ messages, welcomeComponent, aiImage, status }: Props) {
   const { scrollRef, contentRef, isAtBottom, scrollToBottom } =
     useStickToBottomContext();
+  const fullScreen = useAppSelector(selectViewport);
 
   return (
     <div
       ref={scrollRef}
-      className="relative scrollbar-hide size-full flex-1 px-4"
+      className={clsx("relative scrollbar-hide size-full flex-1 px-4", {
+        "max-w-2xl w-full mx-auto": fullScreen,
+      })}
     >
       <div
         ref={contentRef}
-        className={clsx("", {
+        className={clsx(" pb-10", {
           "h-full": messages.length === 0,
         })}
       >
@@ -40,7 +45,9 @@ function ChatContainer({ messages, welcomeComponent, aiImage, status }: Props) {
         {status == "streaming" ||
           (status == "submitted" && (
             <div className="mb-5">
-              <DotLoader />
+              <div className="bg-primary/5 rounded-3xl p-3 inline-block">
+                <DotLoader />
+              </div>
             </div>
           ))}
       </div>

@@ -34,7 +34,7 @@ import * as Signature from "ox/Signature";
 import type * as WebAuthnP256 from "ox/WebAuthnP256";
 
 export async function toDexaSmartAccount(
-  parameters: ToDexaSmartAccountParameters
+  parameters: ToDexaSmartAccountParameters,
 ): Promise<ToDexaSmartAccountReturnType> {
   const { client, owner: account, nonce = parseEther("0") } = parameters;
 
@@ -90,7 +90,7 @@ export async function toDexaSmartAccount(
         }));
       }
       throw new BaseError(
-        `unable to decode calls for "${result.functionName}"`
+        `unable to decode calls for "${result.functionName}"`,
       );
     },
 
@@ -221,8 +221,8 @@ export async function toDexaSmartAccount(
           verificationGasLimit: BigInt(
             Math.max(
               Number(userOperation.verificationGasLimit ?? parseEther("0")),
-              800_000
-            )
+              800_000,
+            ),
           ),
         };
       },
@@ -324,6 +324,6 @@ export function toWebAuthnSignature({
         r,
         s,
       },
-    ]
+    ],
   );
 }

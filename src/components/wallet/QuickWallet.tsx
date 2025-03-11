@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { Fragment } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   BoltIcon,
   CheckCheckIcon,
   CopyIcon,
+  EllipsisVerticalIcon,
   PlusIcon,
   WalletMinimalIcon,
 } from "lucide-react";
@@ -17,21 +18,33 @@ import { Avatar } from "@/assets/avatar";
 import { Icon } from "../icons/logo";
 import { SavedWallet } from "@/types/wallet.type";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
+import { routes } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 
-function QuickWalletItem({ wallet }: { wallet: SavedWallet }) {
+type Props = {
+  wallet: SavedWallet;
+  className?: string;
+  mode?: "mini" | "full";
+};
+
+export function QuickWalletItem({ className, wallet, mode = "mini" }: Props) {
   const { copy, isCopied } = useClipBoard();
   const { activeWallet, activateAccount } = useAccount();
   const isActive = wallet.address == activeWallet.address;
+  const shouldShow = isActive && mode == "mini";
 
   return (
     <div
       onClick={async () => await activateAccount(wallet)}
       role="button"
-      className={clsx(
-        "flex cursor-pointer items-center gap-2 px-5 py-2 hover:bg-secondary",
-        {
-          "bg-secondary": isActive,
-        },
+      className={cn(
+        "flex cursor-pointer items-center gap-2 px-5 py-2",
+        className,
+        clsx("", {
+          "bg-secondary": shouldShow,
+          "hover:bg-secondary": mode == "mini",
+        }),
       )}
     >
       <div className="flex flex-1 items-center gap-2">
@@ -40,9 +53,21 @@ function QuickWalletItem({ wallet }: { wallet: SavedWallet }) {
         </div>
         <div className="flex flex-1 items-center justify-between">
           <div>
-            <p className="font-semibold">
-              {formatWalletAddress(wallet.address.toString())}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold">
+                {formatWalletAddress(wallet.address.toString())}
+              </p>
+              {mode == "full" && (
+                <Fragment>
+                  {isCopied ? (
+                    <CheckCheckIcon size={18} />
+                  ) : (
+                    <CopyIcon size={18} />
+                  )}
+                </Fragment>
+              )}
+            </div>
+
             <p className="-mt-1 text-sm capitalize">
               {wallet.type.split("-").join(" ")}
             </p>
@@ -50,20 +75,34 @@ function QuickWalletItem({ wallet }: { wallet: SavedWallet }) {
           <p>US$0.00</p>
         </div>
       </div>
-      <Button
-        onClick={() => copy(wallet.address)}
-        variant="ghost"
-        size="icon"
-        className="rounded-full"
-      >
-        {isCopied ? <CheckCheckIcon /> : <CopyIcon />}
-      </Button>
+      {mode == "mini" && (
+        <Button
+          onClick={() => copy(wallet.address)}
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+        >
+          {isCopied ? <CheckCheckIcon /> : <CopyIcon />}
+        </Button>
+      )}
+      {mode === "full" && (
+        <Button
+          onClick={() => copy(wallet.address)}
+          variant="ghost"
+          size="icon"
+          className="rounded-full"
+        >
+          <EllipsisVerticalIcon />
+        </Button>
+      )}
     </div>
   );
 }
 
 function QuickWallet() {
+  const router = useRouter();
   const { wallets, addAccount } = useAccount();
+
   return (
     <Popover>
       <PopoverTrigger>
@@ -93,7 +132,11 @@ function QuickWallet() {
               <p className="font-semibold">Add Wallet</p>
               <PlusIcon />
             </Button>
-            <Button variant="outline" className="rounded-full">
+            <Button
+              onClick={() => router.push(routes.app.settings.managewallet)}
+              variant="outline"
+              className="rounded-full"
+            >
               <p className="font-semibold">Manage</p>
               <BoltIcon />
             </Button>

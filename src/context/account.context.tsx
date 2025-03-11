@@ -43,7 +43,9 @@ interface AccountContextType {
   wallets: SavedWallet[];
   activeWallet?: SavedWallet;
   addAccount: () => Promise<void>;
+  importAccount: (key: string) => Promise<void>;
   activateAccount: (wallet: SavedWallet) => Promise<void>;
+  activeAccount: ToDexaSmartAccountReturnType | HDAccount | PrivateKeyAccount;
 }
 
 const AccountContext = createContext<AccountContextType | undefined>(undefined);
@@ -54,7 +56,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
   const [wallets, setWallets] = useState<SavedWallet[]>([]);
   const [activeWallet, setActiveWallet] = useState<SavedWallet>();
   const [activeAccount, setActiveAccount] = useState<
-    ToDexaSmartAccountReturnType | HDAccount
+    ToDexaSmartAccountReturnType | HDAccount | PrivateKeyAccount
   >();
   const { user, isAuthenticated } = useAppSelector(selectAuth);
   const { getItem, setItem } = useStorage();
@@ -173,6 +175,39 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [wallets, user]);
 
+  const importAccount = useCallback(
+    async (key: string) => {
+      let privateKey = key.trim();
+      privateKey = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
+
+      const importedWallets = wallets.filter((w) => w.type == "imported");
+      const account = privateKeyToAccount(privateKey as Hex);
+      const accountIndex = importedWallets.length;
+
+      const walletRecords: Record<string, SavedWallet[]> =
+        getItem(StoreKey.WALLETS) || {};
+      const encryptedWallets = walletRecords[user.id];
+      const findAccount = encryptedWallets.find(
+        (e) => e.address == account.address,
+      );
+      if (!findAccount) {
+        const nameSuffix = accountIndex > 0 ? ` ${accountIndex}` : "";
+        const newWallet = await makeNewWallet({
+          name: "Imported Wallet" + nameSuffix,
+          address: account.address,
+          privateKey,
+          master: false,
+          index: accountIndex,
+          type: "imported",
+        });
+        walletRecords[user.id].push(newWallet);
+        setItem(StoreKey.WALLETS, walletRecords);
+        appendWallet(newWallet);
+      }
+    },
+    [wallets, user],
+  );
+
   const activateAccount = useCallback(
     async (wallet: SavedWallet) => {
       setActiveWallet(wallet);
@@ -200,8 +235,18 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
       addAccount,
       activeWallet,
       activateAccount,
+      activeAccount,
+      importAccount,
     }),
-    [setNewCredentials, wallets, addAccount, activeWallet, activateAccount],
+    [
+      setNewCredentials,
+      wallets,
+      addAccount,
+      activeWallet,
+      activateAccount,
+      activeAccount,
+      importAccount,
+    ],
   );
 
   return (

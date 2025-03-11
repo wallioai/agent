@@ -13,7 +13,6 @@ import { Token } from "@/db/repos/token.repo";
 import { idb } from "@/db/idb";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Network } from "@/db/repos/network.repo";
-import { getChain } from "dexai";
 
 type NetworkContextType = {
   defaultChain: Network;
@@ -43,89 +42,100 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
     enabled: isAuthenticated && !!defaultChain?.chainId,
   });
 
-  const networks = useLiveQuery(
-    () => idb.networks.toArray(),
-    [isAuthenticated],
-  );
+  const networks = useMemo(() => {
+    return externalNetworks?.data ?? [];
+  }, [externalNetworks?.data]);
 
-  const tokens = useLiveQuery(
-    () =>
-      defaultChain?.chainId
-        ? idb.tokens
-            .where("chainId")
-            .equals(defaultChain.chainId)
-            .toArray()
-            .then((v) =>
-              v.sort((a, b) => Number(b.isEnabled) - Number(a.isEnabled)),
-            )
-        : [],
-    [isAuthenticated, defaultChain?.chainId],
-  );
+  const tokens = useMemo(() => {
+    if (defaultChain?.chainId && externalNetworkTokens?.data) {
+      return externalNetworkTokens.data;
+    }
+  }, [defaultChain?.chainId, externalNetworkTokens?.data]);
 
-  useEffect(() => {
-    if (!isAuthenticated || !externalNetworks) return;
+  //   const networks = useLiveQuery(
+  //     () => idb.networks.toArray(),
+  //     [isAuthenticated],
+  //   );
 
-    const syncNetworks = async () => {
-      const localNetworks = await idb.networks.toArray();
-      const localChainIds = new Set(localNetworks.map((net) => net.chainId));
+  //   const tokens = useLiveQuery(
+  //     () =>
+  //       defaultChain?.chainId
+  //         ? idb.tokens
+  //             .where("chainId")
+  //             .equals(defaultChain.chainId)
+  //             .toArray()
+  //             .then((v) =>
+  //               v.sort((a, b) => Number(b.isEnabled) - Number(a.isEnabled)),
+  //             )
+  //         : [],
+  //     [isAuthenticated, defaultChain?.chainId],
+  //   );
 
-      // Find networks that are in the API but not in IndexedDB
-      const missingNetworks = externalNetworks.data?.filter(
-        (net) => !localChainIds.has(net.chainId),
-      );
+  //   useEffect(() => {
+  //     if (!isAuthenticated || !externalNetworks) return;
 
-      if (missingNetworks.length > 0) {
-        await idb.networks.bulkAdd(missingNetworks);
-      }
-    };
+  //     const syncNetworks = async () => {
+  //       const localNetworks = await idb.networks.toArray();
+  //       const localChainIds = new Set(localNetworks.map((net) => net.chainId));
 
-    syncNetworks();
-  }, [isAuthenticated, externalNetworks]);
+  //       // Find networks that are in the API but not in IndexedDB
+  //       const missingNetworks = externalNetworks.data?.filter(
+  //         (net) => !localChainIds.has(net.chainId),
+  //       );
 
-  // Sync tokens with IndexedDB when the external tokens are fetched
-  useEffect(() => {
-    const syncTokens = async () => {
-      if (!externalNetworkTokens || !defaultChain) return;
+  //       if (missingNetworks.length > 0) {
+  //         await idb.networks.bulkAdd(missingNetworks);
+  //       }
+  //     };
 
-      const localTokens = await idb.tokens
-        .where("chainId")
-        .equals(defaultChain.chainId)
-        .toArray();
-      const externalTokenAddresses = new Set(
-        externalNetworkTokens.data.map((token) => token.address),
-      );
+  //     syncNetworks();
+  //   }, [isAuthenticated, externalNetworks]);
 
-      // Find tokens that are in the external source but not in IndexedDB
-      const missingTokens = externalNetworkTokens.data.filter(
-        (token) =>
-          !localTokens.some(
-            (localToken) => localToken.address === token.address,
-          ),
-      );
+  //   // Sync tokens with IndexedDB when the external tokens are fetched
+  //   useEffect(() => {
+  //     const syncTokens = async () => {
+  //       if (!externalNetworkTokens || !defaultChain) return;
 
-      // Find tokens that are in IndexedDB but not in the external source (to remove obsolete ones)
-      const obsoleteTokens = localTokens.filter(
-        (localToken) => !externalTokenAddresses.has(localToken.address),
-      );
+  //       const localTokens = await idb.tokens
+  //         .where("chainId")
+  //         .equals(defaultChain.chainId)
+  //         .toArray();
+  //       const externalTokenAddresses = new Set(
+  //         externalNetworkTokens.data.map((token) => token.address),
+  //       );
 
-      // Add missing tokens to IndexedDB
-      if (missingTokens?.length > 0) {
-        await idb.tokens.bulkAdd(missingTokens);
-      }
+  //       // Find tokens that are in the external source but not in IndexedDB
+  //       const missingTokens = externalNetworkTokens.data.filter(
+  //         (token) =>
+  //           !localTokens.some(
+  //             (localToken) => localToken.address === token.address,
+  //           ),
+  //       );
 
-      // Optionally, you could remove obsolete tokens here if needed.
-      // await tokenRepo.removeBatch(obsoleteTokens);
+  //       // Find tokens that are in IndexedDB but not in the external source (to remove obsolete ones)
+  //       const obsoleteTokens = localTokens.filter(
+  //         (localToken) => !externalTokenAddresses.has(localToken.address),
+  //       );
 
-      // Update the local tokens state
-      //   setDefaultTokens(
-      //     await tokenRepo.findByIndex("chainId", defaultChain.chainId),
-      //   );
-    };
+  //       // Add missing tokens to IndexedDB
+  //       if (missingTokens?.length > 0) {
+  //         await idb.tokens.bulkAdd(missingTokens);
+  //       }
 
-    syncTokens();
-  }, [externalNetworkTokens, defaultChain]);
+  //       // Optionally, you could remove obsolete tokens here if needed.
+  //       // await tokenRepo.removeBatch(obsoleteTokens);
+
+  //       // Update the local tokens state
+  //       //   setDefaultTokens(
+  //       //     await tokenRepo.findByIndex("chainId", defaultChain.chainId),
+  //       //   );
+  //     };
+
+  //     syncTokens();
+  //   }, [externalNetworkTokens, defaultChain]);
 
   // Set the default chain from IndexedDB or external networks
+
   useEffect(() => {
     if (!isAuthenticated || networks?.length === 0) return;
     let dChain = getItem<Network>(StoreKey.DEFAULT_CHAIN);
@@ -147,7 +157,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       defaultChain,
       defaultTokens: tokens ?? [],
       networks: networks ?? [],
-      changeNetwork
+      changeNetwork,
     }),
     [defaultChain, networks, tokens, changeNetwork],
   );

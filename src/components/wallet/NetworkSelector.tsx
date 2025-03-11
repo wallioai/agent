@@ -55,7 +55,7 @@ function NetworkSelector() {
           <ChevronDownIcon size={16} className="mt-1" />
         </div>
       </DialogTrigger>
-      <DialogContent className="p-0 sm:max-w-md">
+      <DialogContent className="p-0 sm:max-w-xl max-h-10/12 overflow-scroll scrollbar-hide">
         <VisuallyHidden>
           <DialogHeader>
             <DialogTitle>Network List</DialogTitle>

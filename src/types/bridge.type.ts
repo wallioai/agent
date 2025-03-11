@@ -1,5 +1,5 @@
 import { Hex } from "viem";
-
+import { fantom } from "viem/chains";
 export interface BaseChainInOut {
   address: Hex;
   chainId: number;
@@ -76,4 +76,10 @@ export interface PrepareOrderResponse {
   fixFee: bigint;
   userPoints: number;
   integratorPoints?: number;
+}
+
+export interface DebridgeNetwork {
+  chainId: number;
+  originalChainId: number;
+  chainName: string;
 }

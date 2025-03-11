@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import clsx from "clsx";
+import { InboxIcon } from "lucide-react";
 import React, { Fragment } from "react";
 
 type Column<T> = {
@@ -81,7 +82,10 @@ const Table = <T,>({
         ) : (
           <tr>
             <td colSpan={columns.length} className="">
-              <div className="flex bg-secondary h-60 items-center justify-center">
+              <div className="flex h-60 items-center flex-col justify-center bg-secondary">
+                <div className="size-12 rounded-full bg-primary/5 flex items-center justify-center">
+                  <InboxIcon />
+                </div>
                 <p className="max-w-xs text-center">{errorText}</p>
               </div>
             </td>

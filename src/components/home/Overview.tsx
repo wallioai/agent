@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
 import {
   selectHideBalance,
@@ -20,12 +20,18 @@ import EnableToken from "../wallet/EnableToken";
 import clsx from "clsx";
 import { PlusIcon } from "lucide-react";
 import { Label } from "../ui/label";
+import { useAccount } from "@/context/account.context";
 
 function Overview() {
   const dispatch = useAppDispatch();
   const isHidden = useAppSelector(selectHideBalance);
   const [activeTab, setActiveTab] = useState("tab1");
   const { defaultTokens, defaultChain } = useNetwork();
+  const { activeAccount } = useAccount();
+
+  useEffect(() => {
+    console.log(activeAccount);
+  }, [activeAccount]);
 
   const onTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -42,7 +48,7 @@ function Overview() {
       <div className="flex h-full flex-1 flex-col">
         <div className="mt-8">
           <div className="px-5">
-            <p className="text-sm">Total Balance</p>
+            {/* <p className="text-sm">Total Balance</p>
             <div className="flex items-end">
               <div className="flex items-end">
                 {isHidden ? (
@@ -66,7 +72,7 @@ function Overview() {
                   </p>
                 )}
               </div>
-            </div>
+            </div> */}
             <div className="flex items-center gap-x-5 pt-5">
               <Button type="button" className="rounded-sm" onClick={() => {}}>
                 <p className="">Deposit</p>

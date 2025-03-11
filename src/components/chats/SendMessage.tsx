@@ -4,6 +4,9 @@ import React from "react";
 import { SendHorizonalIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { ChatRequestOptions } from "ai";
+import { useAppSelector } from "@/hooks/redux.hook";
+import { selectViewport } from "@/slices/viewport/viewport.slice";
+import clsx from "clsx";
 
 type Props = {
   endOfMsgRef: React.RefObject<HTMLParagraphElement | null>;
@@ -26,6 +29,7 @@ const SendMessage = ({
   isLoading,
   placeholder,
 }: Props) => {
+  const fullScreen = useAppSelector(selectViewport);
   return (
     <>
       <form
@@ -35,8 +39,21 @@ const SendMessage = ({
           handleSubmit(e);
         }}
       >
-        <footer className="border-light flex max-h-20 min-h-[5rem] items-center space-x-2 border-t bg-white px-4">
-          <div className="flex-1">
+        <footer
+          className={clsx(
+            "border-light flex max-h-32 items-center space-x-2 border-t bg-white px-4",
+            {
+              "mx-auto mb-5 min-h-[6.5rem] max-w-2xl flex-col items-start rounded-3xl border shadow-lg":
+                fullScreen,
+              "min-h-[5rem]": !fullScreen,
+            },
+          )}
+        >
+          <div
+            className={clsx("flex-1", {
+              "w-full": fullScreen,
+            })}
+          >
             <input
               onChange={onInput}
               className="text-medium scrollbar-hide h-12 w-full bg-transparent py-3 outline-none"
@@ -45,14 +62,20 @@ const SendMessage = ({
             />
           </div>
 
-          <Button
-            type={"submit"}
-            size={"icon"}
-            className="rounded-full"
-            disabled={isLoading || input.length === 0}
+          <div
+            className={clsx("", {
+              "flex w-full justify-end pb-3": fullScreen,
+            })}
           >
-            <SendHorizonalIcon className="-rotate-90" size={14} />
-          </Button>
+            <Button
+              type={"submit"}
+              size={"icon"}
+              className="rounded-full"
+              disabled={isLoading || input.length === 0}
+            >
+              <SendHorizonalIcon className="-rotate-90" size={14} />
+            </Button>
+          </div>
         </footer>
       </form>
     </>

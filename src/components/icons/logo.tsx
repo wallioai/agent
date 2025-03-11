@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { routes } from "@/lib/routes";
+import OptimizedImage from "../ui/OptimizedImage";
 
 type LogoProp = {
   textClass?: string;
@@ -26,7 +27,7 @@ export function Icon({
   className,
 }: IconProps) {
   return (
-    <Image
+    <OptimizedImage
       src={src}
       width={width}
       height={height}
@@ -34,6 +35,14 @@ export function Icon({
       priority
       className={cn("h-8 w-8", className)}
     />
+    // <Image
+    //   src={src}
+    //   width={width}
+    //   height={height}
+    //   alt={alt}
+    //   priority
+    //   className={cn("h-8 w-8", className)}
+    // />
   );
 }
 export function Logo({

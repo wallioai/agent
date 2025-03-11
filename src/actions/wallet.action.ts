@@ -137,6 +137,13 @@ export async function encryptWalletData(
       ENCRYPTION_KEY,
     );
     delete data.derivedFrom;
+  } else if (data.type == "imported") {
+    key = await encodeString(
+      JSON.stringify(data.privateKey),
+      true,
+      ENCRYPTION_KEY,
+    );
+    delete data.privateKey;
   }
   return { ...data, key };
 }
@@ -150,11 +157,14 @@ export async function decryptWalletData(
     ...data,
     cred: undefined,
     derivedFrom: undefined,
+    privateKey: undefined,
   };
   if (data.type == "smart-wallet") {
     newData.cred = JSON.parse(decodedKey);
   } else if (data.type == "defi-wallet") {
     newData.derivedFrom = JSON.parse(decodedKey);
+  } else if (data.type == "imported") {
+    newData.privateKey = JSON.parse(decodedKey);
   }
   return newData;
 }
@@ -173,5 +183,6 @@ export async function makeNewWallet(
     avatar: getRandomItem<string>(avatarMap),
     lastActiveAt: new Date(),
   };
+  console.log(newWallet);
   return await encryptWalletData(newWallet);
 }

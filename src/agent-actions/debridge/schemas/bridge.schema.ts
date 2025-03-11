@@ -30,8 +30,20 @@ export const bridgeTokenSchema = z.object({
     .string()
     .optional()
     .default(zeroAddress)
-    .describe(`The address of the receiver. use default address if not provided.`),
+    .describe(
+      `The address of the receiver. use default address if not provided.`,
+    ),
   amount: z.string().describe("Amount of tokens in decimal format"),
+  intent: z
+    .enum([
+      "NATIVE-TO-NATIVE",
+      "NATIVE-TO-ERC20",
+      "ERC20-TO-NATIVE",
+      "ERC20-TO-ERC20",
+    ])
+    .describe(
+      "You should automatically determine users intent based on the users prompt",
+    ),
   isConfirmed: z
     .boolean()
     .default(false)

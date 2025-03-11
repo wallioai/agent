@@ -2,20 +2,20 @@ import { ChatOpenAI } from "@langchain/openai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { Calculator } from "@langchain/community/tools/calculator";
 import { SystemMessage } from "@langchain/core/messages";
-import { DexAi } from "dexai";
+import { Wallio } from "wallioai-kit";
 import {
   venusAdapterProvider,
   walletAdapterProvider,
-  dlnAdapterProvider,
-} from "dexai/adapters";
-import { ViemAccount } from "dexai/accounts";
-import { generateLangChainTools } from "dexai/tools";
+  //dlnAdapterProvider,
+} from "wallioai-kit/adapters";
+import { ViemAccount } from "wallioai-kit/accounts";
+import { generateLangChainTools } from "wallioai-kit/tools";
 import { privateKeyToAccount } from "viem/accounts";
 import { createWalletClient, Hex, http } from "viem";
-import { sonicTestnet } from "viem/chains";
+import { sonic, sonicTestnet } from "viem/chains";
 import { OPEN_AI_KEY } from "@/config/env.config";
 import { AGENT_SYSTEM_TEMPLATE } from "@/config/const.config";
-//import { dlnAdapterProvider } from "@/agent-actions/debridge";
+import { dlnAdapterProvider } from "@/agent-actions/debridge";
 import { LRUCache } from "lru-cache";
 import { SavedWallet } from "@/types/wallet.type";
 import { accountFromWallet } from "./account";
@@ -48,13 +48,14 @@ export const getAgent = async (username: string, wallet: SavedWallet) => {
   const account = await accountFromWallet(wallet);
   const client = createWalletClient({
     account,
-    chain: sonicTestnet,
+    chain: sonic,
     transport: http(""),
   });
 
   //@ts-ignore
   const walletProvider = new ViemAccount(client);
-  const dexai = await DexAi.init({
+  //console.log(walletProvider);
+  const wallio = await Wallio.init({
     account: walletProvider,
     adapters: [
       venusAdapterProvider(),
@@ -62,8 +63,8 @@ export const getAgent = async (username: string, wallet: SavedWallet) => {
       dlnAdapterProvider(),
     ],
   });
-  const dexAiTools = await generateLangChainTools(dexai);
-  const tools = [new Calculator(), ...dexAiTools];
+  const wallioTools = await generateLangChainTools(wallio);
+  const tools = [new Calculator(), ...wallioTools];
 
   const newAgent = createReactAgent({
     llm: chat,

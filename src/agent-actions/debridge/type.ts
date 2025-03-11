@@ -32,9 +32,25 @@ export type PrepareTxResponse = {
   orderAuthorityAddressDst: Hex;
   amountInUsd: number;
   estTakeValueInUsd: number;
-  takeAmountInUint: number;
-  destToken: Token;
-  sourceToken: Token;
+  takeAmountInUint: string;
+  destToken: DeBridgeTokens;
+  sourceToken: DeBridgeTokens;
   affiliateFee: Hex;
   permitEnvelope: Hex;
 };
+
+export interface DeBridgeTokenResponse {
+  tokens: {
+    [key: string]: DeBridgeTokens;
+  };
+}
+
+export interface DeBridgeTokens {
+  symbol: string;
+  name: string;
+  decimals: number;
+  address: string;
+  logoURI: string;
+  tags?: [{ Name: string }];
+  eip2612?: boolean;
+}

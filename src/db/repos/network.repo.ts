@@ -3,6 +3,7 @@ export enum NetworkType {
   mainnet = "mainnet",
 }
 export interface Network {
+  _id: string;
   id: string;
   chainId: number;
   symbol?: string;

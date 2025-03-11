@@ -2,6 +2,7 @@ import React from "react";
 import BackButton from "./back";
 import NetworkSelector from "../wallet/NetworkSelector";
 import QuickWallet from "../wallet/QuickWallet";
+import SidebarToggle from "./sidebarToggle";
 
 type Props = {
   title?: string;
@@ -15,7 +16,8 @@ function Header({ title, isBack = true }: Props) {
       <div className="flex items-center justify-between">
         <div className="flex items-center justify-start space-x-2">
           {isBack && <BackButton />}
-          <p className="text-lg font-normal">{title}</p>
+          <SidebarToggle className="-translate-x-3" />
+          <p className="text-lg font-normal -translate-x-3">{title}</p>
         </div>
         <div className="flex items-center gap-2">
           <NetworkSelector />

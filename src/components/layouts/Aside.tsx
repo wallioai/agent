@@ -9,7 +9,7 @@ function Aside({
   className?: string;
 }>) {
   return (
-    <div className={cn("hidden border-l lg:block w-[26rem] bg-primary/10", className)}>
+    <div className={cn("hidden border-l lg:block w-[26rem]", className)}>
       {children}
     </div>
   );

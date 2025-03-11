@@ -10,6 +10,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import Radio from "../ui/radio";
 import clsx from "clsx";
+import BridgeTransaction from "./BridgeTransaction";
 
 function BridgeIndex() {
   const {
@@ -130,7 +131,7 @@ function BridgeIndex() {
           </Button>
         </div>
       </div>
-      <div>Table</div>
+      <BridgeTransaction />
     </div>
   );
 }

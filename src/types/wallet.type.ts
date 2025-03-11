@@ -1,6 +1,6 @@
 import { Address, Hex } from "viem";
 
-export type WalletType = "smart-wallet" | "defi-wallet";
+export type WalletType = "smart-wallet" | "defi-wallet" | "imported";
 
 export interface SavedWallet extends WallioWallet {
   key: string;

@@ -84,7 +84,7 @@ function BridgeNetworkSelector({
                 onSelectNetwork(n);
                 setOpen(false);
               }}
-              key={n.id}
+              key={n._id}
               className={clsx(
                 "scrollbar-hide flex cursor-pointer items-center gap-2 overflow-scroll rounded-md border bg-primary/10 p-2 hover:bg-primary/20",
                 {
