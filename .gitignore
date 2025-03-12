@@ -43,4 +43,5 @@ next-env.d.ts
 
 /src/tokens
 /src/agent-actions/security
+/src/agent-actions/auto-rebalance
 network.json
