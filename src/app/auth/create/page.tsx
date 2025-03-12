@@ -11,15 +11,14 @@ import Link from "next/link";
 import { useForm, Controller, FieldValues } from "react-hook-form";
 import { Icon, Logo } from "@/components/icons/logo";
 import { registerSchemaResolve } from "@/schemas/register.schema";
-import { type PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import useToast from "@/hooks/toast.hook";
 import { initWebAuthRegistration } from "@/components/auth/auth";
-import { apiRoutes, routes } from "@/lib/routes";
+import { routes } from "@/lib/routes";
 import { useAccount } from "@/context/account.context";
 import { useAppDispatch } from "@/hooks/redux.hook";
 import { setAuth } from "@/slices/account/auth.slice";
-import { postApi } from "@/actions/api.action";
 import { useRouter } from "next/navigation";
+import { initRegistration } from "@/actions/auth.action";
 
 export default function Create() {
   const router = useRouter();
@@ -41,14 +40,11 @@ export default function Create() {
   const signUp = async (data: FieldValues) => {
     try {
       loading({ msg: "Authenticating..." });
-      const response = await postApi<PublicKeyCredentialCreationOptionsJSON>(
-        apiRoutes.auth.initRegistration,
-        {
-          name: data.name,
-          email: data.email,
-          fromGoogle: false,
-        },
-      );
+      const response = await initRegistration({
+        name: data.name,
+        email: data.email,
+        fromGoogle: false,
+      });
       try {
         if (response.status && response.data) {
           const regResponse = await initWebAuthRegistration(

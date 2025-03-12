@@ -55,6 +55,7 @@ export const getAgent = async (username: string, wallet: SavedWallet) => {
   //@ts-ignore
   const walletProvider = new ViemAccount(client);
   //console.log(walletProvider);
+  
   const wallio = await Wallio.init({
     account: walletProvider,
     adapters: [

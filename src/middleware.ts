@@ -14,9 +14,6 @@ export async function middleware(request: NextRequest) {
     protectedRoutes.includes(path) ||
     (/^\/[^/]+$/.test(path) && !publicRoutes.includes(path));
 
-  console.log(isPublicPage);
-  console.log(path);
-
   // If the user is on a public page, allow access regardless of token
   if (isPublicPage) {
     return NextResponse.next();
