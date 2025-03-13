@@ -46,13 +46,10 @@ export async function prepareTransaction(
       dstChainTokenOutRecipient: args.to,
       referralCode: 31565,
     };
-    console.log(orderParam);
 
     const queryString = new URLSearchParams(orderParam as any).toString();
     const url = `https://dln.debridge.finance/v1.0/dln/order/create-tx?${queryString}`;
     const txResponse = await fetch(url).then((res) => res.json());
-
-    console.log(txResponse);
 
     const amountInUsd =
       txResponse.estimation.srcChainTokenIn.approximateUsdValue;

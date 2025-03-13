@@ -76,18 +76,15 @@ export async function POST(req: NextRequest) {
     if (!returnIntermediateSteps) {
       const eventStream = agent.streamEvents({ messages }, { version: "v2" });
 
-      console.log(eventStream);
-
       return LangChainAdapter.toDataStreamResponse(eventStream, {
         callbacks: {
           onFinal(completion) {
-            //console.log(completion);
+            console.log(completion);
           },
         },
       });
     } else {
       const result = await agent.invoke({ messages });
-
       return NextResponse.json(
         {
           messages: result.messages.map(convertLangChainMessageToVercelMessage),

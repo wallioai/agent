@@ -32,7 +32,6 @@ export async function handleTokenListingStep(
   // Check cache first
   let srcTokens = tokenCache.get(args.sourceChain);
   let destTokens = tokenCache.get(args.destinationChain);
-  console.log("TOKEN LISTING");
 
   if (!srcTokens || !destTokens) {
     //let filter = { srcAddress: null, dstAddress: null };
