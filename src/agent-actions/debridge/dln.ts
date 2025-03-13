@@ -62,7 +62,10 @@ export class DeBridgeLiquidityAdapterProvider extends AdapterProvider<BaseAccoun
     try {
       if (this.bridgeStep === "cancelled") {
         this.resetBridgeState(args);
-        return toResult("Your transaction has been cancelled after 5 mins of inactivity", false);
+        return toResult(
+          "Your transaction has been cancelled after 5 mins of inactivity",
+          false,
+        );
       }
 
       // Handle transaction cancellation
@@ -100,6 +103,7 @@ export class DeBridgeLiquidityAdapterProvider extends AdapterProvider<BaseAccoun
           },
           (step) => {
             this.bridgeStep = step;
+            console.log("Current step", this.bridgeStep);
           },
         );
       }
@@ -141,7 +145,7 @@ export class DeBridgeLiquidityAdapterProvider extends AdapterProvider<BaseAccoun
           this.lastPreparedTransaction = data;
         },
         () => {
-          this.resetBridgeState();
+          this.resetBridgeState(args);
         },
       );
 

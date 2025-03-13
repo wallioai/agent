@@ -80,7 +80,7 @@ export const fetchSrcDestTokens = async ({
   const chainTokeList = (id: string) =>
     `https://dln.debridge.finance/v1.0/token-list?chainId=${id}`;
 
-  console.log("HERE");
+  console.log("FETCHING TOKENS FROM DEBRIDGE");
 
   try {
     const controller = new AbortController();
