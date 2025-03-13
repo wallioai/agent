@@ -17,7 +17,7 @@ import { unstable_noStore as noStore } from "next/cache";
 
 // Force the route to be dynamic and allow streaming responses up to 60 seconds
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 60;
 
 //export const runtime = "edge";
 
