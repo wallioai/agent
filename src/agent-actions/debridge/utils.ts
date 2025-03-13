@@ -80,12 +80,7 @@ export const fetchSrcDestTokens = async ({
   const chainTokeList = (id: string) =>
     `https://dln.debridge.finance/v1.0/token-list?chainId=${id}`;
 
-  console.log("FETCHING TOKENS FROM DEBRIDGE");
-
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
     const [srcTokens, destTokens] = await Promise.all([
       fetch(chainTokeList(debridgeIdSrc)).then(
         (tokens) => tokens.json() as Promise<DeBridgeTokenResponse>,
@@ -94,7 +89,6 @@ export const fetchSrcDestTokens = async ({
         (tokens) => tokens.json() as Promise<DeBridgeTokenResponse>,
       ),
     ]);
-    clearTimeout(timeoutId);
 
     const srcTokenObject = srcTokens.tokens;
     const sourceFilter = srcTokenObject[filter?.srcAddress];
