@@ -1,4 +1,4 @@
-import { APP_CHAIN } from "@/config/env.config";
+import { API_URL, APP_CHAIN } from "@/config/env.config";
 import {
   createWalletClient,
   http,
@@ -10,12 +10,12 @@ import {
 export const publicClient = (chain?: Chain) =>
   createPublicClient({
     chain: chain ?? APP_CHAIN,
-    transport: http(chain ? "" : "/api/rpc"),
+    transport: http(chain ? "" : `${API_URL}/rpc`),
   });
 
 export const walletClient = (account: Account) =>
   createWalletClient({
     account,
     chain: APP_CHAIN,
-    transport: http("/api/rpc"),
+    transport: http(`${API_URL}/rpc`),
   });

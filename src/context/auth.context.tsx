@@ -29,6 +29,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuthState();
   }, [dispatch]);
 
+  useEffect(() => {
+    const initAuthState = async () => {
+      const status = await checkAuthStatus();
+      if (status.user) {
+        const { iat, exp, ...props } = status.user;
+        dispatch(setUser(props));
+      }
+    };
+    if (isAuthenticated) initAuthState();
+  }, [isAuthenticated]);
+
   const contextValue = useMemo(
     () => ({
       user,

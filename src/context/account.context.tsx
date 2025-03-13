@@ -8,35 +8,21 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useAppSelector } from "@/hooks/redux.hook";
-import { selectAuth } from "@/slices/account/auth.slice";
 import useStorage from "@/hooks/storage.hook";
 import { StoreKey } from "@/enums/storage.enum";
-import {
-  toWebAuthnAccount,
-  type WebAuthnAccount,
-} from "viem/account-abstraction";
 import { AccountCredentials } from "@/types/webauthn.type";
-import { publicClient } from "@/clients/viem.client";
-import { toDexaSmartAccount } from "@/account/account/toDexaSmartAccount";
 import { ToDexaSmartAccountReturnType } from "@/account/types/toDexaSmartAccount.type";
-import {
-  HDAccount,
-  Hex,
-  PrivateKeyAccount,
-  createWalletClient,
-  http,
-} from "viem";
+import { HDAccount, Hex, PrivateKeyAccount } from "viem";
 import {
   decryptWalletData,
   generateMasterSeed,
   makeNewWallet,
 } from "@/actions/wallet.action";
-import { SavedWallet, WalletCredential } from "@/types/wallet.type";
+import { SavedWallet } from "@/types/wallet.type";
 import { privateKeyToAccount, HDKey, hdKeyToAccount } from "viem/accounts";
 import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import { accountFromWallet } from "@/lib/account";
-import { set } from "mongoose";
+import { useAuth } from "./auth.context";
 
 interface AccountContextType {
   setCredentials: (credentials: AccountCredentials) => Promise<void>;
@@ -58,16 +44,17 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeAccount, setActiveAccount] = useState<
     ToDexaSmartAccountReturnType | HDAccount | PrivateKeyAccount
   >();
-  const { user, isAuthenticated } = useAppSelector(selectAuth);
+  const [credentialsTimestamp, setCredentialsTimestamp] = useState<number>(0);
+  const { user, isAuthenticated } = useAuth();
   const { getItem, setItem } = useStorage();
 
   useEffect(() => {
     const loadWallets = async () => {
-      const wallets: Record<string, SavedWallet[]> =
+      const savedWallets: Record<string, SavedWallet[]> =
         getItem(StoreKey.WALLETS) || {};
 
-      if (wallets && wallets[user.id]) {
-        const encryptedWallets = wallets[user.id];
+      if (savedWallets && savedWallets[user.id]) {
+        const encryptedWallets = savedWallets[user.id];
         setWallets(encryptedWallets);
 
         // Get active wallet
@@ -82,8 +69,9 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
         setActiveAccount(active);
       }
     };
+
     if (isAuthenticated && user) loadWallets();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, credentialsTimestamp]);
 
   const setNewCredentials = useCallback(
     async (newCredentials: AccountCredentials) => {
@@ -130,6 +118,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
   const appendWallet = useCallback(
     (wallet: SavedWallet) => {
       setWallets((prev) => [...prev, wallet]);
+      setCredentialsTimestamp(Date.now());
     },
     [setWallets],
   );
@@ -222,7 +211,6 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
       setItem(StoreKey.WALLETS, walletRecords);
 
       const account = await accountFromWallet(wallet);
-      console.log(account);
       setActiveAccount(account);
     },
     [getItem, user, setItem],

@@ -14,7 +14,7 @@ import { IDecodedToken } from "@/lib/dal";
 import { getAgent } from "@/lib/agent";
 import { SavedWallet } from "@/types/wallet.type";
 
-export const runtime = "nodejs";
+//export const runtime = "edge";
 
 const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
   if (message.role === "user") {

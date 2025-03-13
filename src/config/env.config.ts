@@ -2,6 +2,7 @@ import { sonicTestnet } from "viem/chains";
 
 export const APP_CHAIN = sonicTestnet;
 export const RPC_URL = process.env.NEXT_PRIVATE_RPC_URL;
+export const RPC_ENDPOINT = process.env.NEXT_PUBLIC_RPC_ENDPOINT;
 export const DEFAULT_CHAIN_ID = process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID;
 
 export const APP_KEY = process.env.NEXT_PRIVATE_APP_KEY;

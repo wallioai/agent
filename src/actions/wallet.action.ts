@@ -11,7 +11,12 @@ import {
   WalletCredential,
   WallioWallet,
 } from "@/types/wallet.type";
-import { generateId, getRandomItem } from "@/lib/helpers";
+import {
+  arrayBufferToHex,
+  generateId,
+  getRandomItem,
+  sha256,
+} from "@/lib/helpers";
 import { avatarMap } from "@/assets/avatar";
 import { isoBase64URL } from "@simplewebauthn/server/helpers";
 
@@ -22,12 +27,8 @@ export const generateMasterSeed = async (cred: WalletCredential) => {
     throw new Error("User is not authenticated");
   }
 
-  const salt = toHex(
-    crypto
-      .createHash("sha256")
-      .update(`${userId}-${cred.pubKey}`)
-      .digest("hex"),
-  );
+  const hashBuffer = await sha256(`${userId}-${cred.pubKey}`);
+  const salt = toHex(arrayBufferToHex(hashBuffer));
   const keyToEncode = JSON.stringify({
     id: userId,
     salt,
@@ -36,8 +37,8 @@ export const generateMasterSeed = async (cred: WalletCredential) => {
   });
   const key = encodeString(keyToEncode, true, ENCRYPTION_KEY);
   const cryptoData = JSON.stringify({ id: userId, key, salt });
-  const seed = crypto.createHash("sha256").update(cryptoData).digest();
-  const base64Url = isoBase64URL.fromBuffer(seed);
+  const seedBuffer = await sha256(cryptoData);
+  const base64Url = isoBase64URL.fromBuffer(new Uint8Array(seedBuffer));
   return base64Url;
 };
 

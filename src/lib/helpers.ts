@@ -160,3 +160,29 @@ export function formatCurrency(
 
   return amount.toString().replace(/(NGN|\s)/g, "");
 }
+
+/**
+ * Converts string to Uint8Array
+ * @param str
+ * @returns a type of Uint8Array
+ */
+export const stringToUint8Array = (str: string): Uint8Array => {
+  return new TextEncoder().encode(str);
+};
+
+/**
+ *
+ * @param message
+ * @returns
+ */
+export const sha256 = async (message: string): Promise<ArrayBuffer> => {
+  const msgUint8 = stringToUint8Array(message);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+  return hashBuffer;
+};
+
+export const arrayBufferToHex = (buffer: ArrayBuffer): string => {
+  return Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+};

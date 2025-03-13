@@ -12,6 +12,7 @@ function apiResponse(code: number, message: string, data?: any) {
 export async function POST(req: Request) {
   const body = await req.json();
 
+  console.log(rpcUrl);
   if (rpcUrl === undefined) {
     return apiResponse(401, "You need a RPC URL!");
   }

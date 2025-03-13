@@ -10,9 +10,8 @@ import {
 } from "wallioai-kit/adapters";
 import { ViemAccount } from "wallioai-kit/accounts";
 import { generateLangChainTools } from "wallioai-kit/tools";
-import { privateKeyToAccount } from "viem/accounts";
 import { createWalletClient, Hex, http } from "viem";
-import { sonic, sonicTestnet } from "viem/chains";
+import { sonic } from "viem/chains";
 import { OPEN_AI_KEY } from "@/config/env.config";
 import { AGENT_SYSTEM_TEMPLATE } from "@/config/const.config";
 import { dlnAdapterProvider } from "@/agent-actions/debridge";
@@ -28,8 +27,6 @@ const chat = new ChatOpenAI({
 });
 
 // Initialize the agent instance
-// let agent:  ReturnType<typeof createReactAgent>;
-
 const agent: LRUCache<
   string,
   ReturnType<typeof createReactAgent>
@@ -43,7 +40,6 @@ export const getAgent = async (username: string, wallet: SavedWallet) => {
   // Check if we already have an agent for this wallet
   const cachedAgent = agent.get(wallet.address);
   if (cachedAgent) return cachedAgent;
-  console.log(wallet.address);
 
   const account = await accountFromWallet(wallet);
   const client = createWalletClient({
@@ -54,8 +50,6 @@ export const getAgent = async (username: string, wallet: SavedWallet) => {
 
   //@ts-ignore
   const walletProvider = new ViemAccount(client);
-  //console.log(walletProvider);
-  
   const wallio = await Wallio.init({
     account: walletProvider,
     adapters: [

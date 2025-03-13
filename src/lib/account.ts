@@ -30,7 +30,6 @@ export const accountFromWallet = async (
     const hdKey = HDKey.fromMasterSeed(masterSeed);
     return hdKeyToAccount(hdKey, { accountIndex: wallet.index });
   } else {
-    console.log(wallet);
     return privateKeyToAccount(wallet.privateKey as Hex);
   }
 };

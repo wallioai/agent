@@ -12,7 +12,6 @@ export async function getApi<T>(url: string) {
   const cookieStore = await cookies();
   const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;
   const apiUrl = `${API}/${url}`;
-  console.log(APP_KEY);
   return axios
     .get(apiUrl, {
       headers: {
@@ -32,7 +31,6 @@ export async function postApi<T>(url: string, data: any) {
   const cookieStore = await cookies();
   const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;
   const apiUrl = `${API}/${url}`;
-  console.log(APP_KEY);
   const payload = data;
   return axios
     .post(apiUrl, payload, {
