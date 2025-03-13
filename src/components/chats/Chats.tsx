@@ -57,8 +57,6 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
     },
   });
 
-  console.log("Chats", messages);
-
   return (
     <div className="h-full">
       <div

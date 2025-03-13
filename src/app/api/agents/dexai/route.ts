@@ -13,6 +13,11 @@ import { getServerSession } from "@/lib/session";
 import { IDecodedToken } from "@/lib/dal";
 import { getAgent } from "@/lib/agent";
 import { SavedWallet } from "@/types/wallet.type";
+import { unstable_noStore as noStore } from "next/cache";
+
+// Force the route to be dynamic and allow streaming responses up to 30 seconds
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
 //export const runtime = "edge";
 
@@ -47,6 +52,9 @@ const convertLangChainMessageToVercelMessage = (message: BaseMessage) => {
  * https://langchain-ai.github.io/langgraphjs/tutorials/quickstart/
  */
 export async function POST(req: NextRequest) {
+  // Prevent caching of this route
+  noStore();
+  
   try {
     const body = await req.json();
     const wallet = body.wallet as SavedWallet;
@@ -67,6 +75,8 @@ export async function POST(req: NextRequest) {
 
     if (!returnIntermediateSteps) {
       const eventStream = agent.streamEvents({ messages }, { version: "v2" });
+
+      console.log(eventStream);
 
       return LangChainAdapter.toDataStreamResponse(eventStream, {
         callbacks: {
