@@ -8,18 +8,6 @@ import TabsContent from "../tabs/TabsContent";
 import Overview from "./Overview";
 
 function Dashboard() {
-  useEffect(() => {
-    const scan = async () => {
-      const response = await fetch(
-        "https://api.gopluslabs.io/api/v1/token_security/1?contract_addresses=0xa317a4325664b70499db9ae678ec4a9c268c6983",
-        {
-          method: "GET",
-        },
-      ).then((res) => res.json());
-      console.log(response);
-    };
-    scan();
-  }, []);
   const [activeTab, setActiveTab] = useState<string>("tab1");
 
   const onTabChange = (tabId: string) => {

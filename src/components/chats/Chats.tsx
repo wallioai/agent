@@ -57,17 +57,18 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
     },
   });
 
+  console.log("Chats", messages);
+
   return (
     <div className="h-full">
-      <div className={`flex h-full w-auto flex-col justify-between bg-primary/2`}>
+      <div
+        className={`flex h-full w-auto flex-col justify-between bg-primary/2`}
+      >
         <header className="z-10 h-14">
           <div
-            className={clsx(
-              "flex h-14 items-center justify-between px-4",
-              {
-                "border-light border-b": !fullScreen,
-              },
-            )}
+            className={clsx("flex h-14 items-center justify-between px-4", {
+              "border-light border-b": !fullScreen,
+            })}
           >
             <div className="flex items-center">
               <div

@@ -29,17 +29,12 @@ function Overview() {
   const { defaultTokens, defaultChain } = useNetwork();
   const { activeAccount } = useAccount();
 
-  useEffect(() => {
-    console.log(activeAccount);
-  }, [activeAccount]);
-
   const onTabChange = (tabId: string) => {
     setActiveTab(tabId);
   };
 
   const toggleHide = () => {
     const value = !isHidden;
-    // setItem(StoreKey.DEXA_HIDE_BAL, value);
     dispatch(setHideBalance(value));
   };
 
