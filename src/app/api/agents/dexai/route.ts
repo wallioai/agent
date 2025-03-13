@@ -15,9 +15,9 @@ import { getAgent } from "@/lib/agent";
 import { SavedWallet } from "@/types/wallet.type";
 import { unstable_noStore as noStore } from "next/cache";
 
-// Force the route to be dynamic and allow streaming responses up to 30 seconds
+// Force the route to be dynamic and allow streaming responses up to 60 seconds
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+export const maxDuration = 120;
 
 //export const runtime = "edge";
 
@@ -54,7 +54,7 @@ const convertLangChainMessageToVercelMessage = (message: BaseMessage) => {
 export async function POST(req: NextRequest) {
   // Prevent caching of this route
   noStore();
-  
+
   try {
     const body = await req.json();
     const wallet = body.wallet as SavedWallet;
