@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useNetwork } from "@/context/network.context";
 import { cn } from "@/lib/utils";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, XIcon } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
 } from "../ui/dialog";
 import { Icon } from "../icons/logo";
 import { Network } from "@/db/repos/network.repo";
+import { Button } from "../ui/button";
 
 type Props = {
   className?: string;
@@ -56,19 +57,30 @@ function NetworkSelector({ className, onlyIcon = false }: Props) {
                 ></div>
               </div>
             )}
-            {!onlyIcon && <p className="font-semibold">{defaultChain?.name}</p>}
+            {!onlyIcon && (
+              <p className="truncate font-semibold">{defaultChain?.name}</p>
+            )}
           </div>
           {!onlyIcon && <ChevronDownIcon size={16} className="mt-1" />}
         </div>
       </DialogTrigger>
-      <DialogContent className="scrollbar-hide max-h-10/12 overflow-scroll p-0 sm:max-w-xl">
-        <VisuallyHidden>
-          <DialogHeader>
-            <DialogTitle>Network List</DialogTitle>
-            <DialogDescription>Select your preferred network</DialogDescription>
-          </DialogHeader>
-        </VisuallyHidden>
-        <div className="flex flex-col">
+      <DialogContent className="scrollbar-hide max-h-10/12 gap-0 overflow-scroll border-0 p-0 ring-0 outline-0 sm:max-w-xl">
+        {/* <VisuallyHidden> */}
+        <DialogHeader className="sticky top-0 z-10 items-center flex-row justify-between border-b bg-background px-5 py-3">
+          <div className="flex flex-col gap-1">
+            <DialogTitle>Select network</DialogTitle>
+          </div>
+          <Button
+            onClick={() => setOpen(false)}
+            size="icon"
+            variant="ghost"
+            className="rounded-full translate-x-2 [&_svg:not([class*='size-'])]:size-5"
+          >
+            <XIcon size={20} />
+          </Button>
+        </DialogHeader>
+        {/* </VisuallyHidden> */}
+        <div className="flex flex-col bg-accent">
           {networks?.map((n) => (
             <div
               onClick={() => onSelect(n)}

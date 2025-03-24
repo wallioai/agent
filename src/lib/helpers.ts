@@ -194,3 +194,4 @@ export const countWords = (sentence: string) => {
   const length = trimmedSentence === "" ? 0 : nonEmptyWordsArray.length;
   return length;
 };
+

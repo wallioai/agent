@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${barlow.className} antialiased`}>
+      <body className={`${barlow.className} antialiased overflow-clip`}>
         <ReduxProvider>
           <RootProvider>
             <ReactQueryProvider>

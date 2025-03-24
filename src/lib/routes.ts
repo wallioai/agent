@@ -32,6 +32,7 @@ export const apiRoutes = {
     },
     network: {
       list: "network/list",
+      findOne: (chainId: string) => `network/chain/${chainId}`,
     },
     token: {
       byChainId: (chainId: number) => `token/debridge/${chainId}`,

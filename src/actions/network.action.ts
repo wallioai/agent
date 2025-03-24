@@ -13,6 +13,13 @@ export async function listAllNetworks() {
   return response;
 }
 
+export async function getChainInfo(chainId: string) {
+  const response = await getApi<Network>(
+    apiRoutes.server.network.findOne(chainId),
+  );
+  return response;
+}
+
 export async function listTokensByChain(chainId: number) {
   const response = await getApi<Token[]>(
     apiRoutes.server.token.byChainId(chainId),

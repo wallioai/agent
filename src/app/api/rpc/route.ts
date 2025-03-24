@@ -1,7 +1,9 @@
-import { RPC_URL } from "@/config/env.config";
-import { NextResponse } from "next/server";
+import { getChainInfo } from "@/actions/network.action";
+import { NextRequest, NextResponse } from "next/server";
 
-const rpcUrl = RPC_URL;
+export const getRpc = (rpcUrls: string[]) => {
+  return rpcUrls[Math.floor(Math.random() * rpcUrls.length)];
+};
 
 function apiResponse(code: number, message: string, data?: any) {
   return NextResponse.json(data ?? {}, {
@@ -9,14 +11,17 @@ function apiResponse(code: number, message: string, data?: any) {
     statusText: message,
   });
 }
-export async function POST(req: Request) {
-  const body = await req.json();
 
-  console.log(rpcUrl);
-  if (rpcUrl === undefined) {
-    return apiResponse(401, "You need a RPC URL!");
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const chainId = req?.nextUrl?.searchParams.get("chain");
+
+  const network = await getChainInfo(chainId);
+  if (!network.status || network?.data?.rpcUrls.length === 0) {
+    return apiResponse(404, "Network not found");
   }
 
+  const rpcUrl = getRpc(network.data.rpcUrls);
   return await fetch(rpcUrl, {
     method: "POST",
     headers: {
