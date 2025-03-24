@@ -6,7 +6,7 @@ import { Wallio } from "wallioai-kit";
 import {
   venusAdapterProvider,
   walletAdapterProvider,
-  //dlnAdapterProvider,
+  dlnAdapterProvider,
 } from "wallioai-kit/adapters";
 import { ViemAccount } from "wallioai-kit/accounts";
 import { generateLangChainTools } from "wallioai-kit/tools";
@@ -14,13 +14,13 @@ import { createWalletClient, Hex, http } from "viem";
 import { sonic } from "viem/chains";
 import { OPEN_AI_KEY } from "@/config/env.config";
 import { AGENT_SYSTEM_TEMPLATE } from "@/config/const.config";
-import { dlnAdapterProvider } from "@/agent-actions/debridge";
+//import { dlnAdapterProvider } from "@/agent-actions/debridge";
 import { LRUCache } from "lru-cache";
 import { SavedWallet } from "@/types/wallet.type";
-import { accountFromWallet } from "./account";
+import { accountFromWallet } from "../lib/account";
 
 // Initialize the ChatOpenAI instance
-const chat = new ChatOpenAI({
+const model = new ChatOpenAI({
   model: "gpt-4o",
   temperature: 0,
   apiKey: OPEN_AI_KEY,
@@ -62,7 +62,7 @@ export const getAgent = async (username: string, wallet: SavedWallet) => {
   const tools = [new Calculator(), ...wallioTools];
 
   const newAgent = createReactAgent({
-    llm: chat,
+    llm: model,
     tools,
     prompt: new SystemMessage(AGENT_SYSTEM_TEMPLATE(username)), // You can update this dynamically in the handler
   });
@@ -72,4 +72,4 @@ export const getAgent = async (username: string, wallet: SavedWallet) => {
   return newAgent;
 };
 
-export { chat };
+export { model };

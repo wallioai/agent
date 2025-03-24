@@ -2,6 +2,31 @@ import { Icon } from "../icons/logo";
 import Ai from "@/assets/images/ai.png";
 import Debridge from "@/assets/images/debridge-icon.svg";
 import Venus from "@/assets/images/venus.png";
+import Logo from "@/assets/images/logo.png";
+
+const tiles = [
+  {
+    name: "Wallio",
+    image: Logo,
+    description: "Smart wallet managment",
+  },
+  {
+    name: "Debridge",
+    image: Debridge,
+    description: "Bridge with the speed of light",
+  },
+  {
+    name: "Venus",
+    image: Venus,
+    description: "The universal money market",
+  },
+  {
+    name: "Wallio Pay",
+    image: Logo,
+    description: "Convenient payment via email",
+    coming: true,
+  },
+];
 
 export const WallioInfo = (
   <div className="flex size-full items-center justify-center">
@@ -14,35 +39,28 @@ export const WallioInfo = (
         Your Decentralized wallet manager, what will you have me do for you
         today?
       </p>
-      <div className="grid grid-cols-2 gap-5 mt-10">
-        <div className="border shadow-md rounded-xl bg-background p-3 text-left flex items-center gap-2">
-          <Icon className="size-10 rounded-full" />
-          <div>
-          <p className="font-semibold">Wallio</p>
-          <p className="-mt-1 text-foreground/60">Smart wallet managment</p>
+      <div className="mt-10 flex flex-wrap justify-center gap-3 md:grid md:grid-cols-2 md:gap-5">
+        {tiles.map((t, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-2 rounded-full border bg-background px-3 py-2 text-left shadow-md md:rounded-xl md:px-3 md:py-3"
+          >
+            <Icon src={t.image} className="size-8 rounded-full" />
+            <div>
+              <p className="font-semibold">
+                {t.name}
+                {t?.coming && (
+                  <span className="rounded-sm bg-primary/10 px-2 text-sm font-normal">
+                    coming
+                  </span>
+                )}
+              </p>
+              <p className="-mt-1 hidden text-foreground/60 md:block">
+                {t.description}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="border shadow-md rounded-xl bg-background p-3 text-left flex items-center gap-2">
-          <Icon src={Debridge} className="size-10 rounded-full" />
-          <div>
-            <p className="font-semibold">Debridge</p>
-            <p className="-mt-1 text-foreground/60">Bridge with the speed of light</p>
-          </div>
-        </div>
-        <div className="border shadow-md rounded-xl bg-background p-3 text-left flex items-center gap-2">
-          <Icon src={Venus} className="size-10 rounded-full" />
-          <div>
-          <p className="font-semibold">Venus</p>
-          <p className="-mt-1 text-foreground/60">The universal money market</p>
-          </div>
-        </div>
-        <div className="border shadow-md rounded-xl bg-background p-3 text-left flex items-center gap-2">
-          <Icon className="size-10 rounded-full" />
-          <div>
-          <p className="font-semibold">Wallio Pay <span className="font-normal rounded-sm text-sm bg-primary/10 px-2">coming soon</span></p>
-          <p className="-mt-1 text-foreground/60">Convenient payment via email</p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   </div>

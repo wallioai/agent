@@ -8,8 +8,8 @@ export const routes = {
     home: "/home",
     bridge: "/bridge",
     settings: {
-      index: "settings",
-      managewallet: "settings/manage-wallets",
+      index: "/settings",
+      managewallet: "/settings/manage-wallets",
     },
     others: "others",
   },
@@ -35,6 +35,16 @@ export const apiRoutes = {
     },
     token: {
       byChainId: (chainId: number) => `token/debridge/${chainId}`,
+    },
+    thread: {
+      list: "thread/list",
+      create: "thread/create",
+      update: (id: string) => `thread/update/${id}`,
+      delete: (id: string) => `thread/delete/${id}`,
+    },
+    chat: {
+      getChats: (threadId: string) => `chat/list/${threadId}`,
+      saveChat: "chat/save",
     },
   },
   auth: {

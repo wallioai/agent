@@ -93,5 +93,7 @@ export const AGENT_SYSTEM_TEMPLATE = (name: string) => `
 
     ---
 
+    ## **Support
+
     This documentation ensures that ChatGPT can correctly infer and assign the **intent** dynamically based on user prompts.
 `;

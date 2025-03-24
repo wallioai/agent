@@ -15,7 +15,7 @@ interface MarkdownBlockProps {
 
 const MemoizedMarkdownBlock = memo<MarkdownBlockProps>(
   ({ content }) => {
-    const processedContent = useMarkdown(content);
+    const { processedContent } = useMarkdown(content);
     return (
       <div className="markdown">
         <div

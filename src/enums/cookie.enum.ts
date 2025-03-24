@@ -1,5 +1,7 @@
 export enum CookieKeys {
-  ACCESS_TOKEN = 'wallet.dexa.access-token',
-  REFRESH_TOKEN = 'wallet.dexa.refresh-token',
+  ACCESS_TOKEN = 'wallio.access-token',
+  REFRESH_TOKEN = 'wallio.refresh-token',
+  ACTIVE_CHAT = 'wallio.active-thread',
   APP_KEY = 'x-wallio-app-key',
+
 }

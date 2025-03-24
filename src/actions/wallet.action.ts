@@ -175,7 +175,7 @@ export async function makeNewWallet(
 ) {
   const { name, address, type, master, ...props } = data;
   const newWallet: WallioWallet = {
-    id: generateId({ isUUID: true }),
+    id: generateId({ isUUID: true, length: 32 }),
     name,
     address,
     type,

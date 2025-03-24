@@ -9,6 +9,8 @@ import { AccountProvider } from "@/context/account.context";
 import { AuthProvider } from "@/context/auth.context";
 import { NetworkProvider } from "@/context/network.context";
 import { BridgeProvider } from "@/context/bridge.context";
+import { WallioProvider } from "@/context/wallio.context";
+import { RouterProvider } from "@/context/router.context";
 
 const barlow = Barlow({
   subsets: ["latin"],
@@ -31,16 +33,21 @@ export default function RootLayout({
         <ReduxProvider>
           <RootProvider>
             <ReactQueryProvider>
-              <NetworkProvider>
-                <AuthProvider>
-                  <AccountProvider>
-                    <BridgeProvider>
-                      {children}
-                      <HelperProvider />
-                    </BridgeProvider>
-                  </AccountProvider>
-                </AuthProvider>
-              </NetworkProvider>
+              <RouterProvider
+                preserveParams={["chat"]}
+                excludePaths={["/login", "/register", "/auth"]}
+              >
+                <NetworkProvider>
+                  <AuthProvider>
+                    <AccountProvider>
+                      <BridgeProvider>
+                        {children}
+                        <HelperProvider />
+                      </BridgeProvider>
+                    </AccountProvider>
+                  </AuthProvider>
+                </NetworkProvider>
+              </RouterProvider>
             </ReactQueryProvider>
           </RootProvider>
         </ReduxProvider>

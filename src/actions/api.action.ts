@@ -43,3 +43,36 @@ export async function postApi<T>(url: string, data: any) {
     })
     .then((res) => res.data as ApiResponse<T>);
 }
+
+export async function updateApi<T>(url: string, data: any) {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;
+  const apiUrl = `${API}/${url}`;
+  const payload = data;
+  return axios
+    .patch(apiUrl, payload, {
+      headers: {
+        Authorization: `Bearer ${cookie}`,
+        "Access-Control-Allow-Credentials": true,
+        [CookieKeys.APP_KEY]: `${APP_KEY}`,
+      },
+      withCredentials: true,
+    })
+    .then((res) => res.data as ApiResponse<T>);
+}
+
+export async function deleteApi<T>(url: string) {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(CookieKeys.ACCESS_TOKEN)?.value;
+  const apiUrl = `${API}/${url}`;
+  return axios
+    .delete(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${cookie}`,
+        "Access-Control-Allow-Credentials": true,
+        [CookieKeys.APP_KEY]: `${APP_KEY}`,
+      },
+      withCredentials: true,
+    })
+    .then((res) => res.data as ApiResponse<T>);
+}

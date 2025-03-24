@@ -3,4 +3,5 @@ export enum StoreKey {
   WALLET_CREDENTIAL = "dexa.wallet.credential",
   DEFAULT_CHAIN = "dexa.default.chain",
   WALLETS = "wallio.account",
+  ACTIVE_CHAT = "wallio.active.chat"
 }

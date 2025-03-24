@@ -12,6 +12,8 @@ import Ai from "@/assets/images/ai.png";
 import clsx from "clsx";
 import { useAppSelector } from "@/hooks/redux.hook";
 import { selectViewport } from "@/slices/viewport/viewport.slice";
+import ChatSidebar from "@/components/chats/sidebar/ChatSidebar";
+import { cn } from "@/lib/utils";
 
 export default function MainLayout({
   children,
@@ -19,14 +21,21 @@ export default function MainLayout({
   children: React.ReactNode;
 }>) {
   const fullScreen = useAppSelector(selectViewport);
+  const isOpen = true;
   return (
-    <div className="relative flex h-svh flex-col justify-between overflow-hidden overscroll-contain sm:flex-row sm:justify-start">
+    <div className="relative flex h-svh flex-row justify-start overflow-hidden overscroll-contain">
       <Sidebar />
-      <div className="bg-light w-full flex-1 overflow-hidden lg:w-4/5">
+      <div
+        className={clsx("bg-light w-full flex-1 overflow-hidden lg:w-4/5", {
+          "": !isOpen,
+          "": isOpen,
+        })}
+      >
         <Container>
           <div
             className={clsx("h-full flex-1", {
               hidden: fullScreen,
+              "hidden lg:block": !fullScreen,
             })}
           >
             {children}
@@ -34,6 +43,7 @@ export default function MainLayout({
           <Aside
             className={clsx("w-[38rem]", {
               "w-full border-l-0": fullScreen,
+              "w-full lg:w-[38rem]": !fullScreen,
             })}
           >
             <Chats
@@ -44,7 +54,8 @@ export default function MainLayout({
           </Aside>
         </Container>
       </div>
-      <MobileMenu />
+      <ChatSidebar />
+      {/* <MobileMenu /> */}
     </div>
   );
 }

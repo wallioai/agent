@@ -21,6 +21,7 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
+import { useEnhancedRouter } from "@/hooks/router.hook";
 
 type Props = {
   wallet: SavedWallet;
@@ -99,19 +100,35 @@ export function QuickWalletItem({ className, wallet, mode = "mini" }: Props) {
   );
 }
 
-function QuickWallet() {
+type QuickWalletProps = {
+  className?: string;
+  showName?: boolean;
+  align?: "center" | "end" | "start";
+};
+function QuickWallet({
+  className,
+  showName = false,
+  align = "end",
+}: QuickWalletProps) {
   const router = useRouter();
+  const { push } = useEnhancedRouter();
   const { wallets, addAccount } = useAccount();
 
   return (
     <Popover>
       <PopoverTrigger>
-        <div className="flex size-9 cursor-pointer items-center justify-center rounded-full border-0 bg-secondary">
+        <div
+          className={cn(
+            "flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-0 bg-secondary",
+            className,
+          )}
+        >
           <WalletMinimalIcon size={18} />
+          {showName && <p className="text-sm font-medium">Wallet</p>}
         </div>
       </PopoverTrigger>
       <PopoverContent
-        align={"end"}
+        align={align}
         side="bottom"
         className="left-0 scrollbar-hide h-full max-h-60 w-[21rem] overflow-y-scroll rounded-2xl px-0"
       >
@@ -133,7 +150,7 @@ function QuickWallet() {
               <PlusIcon />
             </Button>
             <Button
-              onClick={() => router.push(routes.app.settings.managewallet)}
+              onClick={() => push(routes.app.settings.managewallet)}
               variant="outline"
               className="rounded-full"
             >

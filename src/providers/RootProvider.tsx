@@ -10,9 +10,10 @@ export default function RootProvider(props: PropsWithChildren) {
   const didMount = useDidMount();
 
   return didMount ? (
-    <ErrorBoundary fallback={ErrorPage}>
-      <Fragment {...props} />
-    </ErrorBoundary>
+    // <ErrorBoundary fallback={ErrorPage}>
+    //   <Fragment {...props} />
+    // </ErrorBoundary>
+    <Fragment {...props} />
   ) : (
     <Loader />
   );

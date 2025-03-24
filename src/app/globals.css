@@ -5,6 +5,7 @@
 @plugin "@tailwindcss/typography";
 
 @import "../styles/markdown.css";
+@import "../styles/tiptap.css";
 
 @custom-variant dark (&:is(.dark *));
 

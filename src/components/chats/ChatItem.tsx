@@ -10,7 +10,7 @@ type Props = {
 const ChatItem = ({ messages, aiImage }: Props) => {
   return (
     <div className="flex w-full flex-col">
-      {messages.map((m, i) => {
+      {messages?.map((m, i) => {
         if (m.role === "system") {
           <div key={m.id}>System</div>;
         }

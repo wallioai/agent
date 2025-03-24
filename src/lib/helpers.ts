@@ -9,7 +9,7 @@ export const generateId = ({
   ...prop
 }: Partial<ShortUniqueId.ShortUniqueIdOptions> & { isUUID?: boolean }) => {
   const uid = new ShortUniqueId({ length, ...prop });
-  return isUUID ? uid.stamp(32) : uid.randomUUID();
+  return isUUID ? uid.stamp(length ?? 32) : uid.randomUUID();
 };
 
 export async function base64URLStringToPublicKey(
@@ -185,4 +185,12 @@ export const arrayBufferToHex = (buffer: ArrayBuffer): string => {
   return Array.from(new Uint8Array(buffer))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+};
+
+export const countWords = (sentence: string) => {
+  const trimmedSentence = sentence.trim();
+  const wordsArray = trimmedSentence.split(/\s+/);
+  const nonEmptyWordsArray = wordsArray.filter((word) => word !== "");
+  const length = trimmedSentence === "" ? 0 : nonEmptyWordsArray.length;
+  return length;
 };

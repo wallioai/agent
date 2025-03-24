@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { Icon } from "../icons/logo";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
 import { selectViewport, setViewport } from "@/slices/viewport/viewport.slice";
+import { EnhancedLink } from "../ui/link";
 
 export default function Sidebar() {
   const path = usePathname();
@@ -32,8 +33,8 @@ export default function Sidebar() {
     {
       name: "Wallets",
       href: routes.app.settings.managewallet,
-      icon: WalletMinimalIcon
-    }
+      icon: WalletMinimalIcon,
+    },
     // {
     //   name: "Swap",
     //   href: routes.app.others,
@@ -65,17 +66,17 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`hidden w-20 flex-col bg-primary/5 justify-between border-r py-5 sm:flex xl:w-60`}
+      className={`hidden w-20 flex-col justify-between border-r bg-primary/5 py-5 sm:flex xl:w-60`}
     >
       <div className="flex-1">
         <Icon className="mb-5 ml-5 size-10 rounded-sm" />
         <div className="flex flex-col gap-y-1">
           {navigation.map((nav, key) => (
-            <Link
-            onClick={(e) => {
-              e.stopPropagation();
-              dispatch(setViewport(false));
-            }}
+            <EnhancedLink
+              onClick={(e) => {
+                e.stopPropagation();
+                dispatch(setViewport(false));
+              }}
               prefetch={true}
               href={nav.href}
               key={key}
@@ -102,7 +103,7 @@ export default function Sidebar() {
                   {nav.name}
                 </p>
               </div>
-            </Link>
+            </EnhancedLink>
           ))}
         </div>
       </div>

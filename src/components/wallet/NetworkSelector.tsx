@@ -16,7 +16,12 @@ import {
 import { Icon } from "../icons/logo";
 import { Network } from "@/db/repos/network.repo";
 
-function NetworkSelector() {
+type Props = {
+  className?: string;
+  onlyIcon?: boolean;
+};
+
+function NetworkSelector({ className, onlyIcon = false }: Props) {
   const [open, setOpen] = useState<boolean>(false);
   const { defaultChain, changeNetwork, networks } = useNetwork();
   const networkColor =
@@ -36,6 +41,7 @@ function NetworkSelector() {
           role="button"
           className={cn(
             "flex h-9 cursor-pointer items-center gap-2 rounded-full bg-secondary px-4",
+            className,
           )}
         >
           <div className="flex items-center gap-1">
@@ -50,12 +56,12 @@ function NetworkSelector() {
                 ></div>
               </div>
             )}
-            <p className="font-semibold">{defaultChain?.name}</p>
+            {!onlyIcon && <p className="font-semibold">{defaultChain?.name}</p>}
           </div>
-          <ChevronDownIcon size={16} className="mt-1" />
+          {!onlyIcon && <ChevronDownIcon size={16} className="mt-1" />}
         </div>
       </DialogTrigger>
-      <DialogContent className="p-0 sm:max-w-xl max-h-10/12 overflow-scroll scrollbar-hide">
+      <DialogContent className="scrollbar-hide max-h-10/12 overflow-scroll p-0 sm:max-w-xl">
         <VisuallyHidden>
           <DialogHeader>
             <DialogTitle>Network List</DialogTitle>
