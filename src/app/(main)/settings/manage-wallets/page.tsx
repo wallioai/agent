@@ -6,16 +6,18 @@ import Header from "@/components/ui/header";
 import ImportWallet from "@/components/wallet/ImportWallet";
 import { QuickWalletItem } from "@/components/wallet/QuickWallet";
 import { useAccount } from "@/context/account.context";
-import { DownloadIcon, PlusIcon } from "lucide-react";
+import { useWallio } from "@/context/wallio.context";
+import { PlusIcon } from "lucide-react";
 
 export default function Wallet() {
   const { wallets, addAccount } = useAccount();
+  const { isMobile } = useWallio();
 
   return (
     <Section>
       <div className="scrollbar-hide flex h-full flex-col overflow-scroll">
         <div className="sticky top-0 z-50 flex h-14 items-center justify-between border-b bg-white px-5">
-          <Header title="Manage Wallet" isBack={false} />
+          <Header title="Manage Wallet" isBack={isMobile} />
         </div>
         <div className="scrollbar-hide flex-1 overflow-scroll">
           <div className="h-full px-5">

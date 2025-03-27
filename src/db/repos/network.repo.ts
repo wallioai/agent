@@ -6,8 +6,11 @@ export interface Network {
   _id: string;
   id: string;
   chainId: number;
-  symbol?: string;
-  currency: string;
+  nativeCurrency: {
+    symbol: string;
+    decimal: number;
+    address: string;
+  };
   name: string;
   nameId: string;
   shortName: string;
@@ -16,6 +19,7 @@ export interface Network {
   wssUrls: string[];
   explorerUrl: string;
   multicallAddress?: string;
+  cgCoinId: string;
   isEnabled: boolean;
   isActive: boolean;
   type: NetworkType;

@@ -11,8 +11,7 @@ import { StickToBottom } from "use-stick-to-bottom";
 import ChatContainer from "./ChatContainer";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { useAccount } from "@/context/account.context";
-import { useAppDispatch, useAppSelector } from "@/hooks/redux.hook";
-import { selectViewport } from "@/slices/viewport/viewport.slice";
+import { useAppDispatch } from "@/hooks/redux.hook";
 import SidebarToggle from "../ui/sidebarToggle";
 import { setOpen } from "@/slices/chats/sidebar.slice";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -27,6 +26,8 @@ import { StoreKey } from "@/enums/storage.enum";
 import { useAuth } from "@/context/auth.context";
 import NewChatButton from "./NewChatButton";
 import { queryClient } from "@/clients/query.client";
+import { useNetwork } from "@/context/network.context";
+import { useWallio } from "@/context/wallio.context";
 
 type Props = {
   endpoint: string;
@@ -41,11 +42,12 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
   const threadId = searchParams.get("chat");
   const endOfMsgRef = useRef<HTMLParagraphElement>(null);
 
-  const fullScreen = useAppSelector(selectViewport);
   const dispatch = useAppDispatch();
   const { error } = useToast();
   const { activeWallet } = useAccount();
   const { getItem, setItem } = useStorage();
+  const { defaultChain, chainIdToRpcs } = useNetwork();
+  const { chatMode } = useWallio();
   const { user } = useAuth();
   const [chatId, setChatId] = useState<string>("");
   const [sourcesForMessages, setSourcesForMessages] = useState<
@@ -84,6 +86,8 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
       api: endpoint,
       body: {
         wallet: activeWallet,
+        network: defaultChain,
+        rpcUrls: chainIdToRpcs,
       },
       initialMessages,
       experimental_throttle: 50,
@@ -148,14 +152,14 @@ const Chats = ({ endpoint, welcomeComponent, aiImage, placeholder }: Props) => {
         <header className="z-10 h-14">
           <div
             className={clsx("flex h-14 items-center justify-between px-4", {
-              "border-light border-b": !fullScreen,
+              "border-light border-b": !chatMode,
             })}
           >
             <div className="flex -translate-x-3 items-center">
               <div
                 className={clsx("", {
-                  hidden: !fullScreen,
-                  "hidden lg:flex": fullScreen,
+                  hidden: !chatMode,
+                  "hidden lg:flex": chatMode,
                 })}
               >
                 <SidebarToggle type="open" />

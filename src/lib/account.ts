@@ -3,26 +3,34 @@ import { ToDexaSmartAccountReturnType } from "@/account/types/toDexaSmartAccount
 import { decryptWalletData, generateMasterSeed } from "@/actions/wallet.action";
 import { SavedWallet } from "@/types/wallet.type";
 import { isoUint8Array } from "@simplewebauthn/server/helpers";
-import { HDAccount, Hex, PrivateKeyAccount } from "viem";
-import { toWebAuthnAccount } from "viem/account-abstraction";
+import { HDAccount, Hex, PrivateKeyAccount, http } from "viem";
+import { sepolia } from "viem/chains";
+import {
+  toWebAuthnAccount,
+  toCoinbaseSmartAccount,
+  type ToCoinbaseSmartAccountReturnType,
+} from "viem/account-abstraction";
 import { HDKey, hdKeyToAccount, privateKeyToAccount } from "viem/accounts";
-import { publicClient } from "@/clients/viem.client";
+import { publicClient, createCustomClient } from "@/clients/viem.client";
 
 export const accountFromWallet = async (
   savedWallet: SavedWallet,
-): Promise<ToDexaSmartAccountReturnType | HDAccount | PrivateKeyAccount> => {
+): Promise<
+  ToCoinbaseSmartAccountReturnType | HDAccount | PrivateKeyAccount
+> => {
   const wallet = await decryptWalletData(savedWallet);
   if (wallet.type == "smart-wallet") {
-    return await toDexaSmartAccount({
-      //@ts-ignore
-      client: publicClient(),
-      owner: toWebAuthnAccount({
-        credential: {
-          id: wallet.cred.id,
-          publicKey: wallet.cred.pubKey as Hex,
-        },
-        rpId: wallet.cred.rpId,
-      }),
+    return await toCoinbaseSmartAccount({
+      client: createCustomClient(),
+      owners: [
+        toWebAuthnAccount({
+          credential: {
+            id: wallet.cred.id,
+            publicKey: wallet.cred.pubKey as Hex,
+          },
+          rpId: wallet.cred.rpId,
+        }),
+      ],
     });
   } else if (wallet.type == "defi-wallet") {
     const base64Seed = await generateMasterSeed(wallet.derivedFrom);

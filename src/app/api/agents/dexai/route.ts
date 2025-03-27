@@ -16,12 +16,13 @@ import { SavedWallet } from "@/types/wallet.type";
 import { unstable_noStore as noStore } from "next/cache";
 import { createThread, updateThreadTitle } from "@/actions/thread.action";
 import { saveChat } from "@/actions/chat.action";
+import { Network } from "@/db/repos/network.repo";
 
 // Force the route to be dynamic and allow streaming responses up to 60 seconds
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-//export const runtime = "edge";
+export const runtime = "nodejs";
 
 const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
   if (message.role === "user") {
@@ -60,6 +61,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const wallet = body.wallet as SavedWallet;
+    const network = body.network as Network;
+    const rpcUrls = body.rpcUrls as Record<number, string[]>;
     const thread_id = body.threadId as string;
     const returnIntermediateSteps = body.show_intermediate_steps;
     const session = (await getServerSession(
@@ -77,7 +80,7 @@ export async function POST(req: NextRequest) {
     await saveChat(thread_id, userMessage.content, "user");
 
     // Get the singleton agent instance
-    const agent = await getAgent(session.name, wallet);
+    const agent = await getAgent(session.name, wallet, network, rpcUrls);
 
     if (!returnIntermediateSteps) {
       const eventStream = agent.streamEvents(

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment } from "react";
+import React, { Fragment, useState, useCallback } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   BoltIcon,
@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { useEnhancedRouter } from "@/hooks/router.hook";
+import { useWallio } from "@/context/wallio.context";
 
 type Props = {
   wallet: SavedWallet;
@@ -111,11 +112,20 @@ function QuickWallet({
   align = "end",
 }: QuickWalletProps) {
   const router = useRouter();
+  const [open, setOpen] = useState<boolean>(false);
   const { push } = useEnhancedRouter();
   const { wallets, addAccount } = useAccount();
+  const { isMobile } = useWallio();
+
+  const handlePopoverOpenChange = useCallback(
+    (open: boolean) => {
+      setOpen(open);
+    },
+    [setOpen],
+  );
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={handlePopoverOpenChange}>
       <PopoverTrigger>
         <div
           className={cn(
@@ -150,7 +160,15 @@ function QuickWallet({
               <PlusIcon />
             </Button>
             <Button
-              onClick={() => push(routes.app.settings.managewallet)}
+              onClick={() => {
+                push(
+                  `${routes.app.settings.managewallet}${isMobile ? "?mode=auto" : ""}`,
+                  {
+                    preserveParams: !isMobile,
+                  },
+                );
+                setOpen(false);
+              }}
               variant="outline"
               className="rounded-full"
             >

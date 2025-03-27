@@ -1,10 +1,13 @@
 import { API_URL, APP_CHAIN } from "@/config/env.config";
+import { Network } from "@/db/repos/network.repo";
 import {
   createWalletClient,
   http,
   createPublicClient,
   Account,
-  Chain,
+  type Chain,
+  defineChain,
+  createClient,
 } from "viem";
 
 const supportedChainId = [
@@ -15,8 +18,17 @@ const supportedChainId = [
 export const isSupportedChainId = (chainId: number) =>
   supportedChainId.includes(chainId);
 
-export const publicClient = (chain?: Chain) =>
-  createPublicClient({
+export const publicClient = (chain?: Chain) => {
+  return createPublicClient({
+    chain: chain ?? APP_CHAIN,
+    transport: http(
+      isSupportedChainId(chain?.id) ? `${API_URL}/rpc?chain=${chain.id}` : "",
+    ),
+  });
+};
+
+export const createCustomClient = (chain?: Chain) =>
+  createClient({
     chain: chain ?? APP_CHAIN,
     transport: http(
       isSupportedChainId(chain?.id) ? `${API_URL}/rpc?chain=${chain.id}` : "",
@@ -28,4 +40,24 @@ export const walletClient = (account: Account) =>
     account,
     chain: APP_CHAIN,
     transport: http(`${API_URL}/rpc`),
+  });
+
+export const createChain = (network: Network) =>
+  defineChain({
+    id: network.chainId,
+    name: network.name,
+    nativeCurrency: {
+      decimals: network.nativeCurrency.decimal,
+      name: network.cgCoinId ?? network.nativeCurrency.symbol,
+      symbol: network.nativeCurrency.symbol,
+    },
+    rpcUrls: {
+      default: {
+        http: network.rpcUrls,
+        webSocket: network.wssUrls,
+      },
+    },
+    blockExplorers: {
+      default: { name: "Explorer", url: network.explorerUrl },
+    },
   });

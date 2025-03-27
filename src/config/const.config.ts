@@ -9,6 +9,10 @@ export const AGENT_SYSTEM_TEMPLATE = (name: string) => `
     - Be concise and direct
     - strictly use markdown syntax to display your response
 
+    ${INTENT_DOCUMENTAION}
+`;
+
+export const INTENT_DOCUMENTAION = `
     # **Bridge Function: User Intent Documentation for ChatGPT**  
 
     ## **Overview**  

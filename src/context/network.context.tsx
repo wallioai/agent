@@ -19,6 +19,7 @@ type NetworkContextType = {
   defaultTokens: Token[];
   networks: Network[];
   changeNetwork: (chain: Network) => void;
+  chainIdToRpcs: Record<number, string[]>;
 };
 
 const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
@@ -51,6 +52,16 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       return externalNetworkTokens.data;
     }
   }, [defaultChain?.chainId, externalNetworkTokens?.data]);
+
+  const chainIdToRpcs = useMemo(() => {
+    return networks?.reduce(
+      (acc, network) => {
+        acc[network.chainId] = network.rpcUrls;
+        return acc;
+      },
+      {} as Record<number, string[]>,
+    );
+  }, [externalNetworks?.data]);
 
   //   const networks = useLiveQuery(
   //     () => idb.networks.toArray(),
@@ -158,8 +169,9 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       defaultTokens: tokens ?? [],
       networks: networks ?? [],
       changeNetwork,
+      chainIdToRpcs,
     }),
-    [defaultChain, networks, tokens, changeNetwork],
+    [defaultChain, networks, tokens, changeNetwork, chainIdToRpcs],
   );
 
   return (

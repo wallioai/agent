@@ -1,7 +1,7 @@
 import { getChainInfo } from "@/actions/network.action";
 import { NextRequest, NextResponse } from "next/server";
 
-export const getRpc = (rpcUrls: string[]) => {
+const getRpc = (rpcUrls: string[]) => {
   return rpcUrls[Math.floor(Math.random() * rpcUrls.length)];
 };
 
@@ -11,6 +11,8 @@ function apiResponse(code: number, message: string, data?: any) {
     statusText: message,
   });
 }
+
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

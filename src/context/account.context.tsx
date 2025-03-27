@@ -11,7 +11,6 @@ import React, {
 import useStorage from "@/hooks/storage.hook";
 import { StoreKey } from "@/enums/storage.enum";
 import { AccountCredentials } from "@/types/webauthn.type";
-import { ToDexaSmartAccountReturnType } from "@/account/types/toDexaSmartAccount.type";
 import { HDAccount, Hex, PrivateKeyAccount } from "viem";
 import {
   decryptWalletData,
@@ -20,6 +19,7 @@ import {
 } from "@/actions/wallet.action";
 import { SavedWallet } from "@/types/wallet.type";
 import { privateKeyToAccount, HDKey, hdKeyToAccount } from "viem/accounts";
+import { type ToCoinbaseSmartAccountReturnType } from "viem/account-abstraction";
 import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import { accountFromWallet } from "@/lib/account";
 import { useAuth } from "./auth.context";
@@ -31,7 +31,7 @@ interface AccountContextType {
   addAccount: () => Promise<void>;
   importAccount: (key: string) => Promise<void>;
   activateAccount: (wallet: SavedWallet) => Promise<void>;
-  activeAccount: ToDexaSmartAccountReturnType | HDAccount | PrivateKeyAccount;
+  activeAccount: ToCoinbaseSmartAccountReturnType | HDAccount | PrivateKeyAccount;
 }
 
 const AccountContext = createContext<AccountContextType | undefined>(undefined);
@@ -42,7 +42,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({
   const [wallets, setWallets] = useState<SavedWallet[]>([]);
   const [activeWallet, setActiveWallet] = useState<SavedWallet>();
   const [activeAccount, setActiveAccount] = useState<
-    ToDexaSmartAccountReturnType | HDAccount | PrivateKeyAccount
+    ToCoinbaseSmartAccountReturnType | HDAccount | PrivateKeyAccount
   >();
   const [credentialsTimestamp, setCredentialsTimestamp] = useState<number>(0);
   const { user, isAuthenticated } = useAuth();

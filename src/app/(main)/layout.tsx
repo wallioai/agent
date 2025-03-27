@@ -14,13 +14,16 @@ import { useAppSelector } from "@/hooks/redux.hook";
 import { selectViewport } from "@/slices/viewport/viewport.slice";
 import ChatSidebar from "@/components/chats/sidebar/ChatSidebar";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useSearchParams } from "next/navigation";
+import { useWallio } from "@/context/wallio.context";
 
 export default function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const fullScreen = useAppSelector(selectViewport);
+  const { isAutoMode, chatMode } = useWallio();
   const isOpen = true;
   return (
     <div className="relative flex h-svh flex-row justify-start overflow-hidden overscroll-contain">
@@ -34,16 +37,18 @@ export default function MainLayout({
         <Container>
           <div
             className={clsx("h-full flex-1", {
-              hidden: fullScreen,
-              "hidden lg:block": !fullScreen,
+              hidden: chatMode && !isAutoMode,
+              "hidden lg:block": !chatMode && !isAutoMode,
+              block: isAutoMode,
             })}
           >
             {children}
           </div>
           <Aside
             className={clsx("w-[38rem]", {
-              "w-full border-l-0": fullScreen,
-              "w-full lg:w-[38rem]": !fullScreen,
+              "w-full border-l-0": chatMode,
+              "w-full lg:w-[38rem]": !chatMode,
+              hidden: isAutoMode,
             })}
           >
             <Chats
@@ -55,7 +60,7 @@ export default function MainLayout({
         </Container>
       </div>
       <ChatSidebar />
-      {/* <MobileMenu /> */}
+      {/* {isAutoMode && <MobileMenu />} */}
     </div>
   );
 }

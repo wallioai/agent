@@ -68,7 +68,7 @@ function Overview() {
                 )}
               </div>
             </div> */}
-            <div className="flex items-center gap-x-5 pt-5">
+            {/* <div className="flex items-center gap-x-5 pt-5">
               <Button type="button" className="rounded-sm" onClick={() => {}}>
                 <p className="">Deposit</p>
               </Button>
@@ -88,7 +88,7 @@ function Overview() {
               >
                 <p className="text-foreground/80">Pay</p>
               </Button>
-            </div>
+            </div> */}
             <div className="mb-2 flex max-w-lg items-center gap-x-5 pt-5">
               <WalletSearch />
               <div className="flex items-center gap-x-2">

@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${barlow.className} antialiased overflow-clip`}>
+      <body className={`${barlow.className} overflow-clip antialiased`}>
         <ReduxProvider>
           <RootProvider>
             <ReactQueryProvider>
@@ -41,8 +41,10 @@ export default function RootLayout({
                   <AuthProvider>
                     <AccountProvider>
                       <BridgeProvider>
-                        {children}
-                        <HelperProvider />
+                        <WallioProvider>
+                          {children}
+                          <HelperProvider />
+                        </WallioProvider>
                       </BridgeProvider>
                     </AccountProvider>
                   </AuthProvider>

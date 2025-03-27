@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { bridgeTokenSchema } from "../schemas/bridge.schema";
-import { PrepareTxResponse } from "../type";
-import { toResult } from "@heyanon/sdk";
-import { BridgeStep } from "../dln";
+import { type PrepareTxResponse } from "../type";
+import { toResult } from "wallioai-kit/adapters";
+import { type BridgeStep } from "..";
 
 /**
  * Handles confirm order confirmation step
@@ -18,6 +18,9 @@ export function handleConfirmationStep(
   updateStep: (isExpired: boolean, step: BridgeStep) => void,
 ) {
   updateStep(false, "execution");
+  const isSameChain =
+    args.sourceChain.toLowerCase() == args.destinationChain.toLowerCase();
+
   const expiryMessage = wasExpired
     ? "⚠️ Your previous transaction has expired. Please review and confirm the updated transaction details."
     : "Note: This transaction will expire in 30 seconds if not confirmed.";
@@ -33,18 +36,18 @@ export function handleConfirmationStep(
         Transaction Details:
         Send: 
          - Amount: ${args.amount} ${preparedData.sourceToken.symbol.toUpperCase()}
-         - Usd Value: ${preparedData.amountInUsd} USD
+         ${!isSameChain && `- Usd Value: ${preparedData.amountInUsd} USD`}
          - Token: ${preparedData.sourceToken.address}
          - Network: ${args.sourceChain}
         Recieve: 
          - Amount: ${preparedData.takeAmountInUint} ${preparedData.destToken.symbol.toUpperCase()}
-         - Usd Value: ${preparedData.estTakeValueInUsd} USD
+         ${!isSameChain && `- Usd Value: ${preparedData.estTakeValueInUsd} USD`}
          - Token: ${preparedData.destToken.address}
          - Recipient: ${args.to}
          - Network: ${args.destinationChain}
         Fees: 
-         - Protocol Fee: ${preparedData.fees.fixedFee} ${preparedData.fees.symbol} + ${preparedData.fees.protocolFee} USD
-         - Includes 0.5% Wallio Fee
+        ${!isSameChain && `- Protocol Fee: ${preparedData.fees.fixedFee} ${preparedData.fees.symbol} + ${preparedData.fees.protocolFee} USD`} 
+         - Include 0.5% Wallio Fee
             
         ${!wasExpired ? expiryMessage : ""}
       `,

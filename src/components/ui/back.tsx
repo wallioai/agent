@@ -12,7 +12,7 @@ function BackButton() {
       type={"button"}
       variant={"ghost"}
       size={"icon"}
-      className="text-dark hover:bg-light"
+      className="text-dark hover:bg-light -translate-x-3"
       title="Back"
       onClick={() => router.back()}
     >

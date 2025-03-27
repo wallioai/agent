@@ -66,7 +66,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`hidden w-20 flex-col justify-between border-r bg-primary/5 py-5 sm:flex xl:w-60`}
+      className={`hidden w-20 flex-col justify-between border-r bg-primary/5 py-5 lg:flex xl:w-60`}
     >
       <div className="flex-1">
         <Icon className="mb-5 ml-5 size-10 rounded-sm" />

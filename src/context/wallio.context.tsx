@@ -14,41 +14,35 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useAppSelector } from "@/hooks/redux.hook";
+import { selectViewport } from "@/slices/viewport/viewport.slice";
 
 type WallioContextType = {
-  threadId?: string;
-  initialMessages: Chat[];
-  setFetchThreadChats: Dispatch<SetStateAction<boolean>>;
+  isMobile: boolean;
+  isAutoMode: boolean;
+  chatMode: boolean;
 };
 
 const WallioContext = createContext<WallioContextType | undefined>(undefined);
 
 export function WallioProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
-  const threadId = searchParams.get("chat");
+  const mode = searchParams.get("mode");
+  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const chatMode = useAppSelector(selectViewport);
 
-  const [fetchThreadChats, setFetchThreadChats] = useState<boolean>(false);
-
-  const { data } = useQuery({
-    queryKey: [QueryKey.Chats, threadId],
-    queryFn: async () => {
-      const res = await getChats(threadId);
-      if (res.status) {
-        return res.data;
-      }
-      return [];
-    },
-    enabled: !!threadId && fetchThreadChats,
-    staleTime: 0,
-  });
+  const isAutoMode = useMemo(() => {
+    return isMobile && mode == "auto";
+  }, [isMobile, mode]);
 
   const contextValue = useMemo(
     () => ({
-      threadId,
-      initialMessages: data ?? [],
-      setFetchThreadChats,
+      isMobile,
+      isAutoMode,
+      chatMode,
     }),
-    [setFetchThreadChats, data, threadId],
+    [isMobile, isAutoMode, chatMode],
   );
 
   return (
