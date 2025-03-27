@@ -1,7 +1,6 @@
 import { bsc } from "viem/chains";
 
 export const APP_CHAIN = bsc;
-export const RPC_URL = process.env.NEXT_PRIVATE_RPC_URL;
 export const RPC_ENDPOINT = process.env.NEXT_PUBLIC_RPC_ENDPOINT;
 export const DEFAULT_CHAIN_ID = process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID;
 
