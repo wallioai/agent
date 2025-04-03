@@ -82,7 +82,7 @@
     "tailwindcss-animate": "^1.0.7",
     "use-stick-to-bottom": "^1.0.46",
     "viem": "^2.23.15",
-    "wallioai-kit": "^0.0.3",
+    "wallioai-kit": "^0.0.4",
     "zod": "^3.24.2"
   },
   "devDependencies": {

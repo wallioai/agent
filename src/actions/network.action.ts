@@ -4,7 +4,7 @@ import { getApi } from "./api.action";
 import { apiRoutes } from "@/lib/routes";
 import { Token } from "@/db/repos/token.repo";
 import { Network } from "@/db/repos/network.repo";
-import { CoingeckoPlatformId } from "@/agent-actions/coingecko/constants";
+import { CoingeckoPlatformId } from "wallioai-kit/adapters";
 import axios from "axios";
 import { COINGECKO_API } from "@/config/env.config";
 
