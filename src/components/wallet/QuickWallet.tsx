@@ -112,6 +112,7 @@ function QuickWallet({
   align = "end",
 }: QuickWalletProps) {
   const router = useRouter();
+  
   const [open, setOpen] = useState<boolean>(false);
   const { push } = useEnhancedRouter();
   const { wallets, addAccount } = useAccount();

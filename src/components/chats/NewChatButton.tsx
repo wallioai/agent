@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button, buttonVariants } from "../ui/button";
 import { MessageCirclePlusIcon } from "lucide-react";
@@ -31,6 +31,10 @@ function NewChatButton({
 
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectOpen);
+
+  useEffect(() => {
+    router.prefetch(pathname);
+  }, [router]);
 
   const newChat = () => {
     onClick?.();

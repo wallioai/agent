@@ -18,7 +18,7 @@ export function EnhancedLink({
   onClick,
   ...props
 }: EnhancedLinkProps) {
-  const enhancedRouter = useEnhancedRouter();
+  const enhancedRouter = useEnhancedRouter();  
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {

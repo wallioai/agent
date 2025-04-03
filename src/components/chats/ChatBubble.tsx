@@ -6,7 +6,8 @@ import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { Icon } from "../icons/logo";
 import useClipBoard from "@/hooks/clipboard.hook";
 import { CheckCheckIcon, CopyIcon } from "lucide-react";
-import { EnhancedChatMarkdown } from "./ChatMarkdown";
+import { MarkdownContent } from "./ChatMarkdown";
+import Markdown from "markdown-to-jsx";
 
 type Props = {
   message: Message;
@@ -32,12 +33,12 @@ export default function ChatBubble({ message, aiImage }: Props) {
 
   return (
     <div
-      className={`flex flex-col py-2 ${
+      className={`flex w-full flex-col py-2 ${
         isOwnerMsg ? "items-end justify-end" : "items-start"
       }`}
     >
       <div
-        className="flex max-w-lg flex-col"
+        className="flex max-w-full sm:max-w-lg flex-col"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -46,29 +47,24 @@ export default function ChatBubble({ message, aiImage }: Props) {
             <div className="w-5">{isOwnerMsg && isHovered && <CopyItem />}</div>
           )}
           <div
-            className={`relative flex max-w-lg flex-1 px-4 space-x-2 py-2 break-words ${
-              isOwnerMsg ? "rounded-3xl bg-primary text-white" : "bg-primary/5 py-3 rounded-lg"
+            className={`relative flex max-w-full flex-1 space-x-2 px-4 py-2 ${
+              isOwnerMsg
+                ? "rounded-3xl bg-primary text-white"
+                : "rounded-lg bg-primary/5 py-3"
             }`}
-            style={{
-              wordWrap: "break-word",
-              overflowWrap: "break-word",
-              whiteSpace: "normal",
-            }}
           >
-            
-            <div className="inline-block w-full break-words select-text">
-              <EnhancedChatMarkdown id={message.id} content={message.content} />
+            <div className="w-full overflow-hidden">
+              <MarkdownContent
+                content={message.content}
+                isOwnerMsg={isOwnerMsg}
+              />
             </div>
-
-            {/* <p className="inline-block w-full break-words whitespace-pre-wrap select-text">
-              {message.content}
-            </p> */}
           </div>
         </div>
 
         <div className="flex h-5 items-center">
           {!isOwnerMsg && isHovered && (
-            <div className={"flex pl-3 mt-2"}>
+            <div className={"mt-2 flex pl-3"}>
               <CopyItem />
             </div>
           )}
